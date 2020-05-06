@@ -51,8 +51,8 @@ def train(network, dataset, indices, test_indices, test_accs, learning_rate, kap
         'There must be no backward connection from output to hidden neurons.'
     network.set_mode('train_ml')
 
-    num_samples_train = tables.open_file(dataset).root.stats.train[:][0]
-    S_prime = tables.open_file(dataset).root.stats.train[:][-1]
+    num_samples_train = dataset.root.stats.train[:][0]
+    S_prime = dataset.root.stats.train[:][-1]
 
     eligibility_trace_hidden = {parameter: network.gradients[parameter][network.hidden_neurons - network.n_input_neurons] for parameter in network.gradients}
     eligibility_trace_output = {parameter: network.gradients[parameter][network.output_neurons - network.n_input_neurons] for parameter in network.gradients}
@@ -62,16 +62,12 @@ def train(network, dataset, indices, test_indices, test_accs, learning_rate, kap
     baseline_num = {parameter: eligibility_trace_hidden[parameter].pow(2)*reward for parameter in eligibility_trace_hidden}
     baseline_den = {parameter: eligibility_trace_hidden[parameter].pow(2) for parameter in eligibility_trace_hidden}
 
-    dataset = tables.open_file(dataset)
-
     for j, sample_idx in enumerate(indices[start_idx:]):
         j += start_idx
         if test_accs:
             if (j + 1) in test_accs:
                 acc, _ = get_acc_and_loss(network, dataset, test_indices)
-                acc_train, _ = get_train_acc_and_loss(network, dataset)
                 test_accs[int(j + 1)].append(acc)
-                test_accs[int(j + 1)].append(acc_train)
 
                 print('test accuracy at ite %d: %f' % (int(j + 1), acc))
 
@@ -97,7 +93,6 @@ def train(network, dataset, indices, test_indices, test_accs, learning_rate, kap
             learning_rate /= 2
 
         if j % max(1, int(len(indices) / 5)) == 0:
-            print(torch.sum(network.feedforward_weights, dim=(-1, -2, -3, -4)))
             print('Sample %d out of %d' % (j + 1, len(indices)))
 
     dataset.close()
