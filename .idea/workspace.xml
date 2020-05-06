@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="dfa62879-5cdc-4603-a43e-18a18161e0c9" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/binary_snn/binary_exp.py" beforeDir="false" afterPath="$PROJECT_DIR$/binary_snn/binary_exp.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/launch_experiment.py" beforeDir="false" afterPath="$PROJECT_DIR$/launch_experiment.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -13,14 +13,35 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/launch_experiment.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="425">
-              <caret line="124" column="29" selection-start-line="124" selection-start-column="29" selection-end-line="124" selection-end-column="29" />
+            <state relative-caret-position="2008">
+              <caret line="154" column="24" selection-start-line="154" selection-start-column="24" selection-end-line="154" selection-end-column="24" />
               <folding>
                 <element signature="e#0#37#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/binary_snn/binary_exp.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="546">
+              <caret line="44" column="103" selection-start-line="44" selection-start-column="103" selection-end-line="44" selection-end-column="103" />
+              <folding>
+                <element signature="e#0#43#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/binary_snn/utils_binary/training_utils.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-644">
+              <caret line="4" column="44" selection-start-line="4" selection-start-column="44" selection-end-line="4" selection-end-column="44" />
             </state>
           </provider>
         </entry>
@@ -60,6 +81,7 @@
         <option value="$PROJECT_DIR$/data_preprocessing/misc.py" />
         <option value="$PROJECT_DIR$/local/multivalued/multivalued_test.py" />
         <option value="$PROJECT_DIR$/launch_experiment.py" />
+        <option value="$PROJECT_DIR$/binary_snn/binary_exp.py" />
       </list>
     </option>
   </component>
@@ -84,24 +106,12 @@
             <path>
               <item name="snn" type="b2602c69:ProjectViewProjectNode" />
               <item name="snn" type="462c0819:PsiDirectoryNode" />
+              <item name="binary_snn" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="snn" type="b2602c69:ProjectViewProjectNode" />
+              <item name="snn" type="462c0819:PsiDirectoryNode" />
               <item name="data_preprocessing" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="snn" type="b2602c69:ProjectViewProjectNode" />
-              <item name="snn" type="462c0819:PsiDirectoryNode" />
-              <item name="local" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="snn" type="b2602c69:ProjectViewProjectNode" />
-              <item name="snn" type="462c0819:PsiDirectoryNode" />
-              <item name="local" type="462c0819:PsiDirectoryNode" />
-              <item name="binary" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="snn" type="b2602c69:ProjectViewProjectNode" />
-              <item name="snn" type="462c0819:PsiDirectoryNode" />
-              <item name="local" type="462c0819:PsiDirectoryNode" />
-              <item name="multivalued" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="snn" type="b2602c69:ProjectViewProjectNode" />
@@ -154,13 +164,13 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="5349000" />
+    <option name="totallyTimeSpent" value="5625000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1912" y="-8" width="1936" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.25" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.25" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -174,7 +184,7 @@
       <window_info anchor="bottom" id="Version Control" order="8" />
       <window_info anchor="bottom" id="File Transfer" order="9" weight="0.32936078" />
       <window_info anchor="bottom" id="Database Changes" order="10" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="11" visible="true" weight="0.19068256" />
+      <window_info anchor="bottom" id="Terminal" order="11" visible="true" weight="0.19068256" />
       <window_info anchor="bottom" id="Python Console" order="12" />
       <window_info anchor="bottom" id="Event Log" order="13" side_tool="true" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -221,10 +231,27 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/launch_experiment.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="425">
-          <caret line="124" column="29" selection-start-line="124" selection-start-column="29" selection-end-line="124" selection-end-column="29" />
+        <state relative-caret-position="2008">
+          <caret line="154" column="24" selection-start-line="154" selection-start-column="24" selection-end-line="154" selection-end-column="24" />
           <folding>
             <element signature="e#0#37#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/binary_snn/utils_binary/training_utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-644">
+          <caret line="4" column="44" selection-start-line="4" selection-start-column="44" selection-end-line="4" selection-end-column="44" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/binary_snn/binary_exp.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="546">
+          <caret line="44" column="103" selection-start-line="44" selection-start-column="103" selection-end-line="44" selection-end-column="103" />
+          <folding>
+            <element signature="e#0#43#0" expanded="true" />
           </folding>
         </state>
       </provider>

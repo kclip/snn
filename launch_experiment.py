@@ -27,6 +27,7 @@ if __name__ == "__main__":
     parser.add_argument('--epochs', default=None, type=int, help='Number of samples to train on for each experiment')
     parser.add_argument('--num_samples_train', default=None, type=int, help='Number of samples to train on for each experiment')
     parser.add_argument('--num_samples_test', default=None, type=int, help='Number of samples to test on')
+    parser.add_argument('--test_period', default=1000, type=int, help='')
     parser.add_argument('--lr', default=0.005, type=float, help='Learning rate')
     parser.add_argument('--disable-cuda', type=str, default='true', help='Disable CUDA')
     parser.add_argument('--start_idx', type=int, default=0, help='When resuming training from existing weights, index to start over from')
@@ -109,8 +110,21 @@ elif args.dataset[:7] == 'swedish':
 else:
     print('Error: dataset not found')
 
-args.dataset = tables.open_file(dataset)
+# Save results and weights
+name = r'_' + args.model + r'%d_epochs_nh_%d' % (args.num_samples_train, args.n_h) + args.suffix
+args.save_path = os.getcwd() + r'/results/' + args.dataset + name + '.pkl'
+args.save_path_weights = os.getcwd() + r'/results/' + args.dataset + name + '_weights.hdf5'
 
+args.ite_test = np.arange(0, args.num_samples_train, args.test_period)
+
+if os.path.exists(args.save_path):
+    with open(args.save_path, 'rb') as f:
+        args.test_accs = pickle.load(f)
+else:
+    args.test_accs = {i: [] for i in args.ite_test}
+
+
+args.dataset = tables.open_file(dataset)
 
 args.disable_cuda = str2bool(args.disable_cuda)
 args.device = None
@@ -134,22 +148,11 @@ if not args.num_samples_test:
     args.num_samples_test = args.dataset.root.stats.test_data[0]
 
 
-# Save results and weights
-name = r'_' + args.model + r'%d_epochs_nh_%d' % (args.num_samples_train, args.n_hidden_neurons) + args.suffix
-args.save_path = os.getcwd() + r'/results/' + args.dataset + name + '.pkl'
-args.save_path_weights = os.getcwd() + r'/results/' + args.dataset + name + '_weights.hdf5'
-
-args.ite_test = np.arange(0, args.num_samples_train, args.test_period)
-
-if os.path.exists(args.save_path):
-    with open(args.save_path, 'rb') as f:
-        args.test_accs = pickle.load(f)
-else:
-    args.test_accs = {i: [] for i in args.ite_test}
-
-
 if args.topology_type == 'custom':
-    topology = torch.ones([args.n_hidden_neurons + args.n_output_neurons, args.n_input_neurons + args.n_hidden_neurons + args.n_output_neurons], dtype=torch.float)
+    args.topology = torch.ones([args.n_hidden_neurons + args.n_output_neurons, args.n_input_neurons + args.n_hidden_neurons + args.n_output_neurons], dtype=torch.float)
+    # Feel free to fill this with custom topologies
+else:
+    args.topology = None
     # Feel free to fill this with custom topologies
 
 for _ in range(args.num_ite):
