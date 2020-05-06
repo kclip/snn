@@ -22,7 +22,7 @@ if __name__ == "__main__":
     parser.add_argument('--where', default='local')
     parser.add_argument('--dataset')
     parser.add_argument('--weights', type=str, default=None, help='Path to weights to load')
-    parser.add_argument('--model', default='train_ml_online', help='Model type, either "binary", "WTA", or "autoregressive" (not in the main text)')
+    parser.add_argument('--model', default='train_ml_online', choices=['binary', 'wta'], help='Model type, either "binary" or "wta"')
     parser.add_argument('--num_ite', default=5, type=int, help='Number of times every experiment will be repeated')
     parser.add_argument('--epochs', default=None, type=int, help='Number of samples to train on for each experiment')
     parser.add_argument('--num_samples_train', default=None, type=int, help='Number of samples to train on for each experiment')
@@ -100,10 +100,10 @@ args.n_hidden_neurons = args.n_h
 
 ### Learning parameters
 if not args.num_samples_train:
-    args.num_samples_train = dataset.root.stats.train_data[0]
+    args.num_samples_train = args.dataset.root.stats.train_data[0]
 
 if not args.num_samples_test:
-    args.num_samples_test = dataset.root.stats.test_data[0]
+    args.num_samples_test = args.dataset.root.stats.test_data[0]
 
 
 # Save results and weights
