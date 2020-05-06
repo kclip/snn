@@ -1,4 +1,6 @@
 import numpy as np
+import tables
+
 
 def make_output(label, pattern, num_labels, alphabet_size, S_prime):
     if alphabet_size ==1:

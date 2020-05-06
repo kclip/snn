@@ -22,7 +22,7 @@ if __name__ == "__main__":
     parser.add_argument('--where', default='local')
     parser.add_argument('--dataset')
     parser.add_argument('--weights', type=str, default=None, help='Path to weights to load')
-    parser.add_argument('--model', default='train_ml_online', help='Model type, either "binary", "WTA", or "autoregressive" (not in the main text)')
+    parser.add_argument('--model', default='binary', choices=['binary', 'wta'], help='Model type, either "binary" or "wta"')
     parser.add_argument('--num_ite', default=5, type=int, help='Number of times every experiment will be repeated')
     parser.add_argument('--epochs', default=None, type=int, help='Number of samples to train on for each experiment')
     parser.add_argument('--num_samples_train', default=None, type=int, help='Number of samples to train on for each experiment')
@@ -68,16 +68,44 @@ if __name__ == "__main__":
 
 print(args)
 
-local_data_path = r'/path/to/datasets'
+if args.where == 'local':
+    data_path = r'C:/Users/K1804053/PycharmProjects/datasets/'
+elif args.where == 'distant':
+    data_path = r'/users/k1804053/datasets/'
+elif args.where == 'gcloud':
+    data_path = r'/home/k1804053/datasets/'
+
+save_path = os.getcwd() + r'/results'
+
+datasets = {'mnist_dvs_2': r'mnist_dvs_25ms_26pxl_2_digits_polarity.hdf5',
+            'mnist_dvs_10_binary': r'mnist_dvs_binary_25ms_26pxl_10_digits.hdf5',
+            'mnist_dvs_10': r'mnist_dvs_25ms_26pxl_10_digits_polarity.hdf5',
+            'mnist_dvs_10_c_3': r'mnist_dvs_25ms_26pxl_10_digits_C_3.hdf5',
+            'mnist_dvs_10_c_5': r'mnist_dvs_25ms_26pxl_10_digits_C_5.hdf5',
+            'mnist_dvs_10_c_7': r'mnist_dvs_25ms_26pxl_10_digits_C_7.hdf5',
+            'mnist_dvs_10ms_polarity': r'mnist_dvs_10ms_26pxl_10_digits_polarity.hdf5',
+            'dvs_gesture_5ms': r'dvs_gesture_5ms_11_classes.hdf5',
+            'dvs_gesture_5ms_5_classes': r'dvs_gesture_5ms_5_classes.hdf5',
+            'dvs_gesture_20ms_2_classes': r'dvs_gesture_20ms_2_classes.hdf5',
+            'dvs_gesture_5ms_2_classes': r'dvs_gesture_5ms_2_classes.hdf5',
+            'dvs_gesture_5ms_3_classes': r'dvs_gesture_5ms_3_classes.hdf5',
+            'dvs_gesture_15ms': r'dvs_gesture_15ms_11_classes.hdf5',
+            'dvs_gesture_20ms': r'dvs_gesture_20ms_11_classes.hdf5',
+            'dvs_gesture_30ms': r'dvs_gesture_30ms_11_classes.hdf5',
+            'dvs_gesture_20ms_5_classes': r'dvs_gesture_20ms_5_classes.hdf5',
+            'dvs_gesture_1ms': r'dvs_gesture_1ms_11_classes.hdf5',
+            'shd_eng_c_2': r'shd_10ms_10_classes_eng_C_2.hdf5',
+            'shd_all_c_2': r'shd_10ms_10_classes_all_C_2.hdf5'
+            }
 
 if args.dataset[:3] == 'shd':
-    dataset = local_data_path + r'/shd/' + args.dataset
+    dataset = data_path + r'/shd/' + datasets[args.dataset]
 elif args.dataset[:5] == 'mnist':
-    dataset = local_data_path + r'/mnist-dvs/' + args.dataset
+    dataset = data_path + r'/mnist-dvs/' + datasets[args.dataset]
 elif args.dataset[:11] == 'dvs_gesture':
-    dataset = local_data_path + r'/DvsGesture/' + args.dataset
+    dataset = data_path + r'/DvsGesture/' + datasets[args.dataset]
 elif args.dataset[:7] == 'swedish':
-    dataset = local_data_path + r'/SwedishLeaf_processed/' + args.dataset
+    dataset = data_path + r'/SwedishLeaf_processed/' + datasets[args.dataset]
 else:
     print('Error: dataset not found')
 
@@ -100,10 +128,10 @@ args.n_hidden_neurons = args.n_h
 
 ### Learning parameters
 if not args.num_samples_train:
-    args.num_samples_train = dataset.root.stats.train_data[0]
+    args.num_samples_train = args.dataset.root.stats.train_data[0]
 
 if not args.num_samples_test:
-    args.num_samples_test = dataset.root.stats.test_data[0]
+    args.num_samples_test = args.dataset.root.stats.test_data[0]
 
 
 # Save results and weights
