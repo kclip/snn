@@ -121,8 +121,8 @@ else:
 
 
 ### Network parameters
-args.n_input_neurons = dataset.root.stats.train_data[1]
-args.n_output_neurons = dataset.root.stats.train_label[1]
+args.n_input_neurons = args.dataset.root.stats.train_data[1]
+args.n_output_neurons = args.dataset.root.stats.train_label[1]
 args.n_hidden_neurons = args.n_h
 
 
