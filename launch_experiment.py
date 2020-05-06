@@ -70,43 +70,20 @@ if __name__ == "__main__":
 print(args)
 
 if args.where == 'local':
-    data_path = r'C:/Users/K1804053/PycharmProjects/datasets/'
+    data_path = r'path/to/loca/datasets/'
 elif args.where == 'distant':
-    data_path = r'/users/k1804053/datasets/'
-elif args.where == 'gcloud':
-    data_path = r'/home/k1804053/datasets/'
+    data_path = r'/path/to/distant/datasets/' # when using distant work stations
 
 save_path = os.getcwd() + r'/results'
 
-datasets = {'mnist_dvs_2': r'mnist_dvs_25ms_26pxl_2_digits_polarity.hdf5',
-            'mnist_dvs_10_binary': r'mnist_dvs_binary_25ms_26pxl_10_digits.hdf5',
-            'mnist_dvs_10': r'mnist_dvs_25ms_26pxl_10_digits_polarity.hdf5',
-            'mnist_dvs_10_c_3': r'mnist_dvs_25ms_26pxl_10_digits_C_3.hdf5',
-            'mnist_dvs_10_c_5': r'mnist_dvs_25ms_26pxl_10_digits_C_5.hdf5',
-            'mnist_dvs_10_c_7': r'mnist_dvs_25ms_26pxl_10_digits_C_7.hdf5',
-            'mnist_dvs_10ms_polarity': r'mnist_dvs_10ms_26pxl_10_digits_polarity.hdf5',
-            'dvs_gesture_5ms': r'dvs_gesture_5ms_11_classes.hdf5',
-            'dvs_gesture_5ms_5_classes': r'dvs_gesture_5ms_5_classes.hdf5',
-            'dvs_gesture_20ms_2_classes': r'dvs_gesture_20ms_2_classes.hdf5',
-            'dvs_gesture_5ms_2_classes': r'dvs_gesture_5ms_2_classes.hdf5',
-            'dvs_gesture_5ms_3_classes': r'dvs_gesture_5ms_3_classes.hdf5',
-            'dvs_gesture_15ms': r'dvs_gesture_15ms_11_classes.hdf5',
-            'dvs_gesture_20ms': r'dvs_gesture_20ms_11_classes.hdf5',
-            'dvs_gesture_30ms': r'dvs_gesture_30ms_11_classes.hdf5',
-            'dvs_gesture_20ms_5_classes': r'dvs_gesture_20ms_5_classes.hdf5',
-            'dvs_gesture_1ms': r'dvs_gesture_1ms_11_classes.hdf5',
-            'shd_eng_c_2': r'shd_10ms_10_classes_eng_C_2.hdf5',
-            'shd_all_c_2': r'shd_10ms_10_classes_all_C_2.hdf5'
-            }
-
 if args.dataset[:3] == 'shd':
-    dataset = data_path + r'/shd/' + datasets[args.dataset]
+    dataset = data_path + r'/shd/' + args.dataset
 elif args.dataset[:5] == 'mnist':
-    dataset = data_path + r'/mnist-dvs/' + datasets[args.dataset]
+    dataset = data_path + r'/mnist-dvs/' + args.dataset
 elif args.dataset[:11] == 'dvs_gesture':
-    dataset = data_path + r'/DvsGesture/' + datasets[args.dataset]
+    dataset = data_path + r'/DvsGesture/' + args.dataset
 elif args.dataset[:7] == 'swedish':
-    dataset = data_path + r'/SwedishLeaf_processed/' + datasets[args.dataset]
+    dataset = data_path + r'/SwedishLeaf_processed/' + args.dataset
 else:
     print('Error: dataset not found')
 
