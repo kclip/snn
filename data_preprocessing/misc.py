@@ -36,3 +36,4 @@ def make_stats_group(hdf5_file):
     train_label_stats_array = hdf5_file.create_array(where=hdf5_file.root.stats, name='train_label', atom=tables.Atom.from_dtype(np.dtype('int')), obj=train_label_shape)
     test_data_stats_array = hdf5_file.create_array(where=hdf5_file.root.stats, name='test_data', atom=tables.Atom.from_dtype(np.dtype('int')), obj=test_data_shape)
     test_label_stats_array = hdf5_file.create_array(where=hdf5_file.root.stats, name='test_label', atom=tables.Atom.from_dtype(np.dtype('int')), obj=test_label_shape)
+
