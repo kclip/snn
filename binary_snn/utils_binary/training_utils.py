@@ -1,6 +1,7 @@
 import torch
 import pickle
-from binary_snn.utils_binary.misc import refractory_period, get_acc_and_loss
+from binary_snn.utils_binary.misc import refractory_period, get_acc_and_loss, get_train_acc_and_loss
+
 
 def feedforward_sampling(network, example, alpha, r):
     """"
@@ -19,6 +20,7 @@ def feedforward_sampling(network, example, alpha, r):
           + (1 - network.spiking_history[network.hidden_neurons, -1]) * torch.log(1e-12 + (1. - proba_hidden) / (1 - r)))
 
     return log_proba, ls
+
 
 def local_feedback_and_update(network, ls_tmp, eligibility_trace_hidden, eligibility_trace_output,
                               learning_signal, baseline_num, baseline_den, learning_rate, beta, kappa):
@@ -49,7 +51,7 @@ def local_feedback_and_update(network, ls_tmp, eligibility_trace_hidden, eligibi
     return eligibility_trace_hidden, eligibility_trace_output, learning_signal, baseline_num, baseline_den
 
 
-def train(network, dataset, indices, test_indices, test_accs, learning_rate, alpha, beta, kappa, r, start_idx, save_path=None):
+def train(network, dataset, indices, test_indices, test_accs, learning_rate, alpha, beta, kappa, r, start_idx, args, save_path=None):
     """"
     Train a network.
     """
@@ -77,6 +79,9 @@ def train(network, dataset, indices, test_indices, test_accs, learning_rate, alp
                 acc, loss = get_acc_and_loss(network, dataset, test_indices)
                 test_accs[int(j + 1)].append(acc)
                 print('test accuracy at ite %d: %f' % (int(j + 1), acc))
+
+                acc_train, _ = get_train_acc_and_loss(network, dataset, args.labels)
+                print('train accuracy at ite %d: %f' % (int(j + 1), acc_train))
 
                 if save_path is not None:
                     with open(save_path, 'wb') as f:

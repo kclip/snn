@@ -1,5 +1,5 @@
-from models.SNN import SNNetwork
-from data_preprocessing import misc
+from binary_snn.models.SNN import SNNetwork
+from binary_snn.utils_binary import misc
 import torch
 import argparse
 import os
@@ -135,6 +135,8 @@ topology[:n_hidden, :n_inputs] = 1
 topology[:n_hidden, n_inputs:(n_inputs + n_hidden)] = 1
 n_layers = 1
 
+print(topology)
+
 # n_layers = 2
 # n_neurons_per_layer = n_hidden // n_layers
 #
@@ -150,8 +152,9 @@ n_layers = 1
 # topology[-n_outputs:, n_inputs:-n_outputs] = 1
 
 
-network = SNNetwork(**misc.make_network_parameters(n_inputs, n_outputs, n_hidden, topology_type='custom', topology=topology, initialization='glorot', weights_magnitude=0.05), device=args.device)
+network = SNNetwork(**misc.make_network_parameters(n_inputs, n_outputs, n_hidden, topology_type='custom', topology=topology, initialization='glorot', weights_magnitude=2.), device=args.device)
 # network.import_weights(os.getcwd() + r'/results/toy_task_weights.hdf5')
+print(torch.mean(torch.abs(network.get_parameters()['ff_weights']), dim=-1))
 
 network.set_mode('train')
 

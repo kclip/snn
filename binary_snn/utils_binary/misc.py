@@ -2,6 +2,7 @@ import torch
 import numpy as np
 import utils.filters as filters
 import pickle
+from binary_snn.utils_binary import misc
 
 
 def find_train_indices_for_labels(dataset, labels):
@@ -123,6 +124,41 @@ def get_acc_and_loss(network, dataset, test_indices):
     acc = float(torch.sum(predictions == true_classes, dtype=torch.float) / len(predictions))
 
     return acc, loss
+
+
+def get_train_acc_and_loss(network, dataset, labels):
+    """"
+    Compute loss and accuracy on the indices from the dataset precised as arguments
+    """
+    network.set_mode('test')
+    network.reset_internal_state()
+
+    S_prime = dataset.root.test.label[:].shape[-1]
+
+    indices = misc.find_train_indices_for_labels(dataset, labels)
+    outputs = torch.zeros([len(indices), network.n_output_neurons, S_prime])
+    loss = 0
+
+    rec = torch.zeros([network.n_learnable_neurons, S_prime])
+
+    for j, sample_idx in enumerate(indices):
+        refractory_period(network)
+
+        sample = torch.FloatTensor(dataset.root.train.data[sample_idx])
+
+        for s in range(S_prime):
+            log_proba = network(sample[:, s])
+            loss += torch.sum(log_proba).numpy()
+            outputs[j, :, s] = network.spiking_history[network.output_neurons, -1]
+            rec[:, s] = network.spiking_history[network.learnable_neurons, -1]
+
+    predictions = torch.max(torch.sum(outputs, dim=-1), dim=-1).indices
+    true_classes = torch.max(torch.sum(torch.FloatTensor(dataset.root.train.label[:][indices]), dim=-1), dim=-1).indices
+    acc = float(torch.sum(predictions == true_classes, dtype=torch.float) / len(predictions))
+
+    return acc, loss
+
+
 
 def save_results(results, save_path):
     with open(save_path, 'wb') as f:

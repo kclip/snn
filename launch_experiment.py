@@ -117,11 +117,11 @@ args.save_path_weights = os.getcwd() + r'/results/' + args.dataset + name + '_we
 
 args.ite_test = np.arange(0, args.num_samples_train, args.test_period)
 
-if os.path.exists(args.save_path):
-    with open(args.save_path, 'rb') as f:
-        args.test_accs = pickle.load(f)
-else:
-    args.test_accs = {i: [] for i in args.ite_test}
+# if os.path.exists(args.save_path):
+#     with open(args.save_path, 'rb') as f:
+#         args.test_accs = pickle.load(f)
+# else:
+args.test_accs = {i: [] for i in args.ite_test}
 
 
 args.dataset = tables.open_file(dataset)
@@ -149,8 +149,13 @@ if not args.num_samples_test:
 
 
 if args.topology_type == 'custom':
-    args.topology = torch.ones([args.n_hidden_neurons + args.n_output_neurons, args.n_input_neurons + args.n_hidden_neurons + args.n_output_neurons], dtype=torch.float)
-    # Feel free to fill this with custom topologies
+    args.topology = torch.zeros([args.n_hidden_neurons + args.n_output_neurons,
+                                 args.n_input_neurons + args.n_hidden_neurons + args.n_output_neurons])
+    args.topology[-args.n_output_neurons:, args.n_input_neurons:-args.n_output_neurons] = 1
+    args.topology[:args.n_hidden_neurons, :(args.n_input_neurons + args.n_hidden_neurons)] = 1
+
+    print(args.topology)
+
 else:
     args.topology = None
     # Feel free to fill this with custom topologies

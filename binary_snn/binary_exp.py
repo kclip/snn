@@ -29,8 +29,7 @@ def launch_binary_exp(args):
     # Select training and test examples from subset of labels if specified
     if args.labels is not None:
         print(args.labels)
-        num_samples_train = min(args.num_samples_train, len(misc.find_test_indices_for_labels(args.dataset, args.labels)))
-        indices = np.random.choice(misc.find_train_indices_for_labels(args.dataset, args.labels), [num_samples_train], replace=True)
+        indices = np.random.choice(misc.find_train_indices_for_labels(args.dataset, args.labels), [args.num_samples_train], replace=True)
         num_samples_test = min(args.num_samples_test, len(misc.find_test_indices_for_labels(args.dataset, args.labels)))
         test_indices = np.random.choice(misc.find_test_indices_for_labels(args.dataset, args.labels), [num_samples_test], replace=False)
     else:
@@ -42,6 +41,7 @@ def launch_binary_exp(args):
         network.import_weights(args.weights)
 
     # Start training
-    test_accs = train(network, args.dataset, indices, test_indices, args.test_accs, args.lr, args.gamma, args.beta, args.kappa, args.r, args.start_idx, args.save_path)
+    test_accs = train(network, args.dataset, indices, test_indices, args.test_accs, args.lr / args.n_hidden_neurons, args.gamma, args.beta, args.kappa,
+                      args.r, args.start_idx, args, args.save_path)
 
     return test_accs
