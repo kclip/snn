@@ -1,6 +1,6 @@
-from models.SNN import SNNetwork
+from binary_snn.models.SNN import SNNetwork
 import pickle
-from data_preprocessing import misc
+from binary_snn.utils_binary import misc
 import torch
 import argparse
 import os
@@ -40,7 +40,7 @@ if __name__ == "__main__":
     parser.add_argument('--beta', default=0.05, type=float, help='Baseline decay factor')
     parser.add_argument('--beta_2', default=0.999, type=float)
     parser.add_argument('--gamma', default=1., type=float, help='KL regularization factor')
-    parser.add_argument('--r', default=0.5, type=float, help='Desired spiking sparsity of the hidden neurons')
+    parser.add_argument('--r', default=0.3, type=float, help='Desired spiking sparsity of the hidden neurons')
     parser.add_argument('--disable-cuda', type=str, default='true', help='Disable CUDA')
     parser.add_argument('--start_idx', type=int, default=0)
     parser.add_argument('--suffix', type=str, default='', help='')
@@ -60,16 +60,22 @@ else:
 
 print(args.disable_cuda)
 
-dataset = torch.bernoulli(torch.ones([1000, 4, 80]) * 0.5)
+dataset = torch.bernoulli(torch.ones([1000, 2, 80]) * 0.5)
+systematic = False
 
 ### Network parameters
 n_inputs_enc = dataset.shape[1]
-n_outputs_enc = 0
-n_hidden_enc = 0 + n_inputs_enc
+n_outputs_enc = dataset.shape[1]
+n_hidden_enc = 2
 
-n_inputs_dec = n_inputs_enc
+if systematic:
+    n_transmitted = n_inputs_enc + n_outputs_enc
+else:
+    n_transmitted = n_outputs_enc
+
+n_inputs_dec = n_transmitted
 n_outputs_dec = n_inputs_enc
-n_hidden_dec = 0
+n_hidden_dec = 2
 
 ### Learning parameters
 if args.num_samples:
@@ -82,7 +88,7 @@ if args.num_samples_test:
 else:
     num_samples_test = dataset.shape[0]
 
-learning_rate = args.lr / (n_hidden_dec + n_hidden_enc)
+learning_rate = args.lr
 kappa = args.kappa
 alpha = args.alpha
 beta = args.beta
@@ -92,7 +98,7 @@ r = args.r
 num_ite = args.num_ite
 
 # Test parameters
-ite_test = [50, 100, 200, 300, 400, 500, 800, 1000, 2000, 3000, 4000, 5000, 7500, 10000]
+ite_test = [50, 100, 500,1000, 2000, 3000, 4000, 5000, 7500, 10000]
 
 name = r'_%d_epochs_nh_%d' % (num_samples_train, n_hidden_dec) + args.suffix
 save_path = os.getcwd() + r'/results/' + 'toy_example' + name + '.pkl'
@@ -115,7 +121,7 @@ def channel(channel_input, device, noise_level):
     return channel_output.round()
 
 
-def get_acc(encoder, decoder, dataset, test_indices, noise_level):
+def get_acc(encoder, decoder, dataset, test_indices, noise_level, n_layers, systematic):
     """"
     Compute loss and accuracy on the indices from the dataset precised as arguments
     """
@@ -137,7 +143,12 @@ def get_acc(encoder, decoder, dataset, test_indices, noise_level):
 
         for s in range(S_prime):
             _ = encoder(sample_enc[:, s])
-            decoder_input = channel(encoder.spiking_history[encoder.hidden_neurons[-n_outputs_enc:], -1], decoder.device, noise_level).to(decoder.device)
+            # decoder_input = channel(encoder.spiking_history[encoder.hidden_neurons[-n_outputs_enc:], -1], decoder.device, noise_level).to(decoder.device)
+
+            if systematic:
+                decoder_input = torch.cat((sample_enc[:, s], encoder.spiking_history[encoder.hidden_neurons[-n_outputs_enc:], -1]))
+            else:
+                decoder_input = encoder.spiking_history[encoder.hidden_neurons[-n_outputs_enc:], -1]
 
             _ = decoder(decoder_input)
             outputs[j, :, s] = decoder.spiking_history[decoder.output_neurons, -1]
@@ -148,17 +159,36 @@ def get_acc(encoder, decoder, dataset, test_indices, noise_level):
 
         # print(torch.sum(hidden_hist[:encoder.n_hidden_neurons], dim=-1))
         # print(torch.sum(hidden_hist[encoder.n_hidden_neurons:], dim=-1))
-        print(outputs[j, :, :5])
-        print(dataset[sample_idx, :, :5])
-        print('//////////////////////////////////////////////////////////')
 
-    acc = float(torch.sum(outputs[:, :, 1:] == dataset[test_indices, :, :-1])) / dataset[test_indices].numel()
+    acc = float(torch.sum(outputs[:, :, (1 + n_layers):] == dataset[test_indices, :, :-(1 + n_layers)])) / dataset[test_indices].numel()
 
     return acc
 
 
-encoder = SNNetwork(**misc.make_network_parameters(n_inputs_enc, 0, n_hidden_enc), device=args.device)
+topology_enc = torch.zeros([n_hidden_enc + n_outputs_enc, n_inputs_enc + n_hidden_enc + n_outputs_enc])
+topology_enc[-n_outputs_enc:, n_inputs_enc:-n_outputs_enc] = 1
+topology_enc[:n_hidden_enc, :(n_inputs_enc + n_hidden_enc)] = 1
+# topology_enc[:n_outputs_enc, :(n_inputs_enc + n_hidden_enc)] = 1
+
+
+topology_dec = torch.zeros([n_hidden_dec + n_outputs_dec, n_inputs_dec + n_hidden_dec + n_outputs_dec])
+topology_dec[-n_outputs_dec:, n_inputs_dec:-n_outputs_dec] = 1
+topology_dec[:n_hidden_dec, :(n_inputs_dec + n_hidden_dec)] = 1
+
+
+print('///')
+print(topology_enc)
+print(topology_dec)
+print('////')
+
+n_layers = 1
+
+
+# encoder = SNNetwork(**misc.make_network_parameters(n_inputs_enc, 0, n_hidden_enc + n_outputs_enc, topology_type='custom', topology=topology_enc), device=args.device)
+# decoder = SNNetwork(**misc.make_network_parameters(n_inputs_dec, n_outputs_dec, n_hidden_dec, topology_type='custom', topology=topology_dec), device=args.device)
+encoder = SNNetwork(**misc.make_network_parameters(n_inputs_enc, 0, n_hidden_enc + n_outputs_enc, topology_type='fully_connected'), device=args.device)
 decoder = SNNetwork(**misc.make_network_parameters(n_inputs_dec, n_outputs_dec, n_hidden_dec, topology_type='fully_connected'), device=args.device)
+
 
 encoder.set_mode('train')
 decoder.set_mode('train')
@@ -180,12 +210,12 @@ noise_level = 0.
 
 
 for j, sample_idx in enumerate(indices):
-    if (j + 1) % dataset.shape[0] == 0:
-        learning_rate /= 2
+    # if (j + 1) % dataset.shape[0] == 0:
+    #     learning_rate /= 2
 
     if test_accs:
         if (j + 1) in test_accs:
-            acc = get_acc(encoder, decoder, dataset, test_indices, noise_level)
+            acc = get_acc(encoder, decoder, dataset, test_indices, noise_level, n_layers, systematic)
             test_accs[int(j + 1)].append(acc)
             print('test accuracy at ite %d: %f' % (int(j + 1), acc))
 
@@ -196,7 +226,7 @@ for j, sample_idx in enumerate(indices):
     misc.refractory_period(decoder)
 
     sample_enc = dataset[sample_idx].to(encoder.device)
-    output_dec = torch.cat((torch.zeros([dataset.shape[1], 1]), dataset[sample_idx, :, :-1]), dim=-1).to(decoder.device)
+    output_dec = torch.cat((torch.zeros([dataset.shape[1], 1 + n_layers]), dataset[sample_idx, :, :-(1 + n_layers)]), dim=-1).to(decoder.device)
 
     for s in range(S_prime):
         # Feedforward sampling encoder
@@ -205,22 +235,25 @@ for j, sample_idx in enumerate(indices):
 
         # pass the channel
         # decoder_input = channel(encoder.spiking_history[encoder.hidden_neurons, -1], decoder.device, noise_level).to(decoder.device)
-        decoder_input = encoder.spiking_history[encoder.hidden_neurons, -1]
+        if systematic:
+            decoder_input = torch.cat((sample_enc[:, s], encoder.spiking_history[encoder.hidden_neurons[-n_outputs_enc:], -1]))
+        else:
+            decoder_input = encoder.spiking_history[encoder.hidden_neurons[-n_outputs_enc:], -1]
 
         sample_dec = torch.cat((decoder_input, output_dec[:, s]), dim=0)
 
         log_proba_dec = decoder(sample_dec)
         proba_hidden_dec = torch.sigmoid(decoder.potential[decoder.hidden_neurons - decoder.n_input_neurons])
 
-        # ls_tmp = torch.sum(log_proba_dec[decoder.output_neurons - decoder.n_input_neurons]) \
-        #      - alpha * torch.sum(torch.cat((encoder.spiking_history[encoder.hidden_neurons, -1], decoder.spiking_history[decoder.hidden_neurons, -1]))
-        #                          * torch.log(1e-12 + torch.cat((proba_hidden_enc, proba_hidden_dec)) / r)
-        #                          + (1 - torch.cat((encoder.spiking_history[encoder.hidden_neurons, -1], decoder.spiking_history[decoder.hidden_neurons, -1])))
-        #                             * torch.log(1e-12 + (1. - torch.cat((proba_hidden_enc, proba_hidden_dec))) / (1 - r)))
-
         ls_tmp = torch.sum(log_proba_dec[decoder.output_neurons - decoder.n_input_neurons]) \
-             - alpha * torch.sum(encoder.spiking_history[encoder.hidden_neurons, -1]* torch.log(1e-12 + proba_hidden_enc / r)
-                                 + (1 - encoder.spiking_history[encoder.hidden_neurons, -1]) * torch.log(1e-12 + (1. - proba_hidden_enc) / (1 - r)))
+             - alpha * torch.sum(torch.cat((encoder.spiking_history[encoder.hidden_neurons, -1], decoder.spiking_history[decoder.hidden_neurons, -1]))
+                                 * torch.log(1e-12 + torch.cat((proba_hidden_enc, proba_hidden_dec)) / r)
+                                 + (1 - torch.cat((encoder.spiking_history[encoder.hidden_neurons, -1], decoder.spiking_history[decoder.hidden_neurons, -1])))
+                                    * torch.log(1e-12 + (1. - torch.cat((proba_hidden_enc, proba_hidden_dec))) / (1 - r)))
+
+        # ls_tmp = torch.sum(log_proba_dec[decoder.output_neurons - decoder.n_input_neurons]) \
+        #      - alpha * torch.sum(encoder.spiking_history[encoder.hidden_neurons, -1]* torch.log(1e-12 + proba_hidden_enc / r)
+        #                          + (1 - encoder.spiking_history[encoder.hidden_neurons, -1]) * torch.log(1e-12 + (1. - proba_hidden_enc) / (1 - r)))
 
         # Local feedback and update
         learning_signal = kappa * learning_signal + (1 - kappa) * ls_tmp

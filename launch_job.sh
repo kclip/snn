@@ -4,4 +4,4 @@
 #SBATCH --mem-per-cpu=8GB
 #SBATCH --partition=nms_research
 
-python /users/k1804053/snn/launch_experiment.py --where=distant --dataset=mnist_dvs_10_binary --n_h=128 --num_samples_train=35000 --test_period=5000 --num_ite=1 --suffix=_1
+python /users/k1804053/snn/launch_experiment.py --where=distant --dataset=mnist_dvs_10_binary --n_h=64 --num_samples_train=200000 --test_period=5000 --num_ite=1 --suffix=_1 --topology_type=custom

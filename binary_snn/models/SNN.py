@@ -157,7 +157,7 @@ class SNNetwork(torch.nn.Module):
             std = torch.tensor([torch.sqrt(torch.tensor(2.)) / ((torch.sum(topology[:, i]) + torch.sum(topology[i, :])) * self.n_basis_feedforward) for i in range(self.n_learnable_neurons)]).flatten()
             std = std.unsqueeze(1).unsqueeze(2).repeat(1, self.n_neurons, self.n_basis_feedforward)
             assert std.shape == torch.Size([self.n_learnable_neurons, self.n_neurons, self.n_basis_feedforward])
-            self.feedforward_weights = (torch.normal(-gain * std, std).to(self.device) * self.feedforward_mask)
+            self.feedforward_weights = (torch.normal(gain * std, std).to(self.device) * self.feedforward_mask)
         elif howto == 'uniform':
             self.feedforward_weights = (gain * (torch.rand(torch.Size([self.n_learnable_neurons, self.n_neurons, self.n_basis_feedforward])) * 2 - 1).to(self.device) * self.feedforward_mask)
 

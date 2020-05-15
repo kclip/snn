@@ -70,7 +70,7 @@ def train(network, dataset, indices, test_indices, test_accs, learning_rate, alp
 
     for j, sample_idx in enumerate(indices[start_idx:]):
         j += start_idx
-        if (j + 1) % dataset.root.train.data[:].shape[0] == 0:
+        if (j + 1) % 5 * (dataset.root.train.data[:].shape[0]) == 0:
             learning_rate /= 2
 
         # Regularly test the accuracy
@@ -80,8 +80,8 @@ def train(network, dataset, indices, test_indices, test_accs, learning_rate, alp
                 test_accs[int(j + 1)].append(acc)
                 print('test accuracy at ite %d: %f' % (int(j + 1), acc))
 
-                acc_train, _ = get_train_acc_and_loss(network, dataset, args.labels)
-                print('train accuracy at ite %d: %f' % (int(j + 1), acc_train))
+                # acc_train, _ = get_train_acc_and_loss(network, dataset, args.labels)
+                # print('train accuracy at ite %d: %f' % (int(j + 1), acc_train))
 
                 if save_path is not None:
                     with open(save_path, 'wb') as f:
