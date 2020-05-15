@@ -156,12 +156,20 @@ def make_mnist_dvs(path_to_data, path_to_hdf5, digits, max_pxl_value, min_pxl_va
     hdf5_file = tables.open_file(path_to_hdf5, 'w')
 
     train = hdf5_file.create_group(where=hdf5_file.root, name='train')
-    train_data = hdf5_file.create_earray(where=hdf5_file.root.train, name='data', atom=tables.BoolAtom(), shape=(0, (1 + polarity)*(max_pxl_value - min_pxl_value + 1)**2, S_prime))
-    train_labels = hdf5_file.create_earray(where=hdf5_file.root.train, name='label', atom=tables.BoolAtom(), shape=(0, len(digits), S_prime))
+
+    if alphabet_size == 1:
+        data_shape = (0, (1 + polarity)*(max_pxl_value - min_pxl_value + 1)**2, S_prime)
+        label_shape = (0, len(digits), S_prime)
+    else:
+        data_shape = (0, (max_pxl_value - min_pxl_value + 1)**2, alphabet_size, S_prime)
+        label_shape = (0, len(digits), alphabet_size, S_prime)
+
+    train_data = hdf5_file.create_earray(where=hdf5_file.root.train, name='data', atom=tables.BoolAtom(), shape=data_shape)
+    train_labels = hdf5_file.create_earray(where=hdf5_file.root.train, name='label', atom=tables.BoolAtom(), shape=label_shape)
 
     test = hdf5_file.create_group(where=hdf5_file.root, name='test')
-    test_data = hdf5_file.create_earray(where=hdf5_file.root.test, name='data', atom=tables.BoolAtom(), shape=(0, (1 + polarity)*(max_pxl_value - min_pxl_value + 1)**2, S_prime))
-    test_labels = hdf5_file.create_earray(where=hdf5_file.root.test, name='label', atom=tables.BoolAtom(), shape=(0, len(digits), S_prime))
+    test_data = hdf5_file.create_earray(where=hdf5_file.root.test, name='data', atom=tables.BoolAtom(), shape=data_shape)
+    test_labels = hdf5_file.create_earray(where=hdf5_file.root.test, name='label', atom=tables.BoolAtom(), shape=label_shape)
 
 
     for i, digit in enumerate(digits):
@@ -174,8 +182,10 @@ def make_mnist_dvs(path_to_data, path_to_hdf5, digits, max_pxl_value, min_pxl_va
                             for j, file in enumerate(glob.glob(subdir + r'/*.aedat')):
                                 if j < 0.9*len(glob.glob(subdir + r'/*.aedat')):
                                     print('train', file)
-                                    train_data.append(load_dvs(file, S_prime, min_pxl_value=min_pxl_value, max_pxl_value=max_pxl_value,
-                                                               window_length=window_length, polarity=polarity))
+                                    tmp = load_dvs(file, S_prime, min_pxl_value=min_pxl_value, max_pxl_value=max_pxl_value, window_length=window_length, polarity=polarity)
+                                    print(tmp.shape, data_shape)
+
+                                    train_data.append(tmp)
                                     train_labels.append(output_signal)
                                 else:
                                     print('test', file)
@@ -189,10 +199,7 @@ def make_mnist_dvs(path_to_data, path_to_hdf5, digits, max_pxl_value, min_pxl_va
     hdf5_file.close()
 
 
-path_to_data = r'/path/to/processed_polarity'
-
-# path_to_data = r'path/to/mnist-dvs/processed_polarity'
-path_to_data = r'C:\Users\K1804053\Desktop\PhD\Federated SNN\processed_polarity'
+path_to_data = r'path/to/mnist-dvs/processed_polarity'
 
 # digits to consider
 digits = [1, 7]

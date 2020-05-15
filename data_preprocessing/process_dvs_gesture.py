@@ -125,14 +125,29 @@ def create_events_hdf5(directory, path_to_hdf5, classes, alphabet_size, pattern,
 
     S_prime_train = int(np.ceil(sample_length_train / window_length))
     S_prime_test = int(np.ceil(sample_length_test / window_length))
+    
+    if alphabet_size == 1:
+        data_shape_train = (0, n_neurons, S_prime_train)
+        label_shape_train = (0, len(classes), S_prime_train)
+        
+        data_shape_test = (0, n_neurons, S_prime_test)
+        label_shape_test = (0, len(classes), S_prime_test)
+
+    else:
+        data_shape_train = (0, n_neurons, alphabet_size, S_prime_train)
+        label_shape_train = (0, len(classes), alphabet_size, S_prime_train)
+        
+        data_shape_test = (0, n_neurons, alphabet_size, S_prime_test)
+        label_shape_test = (0, len(classes), alphabet_size, S_prime_test)
+
 
     train = hdf5_file.create_group(where=hdf5_file.root, name='train')
-    train_data_array = hdf5_file.create_earray(where=hdf5_file.root.train, name='data', atom=tables.BoolAtom(), shape=(0, n_neurons, alphabet_size, S_prime_train))
-    train_labels_array = hdf5_file.create_earray(where=hdf5_file.root.train, name='label', atom=tables.BoolAtom(), shape=(0, len(classes), alphabet_size, S_prime_train))
+    train_data_array = hdf5_file.create_earray(where=hdf5_file.root.train, name='data', atom=tables.BoolAtom(), shape=data_shape_train)
+    train_labels_array = hdf5_file.create_earray(where=hdf5_file.root.train, name='label', atom=tables.BoolAtom(), shape=label_shape_train)
 
     test = hdf5_file.create_group(where=hdf5_file.root, name='test')
-    test_data_array = hdf5_file.create_earray(where=hdf5_file.root.test, name='data', atom=tables.BoolAtom(), shape=(0, n_neurons, alphabet_size, S_prime_test))
-    test_labels_array = hdf5_file.create_earray(where=hdf5_file.root.test, name='label', atom=tables.BoolAtom(), shape=(0, len(classes), alphabet_size, S_prime_test))
+    test_data_array = hdf5_file.create_earray(where=hdf5_file.root.test, name='data', atom=tables.BoolAtom(), shape=data_shape_test)
+    test_labels_array = hdf5_file.create_earray(where=hdf5_file.root.test, name='label', atom=tables.BoolAtom(), shape=label_shape_test)
 
     for file_d in tqdm(fns_train+fns_test):
         istrain = file_d in fns_train
@@ -159,6 +174,17 @@ window_length = 15000
 grid_size = 128
 reduction_factor = 4
 
-create_events_hdf5(r'/users/k1804053/DvsGesture', r'/users/k1804053/snn/multivalued_snn/dvs_gesture_15ms_11_classes_2.hdf5', classes, alphabet_size, pattern,
+if alphabet_size == 1:
+        name = r'binary_%dms_%d_digits.hdf5' % (int(window_length / 1000), len(classes))
+else:
+    if alphabet_size == 2:
+            name = r'%dms_%d_digits.hdf5' % (int(window_length / 1000), len(classes))
+    else:
+        name = r'_%dms_%d_digits_C_%d.hdf5' % (int(window_length / 1000), len(classes), alphabet_size)
+
+path_to_hdf5 = r'path/to/datasets/DvsGesture/dvs_gesture_' + name
+
+
+create_events_hdf5(r'/path/to/DvsGesture', path_to_hdf5, classes, alphabet_size, pattern,
                    grid_size, reduction_factor, sample_length_train, sample_length_test, window_length)
 
