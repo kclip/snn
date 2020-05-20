@@ -122,15 +122,15 @@ else:
 args.dataset = tables.open_file(dataset)
 
 # Make VAE
-batch_size = 80
-num_input_channels = 1
+batch_size = 1
+num_input_channels = 80
 
 num_hiddens = 128
 num_residual_hiddens = 32
 num_residual_layers = 2
 
-embedding_dim = 16
-num_embeddings = 512
+embedding_dim = 64
+num_embeddings = 128
 
 commitment_cost = 0.25
 
@@ -176,7 +176,7 @@ train_res_perplexity = []
 
 for i, sample_idxs in enumerate(indices):
     # data = torch.sum(torch.FloatTensor(args.dataset.root.train.data[sample_idxs, :, :]), dim=-1).reshape([batch_size, 1, 26, 26])
-    data = torch.FloatTensor(args.dataset.root.train.data[sample_idxs, :, :]).transpose(1, 0).unsqueeze(0).unsqueeze(3).reshape([batch_size, 1, 26, 26])
+    data = torch.FloatTensor(args.dataset.root.train.data[sample_idxs, :, :]).transpose(1, 0).unsqueeze(0).unsqueeze(3).reshape([1, num_input_channels, 26, 26])
 
     # print(data.shape)
 

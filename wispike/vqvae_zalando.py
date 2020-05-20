@@ -87,16 +87,14 @@ class VectorQuantizerEMA(nn.Module):
 
         encodings = self.encode(inputs)
 
-        quantized = torch.matmul(encodings, self._embedding.weight)
+        print(encodings.shape)
 
-        # print(inputs.shape, np.prod(quantized.shape))
-
-        ldpc_output = self.channel_coding_decoding(quantized, snr)
+        # ldpc_output = self.channel_coding_decoding(quantized, snr)
 
         # Quantize and unflatten
 
         # quantized = ldpc_output.view(input_shape)
-        quantized = quantized.view(input_shape)
+        quantized = torch.matmul(encodings, self._embedding.weight).view(input_shape)
 
         # Use EMA to update the embedding vectors
         if self.training:
