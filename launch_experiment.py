@@ -3,6 +3,7 @@ import torch
 from multivalued_snn.utils_multivalued.misc import str2bool
 from multivalued_snn import multivalued_exp
 from binary_snn import binary_exp
+from wispike.wispike import wispike
 import time
 import numpy as np
 import tables
@@ -20,9 +21,9 @@ if __name__ == "__main__":
 
     # Training arguments
     parser.add_argument('--where', default='local')
-    parser.add_argument('--dataset')
+    parser.add_argument('--dataset', default='mnist_dvs_10_binary')
     parser.add_argument('--weights', type=str, default=None, help='Path to weights to load')
-    parser.add_argument('--model', default='binary', choices=['binary', 'wta'], help='Model type, either "binary" or "wta"')
+    parser.add_argument('--model', default='binary', choices=['binary', 'wta', 'wispike'], help='Model type, either "binary" or "wta"')
     parser.add_argument('--num_ite', default=5, type=int, help='Number of times every experiment will be repeated')
     parser.add_argument('--epochs', default=None, type=int, help='Number of samples to train on for each experiment')
     parser.add_argument('--num_samples_train', default=None, type=int, help='Number of samples to train on for each experiment')
@@ -65,14 +66,22 @@ if __name__ == "__main__":
     parser.add_argument('--T', type=float, default=1., help='temperature')
     parser.add_argument('--n_neurons_per_layer', default=None, type=int, help='Number of neurons per layer if topology_type is "layered"')
 
+    # Arguments for Wispike
+    parser.add_argument('--systematic', type=str, default='true', help='Systematic communication')
+    parser.add_argument('--snr', type=float, default=None, help='SNR')
+
+
+
     args = parser.parse_args()
 
 print(args)
 
 if args.where == 'local':
     data_path = r'C:/Users/K1804053/PycharmProjects/datasets/'
-elif args.where == 'distant':
+elif args.where == 'rosalind':
     data_path = r'/users/k1804053/datasets/'
+elif args.where == 'jade':
+    data_path = r'/jmain01/home/JAD014/mxm09/nxs94-mxm09/datasets'
 elif args.where == 'gcloud':
     data_path = r'/home/k1804053/datasets/'
 
@@ -110,6 +119,13 @@ elif args.dataset[:7] == 'swedish':
 else:
     print('Error: dataset not found')
 
+### Learning parameters
+if not args.num_samples_train:
+    args.num_samples_train = tables.open_file(dataset).root.stats.train_data[0]
+
+if not args.num_samples_test:
+    args.num_samples_test = tables.open_file(dataset).root.stats.test_data[0]
+
 # Save results and weights
 name = r'_' + args.model + r'%d_epochs_nh_%d' % (args.num_samples_train, args.n_h) + args.suffix
 args.save_path = os.getcwd() + r'/results/' + args.dataset + name + '.pkl'
@@ -134,18 +150,13 @@ else:
     args.device = torch.device('cpu')
 
 
+args.systematic = str2bool(args.systematic)
+
+
 ### Network parameters
 args.n_input_neurons = args.dataset.root.stats.train_data[1]
 args.n_output_neurons = args.dataset.root.stats.train_label[1]
 args.n_hidden_neurons = args.n_h
-
-
-### Learning parameters
-if not args.num_samples_train:
-    args.num_samples_train = args.dataset.root.stats.train_data[0]
-
-if not args.num_samples_test:
-    args.num_samples_test = args.dataset.root.stats.test_data[0]
 
 
 if args.topology_type == 'custom':
@@ -164,6 +175,8 @@ for _ in range(args.num_ite):
     # Create the network
     if args.model == 'wta':
         multivalued_exp.launch_multivalued_exp(args)
-
     elif args.model == 'binary':
         binary_exp.launch_binary_exp(args)
+    elif args.model == 'wispike':
+        wispike(args)
+

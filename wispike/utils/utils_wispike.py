@@ -1,8 +1,8 @@
 import torch
-from data_preprocessing import misc
+from binary_snn.utils_binary import misc
 
 
-def get_acc(encoder, decoder, dataset, test_indices, noise_level):
+def get_acc(encoder, decoder, dataset, test_indices, snr, systematic, n_outputs_enc):
     """"
     Compute loss and accuracy on the indices from the dataset precised as arguments
     """
@@ -24,8 +24,11 @@ def get_acc(encoder, decoder, dataset, test_indices, noise_level):
 
         for s in range(S_prime):
             _ = encoder(sample_enc[:, s])
-            decoder_input = channel(torch.cat((sample_enc[:, s], encoder.spiking_history[encoder.hidden_neurons[-encoder.n_output_neurons:], -1])), decoder.device, noise_level)
-            # decoder_input = torch.cat((sample_enc[:, s], encoder.spiking_history[encoder.hidden_neurons[-n_outputs_enc:], -1]))
+
+            if systematic:
+                decoder_input = channel(torch.cat((sample_enc[:, s], encoder.spiking_history[encoder.hidden_neurons[-n_outputs_enc:], -1])), decoder.device, snr)
+            else:
+                decoder_input = channel(encoder.spiking_history[encoder.hidden_neurons[-n_outputs_enc:], -1], decoder.device, snr)
 
             _ = decoder(decoder_input)
             outputs[j, :, s] = decoder.spiking_history[decoder.output_neurons, -1]
@@ -34,18 +37,19 @@ def get_acc(encoder, decoder, dataset, test_indices, noise_level):
             hidden_hist[encoder.n_hidden_neurons:, s] = decoder.spiking_history[decoder.hidden_neurons, -1]
 
 
-        # print(torch.sum(hidden_hist[:encoder.n_hidden_neurons], dim=-1))
-        # print(torch.sum(hidden_hist[encoder.n_hidden_neurons:], dim=-1))
-        # print(torch.sum(outputs[j, :], dim=-1), torch.max(torch.sum(torch.FloatTensor(dataset.root.test.label[:][sample_idx]), dim=-1), dim=-1).indices)
-        # print('//////////////////////////////////////////////////////////')
-
     predictions = torch.max(torch.sum(outputs, dim=-1), dim=-1).indices
     true_classes = torch.max(torch.sum(torch.FloatTensor(dataset.root.test.label[:][test_indices]), dim=-1), dim=-1).indices
     acc = float(torch.sum(predictions == true_classes, dtype=torch.float) / len(predictions))
 
     return acc
 
-def channel(channel_input, device, noise_level):
-    channel_output = channel_input + torch.normal(0., torch.ones(channel_input.shape) * noise_level).to(device)
+
+def channel(signal, device, snr_db):
+    sig_avg_db = 10 * torch.log10(torch.mean(signal))
+    noise_db = sig_avg_db - snr_db
+    noise = 10 ** (noise_db / 10)
+    noise = torch.normal(0, torch.ones(signal.shape) * torch.sqrt(noise))
+
+    channel_output = signal + noise.to(device)
     return channel_output.round()
 
