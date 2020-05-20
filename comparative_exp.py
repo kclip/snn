@@ -125,7 +125,7 @@ args.dataset = tables.open_file(dataset)
 batch_size = 1
 num_input_channels = 80
 
-num_hiddens = 128
+num_hiddens = 256
 num_residual_hiddens = 32
 num_residual_layers = 2
 
