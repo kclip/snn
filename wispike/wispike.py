@@ -12,8 +12,8 @@ from utils.filters import get_filter
 def wispike(args):
     ### Network parameters
     n_inputs_enc = args.dataset.root.stats.train_data[:][1]
-    n_hidden_enc = 256
-    n_outputs_enc = 128
+    n_hidden_enc = args.n_h
+    n_outputs_enc = args.n_output_enc
 
     if args.systematic:
         n_transmitted = n_inputs_enc + n_outputs_enc
@@ -21,7 +21,7 @@ def wispike(args):
         n_transmitted = n_outputs_enc
 
     n_inputs_dec = n_transmitted
-    n_hidden_dec = 128
+    n_hidden_dec = args.n_h
     n_outputs_dec = args.dataset.root.stats.train_label[1]
 
     args.lr = args.lr / (n_hidden_enc + n_hidden_dec)
