@@ -2,18 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="dfa62879-5cdc-4603-a43e-18a18161e0c9" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/deployment.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/deployment.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/snn.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/snn.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/binary_snn/binary_exp.py" beforeDir="false" afterPath="$PROJECT_DIR$/binary_snn/binary_exp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/binary_snn/utils_binary/misc.py" beforeDir="false" afterPath="$PROJECT_DIR$/binary_snn/utils_binary/misc.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/comparative_exp.py" beforeDir="false" afterPath="$PROJECT_DIR$/comparative_exp.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/launch_experiment.py" beforeDir="false" afterPath="$PROJECT_DIR$/launch_experiment.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/launch_job.sh" beforeDir="false" afterPath="$PROJECT_DIR$/launch_job.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/wispike/utils/utils_wispike.py" beforeDir="false" afterPath="$PROJECT_DIR$/wispike/utils/utils_wispike.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/wispike/vqvae.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/wispike/vqvae_zalando.py" beforeDir="false" afterPath="$PROJECT_DIR$/wispike/benchmark/vqvae_zalando.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/wispike/wispike.py" beforeDir="false" afterPath="$PROJECT_DIR$/wispike/wispike.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -41,11 +30,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/launch_experiment.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2006">
-              <caret line="129" column="30" selection-start-line="129" selection-start-column="30" selection-end-line="129" selection-end-column="30" />
+            <state relative-caret-position="187">
+              <caret line="131" column="109" selection-start-line="131" selection-start-column="109" selection-end-line="131" selection-end-column="109" />
               <folding>
                 <element signature="e#0#37#0" expanded="true" />
               </folding>
@@ -89,8 +78,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wispike/wispike.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="79">
-              <caret line="113" column="39" lean-forward="true" selection-start-line="113" selection-start-column="39" selection-end-line="113" selection-end-column="39" />
+            <state relative-caret-position="255">
+              <caret line="18" column="52" lean-forward="true" selection-start-line="18" selection-start-column="52" selection-end-line="18" selection-end-column="52" />
               <folding>
                 <element signature="e#0#39#0" expanded="true" />
               </folding>
@@ -98,11 +87,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wispike/utils/utils_wispike.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="114">
-              <caret line="86" lean-forward="true" selection-start-line="86" selection-end-line="86" />
+            <state relative-caret-position="216">
+              <caret line="92" column="38" selection-start-line="92" selection-start-column="38" selection-end-line="92" selection-end-column="38" />
               <folding>
                 <element signature="e#0#12#0" expanded="true" />
               </folding>
@@ -162,14 +151,14 @@
         <option value="$PROJECT_DIR$/multivalued_snn/utils_multivalued/misc.py" />
         <option value="$PROJECT_DIR$/wispike/vqvae_zalando.py" />
         <option value="$PROJECT_DIR$/binary_snn/binary_exp.py" />
-        <option value="$PROJECT_DIR$/launch_experiment.py" />
         <option value="$PROJECT_DIR$/launch_job.sh" />
         <option value="$PROJECT_DIR$/binary_snn/utils_binary/misc.py" />
         <option value="$PROJECT_DIR$/comparative_exp.py" />
         <option value="$PROJECT_DIR$/train_vqvae.py" />
         <option value="$PROJECT_DIR$/wispike/benchmark/vqvae_zalando.py" />
-        <option value="$PROJECT_DIR$/wispike/wispike.py" />
         <option value="$PROJECT_DIR$/wispike/utils/utils_wispike.py" />
+        <option value="$PROJECT_DIR$/wispike/wispike.py" />
+        <option value="$PROJECT_DIR$/launch_experiment.py" />
       </list>
     </option>
   </component>
@@ -280,15 +269,16 @@
       <workItem from="1589181534793" duration="779000" />
       <workItem from="1589182515116" duration="67296000" />
       <workItem from="1589788348701" duration="10796000" />
-      <workItem from="1590479116921" duration="20201000" />
+      <workItem from="1590479116921" duration="21400000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="158359000" />
+    <option name="totallyTimeSpent" value="159558000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.4973262" visible="true" weight="0.19109312" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -425,16 +415,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/launch_experiment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2006">
-          <caret line="129" column="30" selection-start-line="129" selection-start-column="30" selection-end-line="129" selection-end-column="30" />
-          <folding>
-            <element signature="e#0#37#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/binary_snn/utils_binary/misc.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="136">
@@ -489,16 +469,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wispike/benchmark/vqvae_zalando.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="137">
-          <caret line="260" column="47" lean-forward="true" selection-start-line="260" selection-start-column="47" selection-end-line="260" selection-end-column="47" />
-          <folding>
-            <element signature="e#0#37#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/train_vqvae.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="171">
@@ -519,22 +489,42 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/wispike/utils/utils_wispike.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="216">
+          <caret line="92" column="38" selection-start-line="92" selection-start-column="38" selection-end-line="92" selection-end-column="38" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wispike/benchmark/vqvae_zalando.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="137">
+          <caret line="260" column="47" lean-forward="true" selection-start-line="260" selection-start-column="47" selection-end-line="260" selection-end-column="47" />
+          <folding>
+            <element signature="e#0#37#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/wispike/wispike.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="79">
-          <caret line="113" column="39" lean-forward="true" selection-start-line="113" selection-start-column="39" selection-end-line="113" selection-end-column="39" />
+        <state relative-caret-position="255">
+          <caret line="18" column="52" lean-forward="true" selection-start-line="18" selection-start-column="52" selection-end-line="18" selection-end-column="52" />
           <folding>
             <element signature="e#0#39#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wispike/utils/utils_wispike.py">
+    <entry file="file://$PROJECT_DIR$/launch_experiment.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="114">
-          <caret line="86" lean-forward="true" selection-start-line="86" selection-end-line="86" />
+        <state relative-caret-position="187">
+          <caret line="131" column="109" selection-start-line="131" selection-start-column="109" selection-end-line="131" selection-end-column="109" />
           <folding>
-            <element signature="e#0#12#0" expanded="true" />
+            <element signature="e#0#37#0" expanded="true" />
           </folding>
         </state>
       </provider>

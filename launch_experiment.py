@@ -37,7 +37,7 @@ if __name__ == "__main__":
 
 
     # Arguments common to all models
-    parser.add_argument('--n_h', default=128, type=int, help='Number of hidden neurons')
+    parser.add_argument('--n_h', default=256, type=int, help='Number of hidden neurons')
     parser.add_argument('--topology_type', default='fully_connected', type=str, choices=['fully_connected', 'feedforward', 'layered', 'custom'], help='Topology of the network')
     parser.add_argument('--density', default=None, type=int, help='Density of the connections if topology_type is "sparse"')
     parser.add_argument('--initialization', default='uniform', type=str, choices=['uniform', 'glorot'], help='Initialization of the weights')
@@ -69,6 +69,8 @@ if __name__ == "__main__":
     # Arguments for Wispike
     parser.add_argument('--systematic', type=str, default='true', help='Systematic communication')
     parser.add_argument('--snr', type=float, default=None, help='SNR')
+    parser.add_argument('--n_output_enc', default=128, type=int, help='')
+
 
 
 
@@ -127,9 +129,9 @@ if not args.num_samples_test:
     args.num_samples_test = tables.open_file(dataset).root.stats.test_data[0]
 
 # Save results and weights
-name = r'_' + args.model + r'_%d_epochs_nh_%d' % (args.num_samples_train, args.n_h) + args.suffix
-args.save_path = os.getcwd() + r'/results/' + args.dataset + name + '.pkl'
-args.save_path_weights = os.getcwd() + r'/results/' + args.dataset + name + '_weights.hdf5'
+name = r'_' + args.model + r'_%d_epochs_nh_%d_nout_%d' % (args.num_samples_train, args.n_h, args.n_output_enc) + args.suffix
+args.save_path = r'~/results/' + args.dataset + name + '.pkl'
+args.save_path_weights = r'~/results/' + args.dataset + name + '_weights.hdf5'
 
 args.ite_test = np.arange(0, args.num_samples_train, args.test_period)
 
