@@ -52,7 +52,7 @@ class VectorQuantizer(nn.Module):
 
 
 class VectorQuantizerEMA(nn.Module):
-    def __init__(self, num_embeddings, embedding_dim, commitment_cost, ldpc_codewords_length, d_v=2, d_c=3, decay=0.99, epsilon=1e-5):
+    def __init__(self, num_embeddings, embedding_dim, commitment_cost, decay=0.99, epsilon=1e-5):
         super(VectorQuantizerEMA, self).__init__()
 
         self._embedding_dim = embedding_dim
@@ -69,32 +69,14 @@ class VectorQuantizerEMA(nn.Module):
         self._decay = decay
         self._epsilon = epsilon
 
-        ### LDPC coding
-        self.d_v = d_v
-        self.d_c = d_c
 
-        self.H, self.G = pyldpc.make_ldpc(ldpc_codewords_length, self.d_v, self.d_c, systematic=True, sparse=True)
-        _, self.k = self.G.shape
-
-
-    def forward(self, inputs, snr):
-        # convert inputs from BCHW -> BHWC
-        inputs = inputs.permute(0, 2, 3, 1).contiguous()
-        input_shape = inputs.shape
+    def forward(self, inputs):
+        inputs = inputs.data.permute(0, 2, 3, 1).contiguous()
 
         # Flatten input
         flat_input = inputs.view(-1, self._embedding_dim)
 
-        encodings = self.encode(inputs)
-
-        print(encodings.shape)
-
-        # ldpc_output = self.channel_coding_decoding(quantized, snr)
-
-        # Quantize and unflatten
-
-        # quantized = ldpc_output.view(input_shape)
-        quantized = torch.matmul(encodings, self._embedding.weight).view(input_shape)
+        encodings, quantized = self.encode_and_quantize(inputs)
 
         # Use EMA to update the embedding vectors
         if self.training:
@@ -121,11 +103,15 @@ class VectorQuantizerEMA(nn.Module):
         avg_probs = torch.mean(encodings, dim=0)
         perplexity = torch.exp(-torch.sum(avg_probs * torch.log(avg_probs + 1e-10)))
 
+        # print('Encodings ', encodings.shape)
+        # print('Quantized ', quantized.shape)
+
 
         # convert quantized from BHWC -> BCHW
         return loss, quantized.permute(0, 3, 1, 2).contiguous(), perplexity, encodings
 
-    def encode(self, inputs):
+    def encode_and_quantize(self, inputs):
+        input_shape = inputs.shape
 
         # Flatten input
         flat_input = inputs.view(-1, self._embedding_dim)
@@ -140,33 +126,13 @@ class VectorQuantizerEMA(nn.Module):
         encodings = torch.zeros(encoding_indices.shape[0], self._num_embeddings, device=inputs.device)
         encodings.scatter_(1, encoding_indices, 1)
 
-        # print('encodings ', encodings.shape)
+        quantized = torch.matmul(encodings, self._embedding.weight).view(input_shape)
 
-        return encodings
+        quantized = inputs + (quantized - inputs).detach()
 
-    def channel_coding_decoding(self, source_encodings, snr):
-        # Transmit through channel
-        encodings_shape = source_encodings.data.numpy().shape
-        n_bits_total = np.prod(source_encodings.size())
-        n_blocks = n_bits_total // self.k
-        residual = n_bits_total % self.k
 
-        if residual:
-            n_blocks += 1
+        return encodings, quantized
 
-        encodings_flattened = np.zeros(self.k * n_blocks)
-        encodings_flattened[:n_bits_total] = source_encodings.flatten().data.numpy()
-
-        coded_encodings = pyldpc.encode(self.G, encodings_flattened.reshape(self.k, n_blocks), snr)
-        received_encodings = pyldpc.decode(self.H, coded_encodings, snr)
-        decoded_encodings = received_encodings[:self.k, :]
-
-        decoded_encodings = decoded_encodings.flatten()[:np.prod(encodings_shape)]
-        decoded_encodings = torch.FloatTensor(decoded_encodings.reshape(*encodings_shape))
-
-        # print('decoded encodings ', decoded_encodings.shape)
-
-        return decoded_encodings
 
 
 class Residual(nn.Module):
@@ -215,7 +181,7 @@ class Encoder(nn.Module):
         self._conv_3 = nn.Conv2d(in_channels=num_hiddens,
                                  out_channels=num_hiddens,
                                  kernel_size=4,
-                                 stride=2, padding=1)
+                                 stride=3, padding=1)
         self._residual_stack = ResidualStack(in_channels=num_hiddens,
                                              num_hiddens=num_hiddens,
                                              num_residual_layers=num_residual_layers,
@@ -249,8 +215,8 @@ class Decoder(nn.Module):
 
         self._conv_1 = nn.Conv2d(in_channels=in_channels,
                                  out_channels=num_hiddens,
-                                 kernel_size=3,
-                                 stride=1, padding=1)
+                                 kernel_size=1,
+                                 stride=1, padding=0)
 
         self._residual_stack = ResidualStack(in_channels=num_hiddens,
                                              num_hiddens=num_hiddens,
@@ -258,16 +224,24 @@ class Decoder(nn.Module):
                                              num_residual_hiddens=num_residual_hiddens)
 
         self._conv_trans_1 = nn.ConvTranspose2d(in_channels=num_hiddens,
-                                                out_channels=num_hiddens // 2,
-                                                kernel_size=3,
-                                                stride=2, padding=0)
+                                                out_channels=num_hiddens,
+                                                kernel_size=5,
+                                                stride=3, padding=1)
 
-        self._conv_trans_2 = nn.ConvTranspose2d(in_channels=num_hiddens // 2,
+        self._conv_trans_2 = nn.ConvTranspose2d(in_channels=num_hiddens,
+                                                out_channels=num_hiddens // 2,
+                                                kernel_size=4,
+                                                stride=1, padding=1)
+        self._conv_trans_3 = nn.ConvTranspose2d(in_channels=num_hiddens // 2,
                                                 out_channels=out_channels,
                                                 kernel_size=4,
                                                 stride=2, padding=1)
 
+
     def forward(self, inputs):
+        # print('Decoder')
+        # print('Input shape ', inputs.shape)
+
         x = self._conv_1(inputs)
 
         # print('Conv 1 ', x.shape)
@@ -280,14 +254,19 @@ class Decoder(nn.Module):
         x = F.relu(x)
 
         # print('Conv trans1 + relu ', x.shape)
-        # print('Conv trans2 ', self._conv_trans_2(x).shape)
 
-        return self._conv_trans_2(x)
+        x = self._conv_trans_2(x)
+        x = F.relu(x)
+
+        # print('Conv trans2 + relu ', x.shape)
+        # print('Conv trans3 + relu ', self._conv_trans_3(x).shape)
+
+        return self._conv_trans_3(x)
 
 
 
 class Model(nn.Module):
-    def __init__(self, num_input_channels, num_hiddens, num_residual_layers, num_residual_hiddens, num_embeddings, embedding_dim, commitment_cost, ldpc_codewords_length, d_v=2, d_c=3, decay=0):
+    def __init__(self, num_input_channels, num_hiddens, num_residual_layers, num_residual_hiddens, num_embeddings, embedding_dim, commitment_cost, decay=0):
         super(Model, self).__init__()
 
         self._encoder = Encoder(num_input_channels, num_hiddens,
@@ -298,9 +277,9 @@ class Model(nn.Module):
                                       kernel_size=1,
                                       stride=1)
         if decay > 0.0:
-            self._vq_vae = VectorQuantizerEMA(num_embeddings, embedding_dim, commitment_cost, ldpc_codewords_length, d_v, d_c, decay)
+            self.quantizer = VectorQuantizerEMA(num_embeddings, embedding_dim, commitment_cost, decay)
         else:
-            self._vq_vae = VectorQuantizer(num_embeddings, embedding_dim, commitment_cost)
+            self.quantizer = VectorQuantizer(num_embeddings, embedding_dim, commitment_cost)
 
         self._decoder = Decoder(embedding_dim,
                                 num_hiddens,
@@ -308,13 +287,26 @@ class Model(nn.Module):
                                 num_residual_hiddens,
                                 num_input_channels)
 
-    def forward(self, x, snr):
+    def forward(self, x):
         # print(x.shape, np.prod(x.shape))
         z = self._encoder(x)
         z = self._pre_vq_conv(z)
-        loss, quantized, perplexity, _ = self._vq_vae(z, snr)
+        # print('Pre quantizer shape ', z.shape)
+        loss, quantized, perplexity, _ = self.quantizer(z)
+
 
         x_recon = self._decoder(quantized)
 
         return loss, x_recon, perplexity
+
+    def encode(self, x):
+        z = self._encoder(x)
+        z = self._pre_vq_conv(z)
+
+        inputs = z.permute(0, 2, 3, 1).contiguous()
+        _, quantized = self.quantizer.encode_and_quantize(inputs)
+
+    def decode(self, quantized):
+        return self._decoder(quantized)
+
 

@@ -124,22 +124,23 @@ else:
 args.dataset = tables.open_file(dataset)
 
 # Make VAE
-batch_size = 1
-num_input_channels = 80
+n_frames = 1
+
+assert 80 % n_frames == 0  # todo upgrade later to pad the last frame if the condition is not met
+num_input_channels = int(80 / n_frames)
 
 num_hiddens = 256
 num_residual_hiddens = 32
 num_residual_layers = 2
 
 embedding_dim = 64
-num_embeddings = 128
+num_embeddings = 512
 
 commitment_cost = 0.25
 
 decay = 0.99
 
 learning_rate = 1e-3
-
 
 # LDPC coding
 ldpc_codewords_length = 676
@@ -164,7 +165,6 @@ if args.labels is not None:
     num_samples_test = min(args.num_samples_test, len(misc.find_test_indices_for_labels(args.dataset, args.labels)))
     test_indices = np.random.choice(misc.find_test_indices_for_labels(args.dataset, args.labels), [num_samples_test], replace=False)
 else:
-    # indices = np.vstack([np.random.choice(np.arange(args.dataset.root.stats.train_data[0]), [batch_size], replace=False) for _ in range(args.num_samples_train // batch_size)])
     indices = np.random.choice(np.arange(args.dataset.root.stats.train_data[0]), [args.num_samples_train], replace=True)
     test_indices = np.random.choice(np.arange(args.dataset.root.stats.test_data[0]), [args.num_samples_test], replace=False)
 
@@ -177,14 +177,13 @@ train_res_perplexity = []
 
 
 for i, sample_idxs in enumerate(indices):
-    # data = torch.sum(torch.FloatTensor(args.dataset.root.train.data[sample_idxs, :, :]), dim=-1).reshape([batch_size, 1, 26, 26])
-    data = torch.FloatTensor(args.dataset.root.train.data[sample_idxs, :, :]).transpose(1, 0).unsqueeze(0).unsqueeze(3).reshape([1, num_input_channels, 26, 26])
+    data = torch.FloatTensor(args.dataset.root.train.data[sample_idxs, :, :]).transpose(1, 0).unsqueeze(0).unsqueeze(3).reshape([n_frames, int(80 /n_frames), 26, 26])
 
     # print(data.shape)
 
     optimizer.zero_grad()
 
-    vq_loss, data_recon, perplexity = model(data, snr)
+    vq_loss, data_recon, perplexity = model(data)
     recon_error = F.mse_loss(data_recon, data)
     loss = recon_error + vq_loss
     loss.backward()

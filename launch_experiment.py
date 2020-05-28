@@ -127,17 +127,17 @@ if not args.num_samples_test:
     args.num_samples_test = tables.open_file(dataset).root.stats.test_data[0]
 
 # Save results and weights
-name = r'_' + args.model + r'%d_epochs_nh_%d' % (args.num_samples_train, args.n_h) + args.suffix
+name = r'_' + args.model + r'_%d_epochs_nh_%d' % (args.num_samples_train, args.n_h) + args.suffix
 args.save_path = os.getcwd() + r'/results/' + args.dataset + name + '.pkl'
 args.save_path_weights = os.getcwd() + r'/results/' + args.dataset + name + '_weights.hdf5'
 
 args.ite_test = np.arange(0, args.num_samples_train, args.test_period)
 
-# if os.path.exists(args.save_path):
-#     with open(args.save_path, 'rb') as f:
-#         args.test_accs = pickle.load(f)
-# else:
-args.test_accs = {i: [] for i in args.ite_test}
+if os.path.exists(args.save_path) & (args.start_idx != 0):
+    with open(args.save_path, 'rb') as f:
+        args.test_accs = pickle.load(f)
+else:
+    args.test_accs = {i: [] for i in args.ite_test}
 
 
 args.dataset = tables.open_file(dataset)

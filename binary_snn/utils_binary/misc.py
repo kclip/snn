@@ -111,11 +111,11 @@ def get_acc_and_loss(network, dataset, test_indices):
     for j, sample_idx in enumerate(test_indices):
         refractory_period(network)
 
-        sample = torch.FloatTensor(dataset.root.test.data[sample_idx])
+        sample = torch.FloatTensor(dataset.root.test.data[sample_idx]).to(network.device)
 
         for s in range(S_prime):
             log_proba = network(sample[:, s])
-            loss += torch.sum(log_proba).numpy()
+            # loss += torch.sum(log_proba).numpy()
             outputs[j, :, s] = network.spiking_history[network.output_neurons, -1]
             rec[:, s] = network.spiking_history[network.learnable_neurons, -1]
 

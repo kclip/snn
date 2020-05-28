@@ -7,6 +7,7 @@ import argparse
 import os
 import numpy as np
 import pickle
+from utils.filters import get_filter
 
 def wispike(args):
     ### Network parameters
@@ -36,8 +37,43 @@ def wispike(args):
         indices = np.random.choice(np.arange(args.dataset.root.stats.train_data[0]), [args.num_samples_train], replace=True)
         test_indices = np.random.choice(np.arange(args.dataset.root.stats.test_data[0]), [args.num_samples_test], replace=False)
 
-    encoder = SNNetwork(**misc.make_network_parameters(n_inputs_enc, 0, n_hidden_enc), device=args.device) #todo
-    decoder = SNNetwork(**misc.make_network_parameters(n_inputs_dec, n_outputs_dec, n_hidden_dec), device=args.device) #todo
+    encoder = SNNetwork(**misc.make_network_parameters(n_inputs_enc,
+                                                       0,
+                                                       n_hidden_enc,
+                                                       args.topology_type,
+                                                       args.topology,
+                                                       args.density,
+                                                       'train',
+                                                       args.weights_magnitude,
+                                                       args.n_basis_ff,
+                                                       get_filter(args.ff_filter),
+                                                       args.n_basis_fb,
+                                                       get_filter(args.fb_filter),
+                                                       args.initialization,
+                                                       args.tau_ff,
+                                                       args.tau_fb,
+                                                       args.mu,
+                                                       args.save_path),
+                        device=args.device)
+
+    decoder = SNNetwork(**misc.make_network_parameters(n_inputs_dec,
+                                                       n_outputs_dec,
+                                                       n_hidden_dec,
+                                                       args.topology_type,
+                                                       args.topology,
+                                                       args.density,
+                                                       'train',
+                                                       args.weights_magnitude,
+                                                       args.n_basis_ff,
+                                                       get_filter(args.ff_filter),
+                                                       args.n_basis_fb,
+                                                       get_filter(args.fb_filter),
+                                                       args.initialization,
+                                                       args.tau_ff,
+                                                       args.tau_fb,
+                                                       args.mu,
+                                                       args.save_path),
+                        device=args.device)
 
 
     encoder.set_mode('train')
@@ -65,10 +101,11 @@ def wispike(args):
             if (j + 1) in args.test_accs:
                 acc = utils_wispike.get_acc(encoder, decoder, args.dataset, test_indices, args.snr, args.systematic, n_outputs_enc)
                 print('test accuracy at ite %d: %f' % (int(j + 1), acc))
+                args.test_accs[int(j + 1)].append(acc)
 
                 if args.save_path is not None:
                     with open(args.save_path, 'wb') as f:
-                        pickle.dump(acc, f, pickle.HIGHEST_PROTOCOL)
+                        pickle.dump(args.test_accs, f, pickle.HIGHEST_PROTOCOL)
 
 
                 encoder.set_mode('train')
