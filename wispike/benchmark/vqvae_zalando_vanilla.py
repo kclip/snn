@@ -118,30 +118,6 @@ class VectorQuantizerEMA(nn.Module):
             # convert quantized from BHWC -> BCHW
             return loss, quantized.permute(0, 3, 1, 2).contiguous(), perplexity, encodings
 
-    def encode_and_quantize(self, inputs):
-        input_shape = inputs.shape
-
-        # Flatten input
-        flat_input = inputs.view(-1, self._embedding_dim)
-
-        # Calculate distances
-        distances = (torch.sum(flat_input ** 2, dim=1, keepdim=True)
-                     + torch.sum(self._embedding.weight ** 2, dim=1)
-                     - 2 * torch.matmul(flat_input, self._embedding.weight.t()))
-
-        # Encoding
-        encoding_indices = torch.argmin(distances, dim=1).unsqueeze(1)
-        encodings = torch.zeros(encoding_indices.shape[0], self._num_embeddings, device=inputs.device)
-        encodings.scatter_(1, encoding_indices, 1)
-
-        quantized = torch.matmul(encodings, self._embedding.weight).view(input_shape)
-
-        quantized = inputs + (quantized - inputs).detach()
-
-
-        return encodings, quantized
-
-
 
 class Residual(nn.Module):
     def __init__(self, in_channels, num_hiddens, num_residual_hiddens):
@@ -188,31 +164,30 @@ class Encoder(nn.Module):
                                  stride=1, padding=1)
         self._conv_3 = nn.Conv2d(in_channels=num_hiddens,
                                  out_channels=num_hiddens,
-                                 kernel_size=4,
-                                 stride=3, padding=1)
+                                 kernel_size=3,
+                                 stride=2, padding=1)
         self._residual_stack = ResidualStack(in_channels=num_hiddens,
                                              num_hiddens=num_hiddens,
                                              num_residual_layers=num_residual_layers,
                                              num_residual_hiddens=num_residual_hiddens)
 
     def forward(self, inputs):
-        print('Encoder')
-        print('Input shape ', inputs.shape)
+        # print('Encoder')
+        # print('Input shape ', inputs.shape)
         x = self._conv_1(inputs)
         x = F.relu(x)
 
-        print('Conv1 + relu ', x.shape)
+        # print('Conv1 + relu ', x.shape)
 
         x = self._conv_2(x)
         x = F.relu(x)
 
-        print('Conv2 + relu ', x.shape)
+        # print('Conv2 + relu ', x.shape)
 
         x = self._conv_3(x)
 
-        print('Conv3 + relu ', x.shape)
-
-        print('Residual stack ', self._residual_stack(x).shape)
+        # print('Conv3 + relu ', x.shape)
+        # print('Residual stack ', self._residual_stack(x).shape)
 
         return self._residual_stack(x)
 
@@ -223,8 +198,8 @@ class Decoder(nn.Module):
 
         self._conv_1 = nn.Conv2d(in_channels=in_channels,
                                  out_channels=num_hiddens,
-                                 kernel_size=1,
-                                 stride=1, padding=0)
+                                 kernel_size=3,
+                                 stride=1, padding=1)
 
         self._residual_stack = ResidualStack(in_channels=num_hiddens,
                                              num_hiddens=num_hiddens,
@@ -232,19 +207,18 @@ class Decoder(nn.Module):
                                              num_residual_hiddens=num_residual_hiddens)
 
         self._conv_trans_1 = nn.ConvTranspose2d(in_channels=num_hiddens,
-                                                out_channels=num_hiddens//2,
-                                                kernel_size=4,
-                                                stride=3, padding=0)
+                                                out_channels=num_hiddens // 2,
+                                                kernel_size=5,
+                                                stride=2, padding=1)
 
-        self._conv_trans_2 = nn.ConvTranspose2d(in_channels=num_hiddens//2,
+        self._conv_trans_2 = nn.ConvTranspose2d(in_channels=num_hiddens // 2,
                                                 out_channels=out_channels,
                                                 kernel_size=4,
                                                 stride=2, padding=1)
 
-
     def forward(self, inputs):
-        print('Decoder')
-        print('Input shape ', inputs.shape)
+        # print('Decoder')
+        # print('Input shape ', inputs.shape)
 
         x = self._conv_1(inputs)
 
@@ -258,10 +232,9 @@ class Decoder(nn.Module):
         x = F.relu(x)
 
         # print('Conv trans1 + relu ', x.shape)
-        # print('Conv trans2 ', self._conv_trans_2(x).shape)
+        # print('Conv trans2 + relu ', self._conv_trans_2(x).shape)
 
         return self._conv_trans_2(x)
-
 
 
 class Model(nn.Module):

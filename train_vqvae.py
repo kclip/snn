@@ -128,13 +128,14 @@ n_frames = 1
 
 assert 80 % n_frames == 0  # todo upgrade later to pad the last frame if the condition is not met
 num_input_channels = int(80 / n_frames)
+# num_input_channels = n_frames #todo
 
-num_hiddens = 256
+num_hiddens = 128
 num_residual_hiddens = 32
 num_residual_layers = 2
 
-embedding_dim = 64
-num_embeddings = 512
+embedding_dim = 32
+num_embeddings = 64
 
 commitment_cost = 0.25
 
@@ -178,6 +179,7 @@ train_res_perplexity = []
 
 for i, sample_idxs in enumerate(indices):
     data = torch.FloatTensor(args.dataset.root.train.data[sample_idxs, :, :]).transpose(1, 0).unsqueeze(0).unsqueeze(3).reshape([n_frames, int(80 /n_frames), 26, 26])
+    # data = torch.FloatTensor(args.dataset.root.train.data[sample_idxs, :, :]).transpose(1, 0).unsqueeze(0).unsqueeze(3).reshape([int(80 /n_frames), n_frames, 26, 26])
 
     # print(data.shape)
 

@@ -130,8 +130,8 @@ if not args.num_samples_test:
 
 # Save results and weights
 name = r'_' + args.model + r'_%d_epochs_nh_%d_nout_%d' % (args.num_samples_train, args.n_h, args.n_output_enc) + args.suffix
-args.save_path = r'~/results/' + args.dataset + name + '.pkl'
-args.save_path_weights = r'~/results/' + args.dataset + name + '_weights.hdf5'
+args.save_path = r'/users/k1804053/results/' + args.dataset + name + '.pkl'
+args.save_path_weights = r'/users/k1804053/results/' + args.dataset + name + '_weights.hdf5'
 
 args.ite_test = np.arange(0, args.num_samples_train, args.test_period)
 
