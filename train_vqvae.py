@@ -1,72 +1,70 @@
 import numpy as np
 import tables
-from wispike.benchmark.vqvae_zalando import Model
+from wispike.models.vqvae import Model
 import torch
 import argparse
-import torch.nn.functional as F
 import os
 import binary_snn.utils_binary.misc as misc
 from multivalued_snn.utils_multivalued.misc import str2bool
 import torch.optim as optim
-
-
-def train(sample, model, optimizer, args):
-    optimizer.zero_grad()
-    x_tilde, z_e_x, z_q_x = model(sample, args.snr)
-
-    # Reconstruction loss
-    loss_recons = F.mse_loss(x_tilde, sample)
-    # Vector quantization objective
-    loss_vq = F.mse_loss(z_q_x, z_e_x.detach())
-    # Commitment objective
-    loss_commit = F.mse_loss(z_e_x, z_q_x.detach())
-
-    loss = loss_recons + loss_vq + args.beta * loss_commit
-    loss.backward()
-
-    optimizer.step()
-    args.steps += 1
-
-
-def test(test_indices, model, args):
-    loss_recons, loss_vq = 0., 0.
-
-    for i, sample_idx in test_indices:
-        sample = torch.cat((torch.FloatTensor(dataset.root.test.data[sample_idx]),
-                            torch.FloatTensor(dataset.root.test.label[sample_idx])), dim=0).to(args.device)
-        with torch.no_grad():
-
-            x_tilde, z_e_x, z_q_x = model(sample)
-            loss_recons += F.mse_loss(x_tilde, sample)
-            loss_vq += F.mse_loss(z_q_x, z_e_x)
-
-    return loss_recons.item(), loss_vq.item()
-
+import pyldpc
+from wispike.utils.misc import test
+from wispike.utils.training_utils import train_classifier, train_vqvae
+from binary_snn.models.SNN import SNNetwork
+from utils.filters import get_filter
+from wispike.models.mlp import MLP
 
 if __name__ == '__main__':
-
     parser = argparse.ArgumentParser(description='VQ-VAE')
 
     # General
+    # Training arguments
     parser.add_argument('--where', default='local')
     parser.add_argument('--dataset', default='mnist_dvs_10_binary')
-    parser.add_argument('--snr', default=1000000)
+    parser.add_argument('--weights', type=str, default=None, help='Path to weights to load')
+    parser.add_argument('--model', default='binary', choices=['binary', 'wta', 'wispike'], help='Model type, either "binary" or "wta"')
+    parser.add_argument('--num_ite', default=5, type=int, help='Number of times every experiment will be repeated')
+    parser.add_argument('--epochs', default=None, type=int, help='Number of samples to train on for each experiment')
+    parser.add_argument('--num_samples_train', default=None, type=int, help='Number of samples to train on for each experiment')
+    parser.add_argument('--num_samples_test', default=None, type=int, help='Number of samples to test on')
+    parser.add_argument('--test_period', default=1000, type=int, help='')
+    parser.add_argument('--lr', default=0.005, type=float, help='Learning rate')
     parser.add_argument('--disable-cuda', type=str, default='true', help='Disable CUDA')
+    parser.add_argument('--start_idx', type=int, default=0, help='When resuming training from existing weights, index to start over from')
+    parser.add_argument('--suffix', type=str, default='', help='Appended to the name of the saved results and weights')
     parser.add_argument('--labels', nargs='+', default=None, type=int, help='Class labels to be used during training')
 
 
-    # Optimization
-    parser.add_argument('--num_samples_train', type=int, default=50000,
-        help='number of epochs (default: 100)')
-    parser.add_argument('--batch_size', type=int, default=10,
-        help='number of epochs (default: 100)')
+    # Arguments common to all models
+    parser.add_argument('--n_h', default=256, type=int, help='Number of hidden neurons')
+    parser.add_argument('--topology_type', default='fully_connected', type=str, choices=['fully_connected', 'feedforward', 'layered', 'custom'], help='Topology of the network')
+    parser.add_argument('--density', default=None, type=int, help='Density of the connections if topology_type is "sparse"')
+    parser.add_argument('--initialization', default='uniform', type=str, choices=['uniform', 'glorot'], help='Initialization of the weights')
+    parser.add_argument('--weights_magnitude', default=0.05, type=float, help='Magnitude of weights at initialization')
 
-    parser.add_argument('--num_samples_test', default=None, type=int, help='Number of samples to test on')
+    parser.add_argument('--n_basis_ff', default=8, type=int, help='Number of basis functions for synaptic connections')
+    parser.add_argument('--ff_filter', default='raised_cosine_pillow_08', type=str,
+                        choices=['base_ff_filter', 'base_fb_filter', 'cosine_basis', 'raised_cosine', 'raised_cosine_pillow_05', 'raised_cosine_pillow_08'],
+                        help='Basis function to use for synaptic connections')
+    parser.add_argument('--tau_ff', default=10, type=int, help='Feedforward connections time constant')
+    parser.add_argument('--n_basis_fb', default=1, type=int, help='Number of basis functions for feedback connections')
+    parser.add_argument('--fb_filter', default='raised_cosine_pillow_08', type=str,
+                        choices=['base_ff_filter', 'base_fb_filter', 'cosine_basis', 'raised_cosine', 'raised_cosine_pillow_05', 'raised_cosine_pillow_08'],
+                        help='Basis function to use for feedback connections')
+    parser.add_argument('--tau_fb', default=10, type=int, help='Feedback connections time constant')
+    parser.add_argument('--mu', default=1.5, type=float, help='Width of basis functions')
 
-    parser.add_argument('--lr', type=float, default=2e-4,
-        help='learning rate for Adam optimizer (default: 2e-4)')
-    parser.add_argument('--beta', type=float, default=1.0,
-        help='contribution of commitment loss, between 0.1 and 2.0 (default: 1.0)')
+    parser.add_argument('--kappa', default=0.2, type=float, help='eligibility trace decay coefficient')
+    parser.add_argument('--r', default=0.8, type=float, help='Desired spiking sparsity of the hidden neurons')
+    parser.add_argument('--beta', default=0.05, type=float, help='Baseline decay factor')
+    parser.add_argument('--gamma', default=1., type=float, help='KL regularization strength')
+
+    # Arguments for Wispike
+    parser.add_argument('--systematic', type=str, default='true', help='Systematic communication')
+    parser.add_argument('--snr', type=float, default=None, help='SNR')
+    parser.add_argument('--n_output_enc', default=128, type=int, help='')
+    # parser.add_argument('--beta', type=float, default=1.0,
+    #     help='contribution of commitment loss, between 0.1 and 2.0 (default: 1.0)')
 
     args = parser.parse_args()
 
@@ -113,7 +111,6 @@ else:
     print('Error: dataset not found')
 
 
-
 args.disable_cuda = str2bool(args.disable_cuda)
 args.device = None
 if not args.disable_cuda and torch.cuda.is_available():
@@ -124,18 +121,19 @@ else:
 args.dataset = tables.open_file(dataset)
 
 # Make VAE
-n_frames = 1
+args.n_frames = 1
+residual = 80 % args.n_frames
+if residual:
+    args.n_frames += 1
 
-assert 80 % n_frames == 0  # todo upgrade later to pad the last frame if the condition is not met
-num_input_channels = int(80 / n_frames)
-# num_input_channels = n_frames #todo
+num_input_channels = 80 // args.n_frames
 
 num_hiddens = 128
 num_residual_hiddens = 32
 num_residual_layers = 2
 
 embedding_dim = 32
-num_embeddings = 64
+num_embeddings = 12
 
 commitment_cost = 0.25
 
@@ -143,16 +141,50 @@ decay = 0.99
 
 learning_rate = 1e-3
 
+vqvae = Model(num_input_channels, num_hiddens, num_residual_layers, num_residual_hiddens, num_embeddings, embedding_dim, commitment_cost, decay).to(args.device)
+optimizer = optim.Adam(vqvae.parameters(), lr=learning_rate, amsgrad=False)
+
+
+# Make classifier
+if args.classifier == 'snn':
+    n_input_neurons = args.dataset.root.stats.train_data[1]
+    n_output_neurons = args.dataset.root.stats.train_label[1]
+
+    classifier = SNNetwork(**misc.make_network_parameters(n_input_neurons,
+                                                          n_output_neurons,
+                                                          args.n_h,
+                                                          args.topology_type,
+                                                          args.topology,
+                                                          args.density,
+                                                          'train',
+                                                          args.weights_magnitude,
+                                                          args.n_basis_ff,
+                                                          get_filter(args.ff_filter),
+                                                          args.n_basis_fb,
+                                                          get_filter(args.fb_filter),
+                                                          args.initialization,
+                                                          args.tau_ff,
+                                                          args.tau_fb,
+                                                          args.mu,
+                                                          args.save_path),
+                           device=args.device)
+
+if args.classifier == 'mlp':
+    n_input_neurons = np.prod(args.dataset.root.stats.train_data[1:])
+    n_output_neurons = args.dataset.root.stats.train_label[1]
+
+    classifier = MLP(args.n_input_neurons, args.n_h, n_output_neurons)
+
+
 # LDPC coding
 ldpc_codewords_length = 676
 d_v = 3
 d_c = 4
 snr = 1000000
 
-model = Model(num_input_channels, num_hiddens, num_residual_layers, num_residual_hiddens, num_embeddings, embedding_dim, commitment_cost, decay).to(args.device)
-
-optimizer = optim.Adam(model.parameters(), lr=learning_rate, amsgrad=False)
-
+# Make LDPC
+H, G = pyldpc.make_ldpc(ldpc_codewords_length, d_v, d_c, systematic=True, sparse=True)
+_, k = G.shape
 
 if not args.num_samples_train:
     args.num_samples_train = args.dataset.root.stats.train_data[0]
@@ -171,33 +203,20 @@ else:
 
 best_loss = -1.
 
-
-model.train()
+# Training
+vqvae.train()
 train_res_recon_error = []
 train_res_perplexity = []
+for i, sample_idx in enumerate(indices):
+    train_vqvae(vqvae, optimizer, args, train_res_recon_error, train_res_perplexity, sample_idx)
+    train_classifier(classifier, optimizer, args, sample_idx, weights=None)
 
+    if (i + 1) % args.test_period == 0:
+        acc = test(classifier, vqvae, args, test_indices)
+        print('test accuracy at ite %d: %f' % (int(i + 1), acc))
 
-for i, sample_idxs in enumerate(indices):
-    data = torch.FloatTensor(args.dataset.root.train.data[sample_idxs, :, :]).transpose(1, 0).unsqueeze(0).unsqueeze(3).reshape([n_frames, int(80 /n_frames), 26, 26])
-    # data = torch.FloatTensor(args.dataset.root.train.data[sample_idxs, :, :]).transpose(1, 0).unsqueeze(0).unsqueeze(3).reshape([int(80 /n_frames), n_frames, 26, 26])
-
-    # print(data.shape)
-
-    optimizer.zero_grad()
-
-    vq_loss, data_recon, perplexity = model(data)
-    recon_error = F.mse_loss(data_recon, data)
-    loss = recon_error + vq_loss
-    loss.backward()
-
-    optimizer.step()
-
-    train_res_recon_error.append(recon_error.item())
-    train_res_perplexity.append(perplexity.item())
-
-    if (i + 1) % 10 == 0:
+    if (i + 1) % 100 == 0:
         print('%d iterations' % (i + 1))
         print('recon_error: %.3f' % np.mean(train_res_recon_error[-100:]))
         print('perplexity: %.3f' % np.mean(train_res_perplexity[-100:]))
         print()
-

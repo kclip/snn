@@ -119,6 +119,7 @@ class VectorQuantizerEMA(nn.Module):
             return loss, quantized.permute(0, 3, 1, 2).contiguous(), perplexity, encodings
 
 
+
 class Residual(nn.Module):
     def __init__(self, in_channels, num_hiddens, num_residual_hiddens):
         super(Residual, self).__init__()
@@ -266,17 +267,19 @@ class Model(nn.Module):
         # print('Pre quantizer shape ', z.shape)
         loss, quantized, perplexity, _ = self.quantizer(z)
 
-
         x_recon = self._decoder(quantized)
 
         return loss, x_recon, perplexity
+
 
     def encode(self, x):
         z = self._encoder(x)
         z = self._pre_vq_conv(z)
 
-        inputs = z.permute(0, 2, 3, 1).contiguous()
-        _, quantized = self.quantizer.encode_and_quantize(inputs)
+        _, quantized, _, _ = self.quantizer(z)
+
+        return quantized
+
 
     def decode(self, quantized):
         return self._decoder(quantized)

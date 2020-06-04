@@ -185,34 +185,33 @@ class Encoder(nn.Module):
         self._conv_2 = nn.Conv2d(in_channels=num_hiddens // 2,
                                  out_channels=num_hiddens,
                                  kernel_size=4,
-                                 stride=1, padding=1)
+                                 stride=2, padding=1)
         self._conv_3 = nn.Conv2d(in_channels=num_hiddens,
                                  out_channels=num_hiddens,
-                                 kernel_size=4,
-                                 stride=3, padding=1)
+                                 kernel_size=3,
+                                 stride=1, padding=1)
         self._residual_stack = ResidualStack(in_channels=num_hiddens,
                                              num_hiddens=num_hiddens,
                                              num_residual_layers=num_residual_layers,
                                              num_residual_hiddens=num_residual_hiddens)
 
     def forward(self, inputs):
-        print('Encoder')
-        print('Input shape ', inputs.shape)
+        # print('Encoder')
+        # print('Input shape ', inputs.shape)
         x = self._conv_1(inputs)
         x = F.relu(x)
 
-        print('Conv1 + relu ', x.shape)
+        # print('Conv1 + relu ', x.shape)
 
         x = self._conv_2(x)
         x = F.relu(x)
 
-        print('Conv2 + relu ', x.shape)
+        # print('Conv2 + relu ', x.shape)
 
         x = self._conv_3(x)
 
-        print('Conv3 + relu ', x.shape)
-
-        print('Residual stack ', self._residual_stack(x).shape)
+        # print('Conv3 + relu ', x.shape)
+        # print('Residual stack ', self._residual_stack(x).shape)
 
         return self._residual_stack(x)
 
@@ -223,8 +222,8 @@ class Decoder(nn.Module):
 
         self._conv_1 = nn.Conv2d(in_channels=in_channels,
                                  out_channels=num_hiddens,
-                                 kernel_size=1,
-                                 stride=1, padding=0)
+                                 kernel_size=3,
+                                 stride=1, padding=1)
 
         self._residual_stack = ResidualStack(in_channels=num_hiddens,
                                              num_hiddens=num_hiddens,
@@ -232,19 +231,23 @@ class Decoder(nn.Module):
                                              num_residual_hiddens=num_residual_hiddens)
 
         self._conv_trans_1 = nn.ConvTranspose2d(in_channels=num_hiddens,
-                                                out_channels=num_hiddens//2,
-                                                kernel_size=4,
-                                                stride=3, padding=0)
+                                                out_channels=num_hiddens,
+                                                kernel_size=3,
+                                                stride=1, padding=1)
 
-        self._conv_trans_2 = nn.ConvTranspose2d(in_channels=num_hiddens//2,
+        self._conv_trans_2 = nn.ConvTranspose2d(in_channels=num_hiddens,
+                                                out_channels=num_hiddens // 2,
+                                                kernel_size=5,
+                                                stride=2, padding=1)
+        self._conv_trans_3 = nn.ConvTranspose2d(in_channels=num_hiddens // 2,
                                                 out_channels=out_channels,
                                                 kernel_size=4,
                                                 stride=2, padding=1)
 
 
     def forward(self, inputs):
-        print('Decoder')
-        print('Input shape ', inputs.shape)
+        # print('Decoder')
+        # print('Input shape ', inputs.shape)
 
         x = self._conv_1(inputs)
 
@@ -258,9 +261,14 @@ class Decoder(nn.Module):
         x = F.relu(x)
 
         # print('Conv trans1 + relu ', x.shape)
-        # print('Conv trans2 ', self._conv_trans_2(x).shape)
 
-        return self._conv_trans_2(x)
+        x = self._conv_trans_2(x)
+        x = F.relu(x)
+
+        # print('Conv trans2 + relu ', x.shape)
+        # print('Conv trans3 + relu ', self._conv_trans_3(x).shape)
+
+        return self._conv_trans_3(x)
 
 
 

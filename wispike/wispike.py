@@ -9,6 +9,7 @@ import numpy as np
 import pickle
 from utils.filters import get_filter
 
+
 def wispike(args):
     ### Network parameters
     n_inputs_enc = args.dataset.root.stats.train_data[:][1]
@@ -99,7 +100,7 @@ def wispike(args):
 
         if args.test_accs:
             if (j + 1) in args.test_accs:
-                acc = utils_wispike.get_acc(encoder, decoder, args.dataset, test_indices, args.snr, args.systematic, n_outputs_enc)
+                acc = utils_wispike.get_acc(encoder, decoder, args, test_indices, n_outputs_enc)
                 print('test accuracy at ite %d: %f' % (int(j + 1), acc))
                 args.test_accs[int(j + 1)].append(acc)
 

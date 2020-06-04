@@ -1,6 +1,6 @@
 import numpy as np
 import tables
-from wispike.benchmark.vqvae_zalando import Model
+from wispike.models.vqvae_zalando import Model
 import torch
 import argparse
 import torch.nn.functional as F
