@@ -77,7 +77,7 @@ def init_classifier(args):
                                                                   n_output_neurons,
                                                                   args.n_h,
                                                                   args.topology_type,
-                                                                  args.topology,
+                                                                  None,
                                                                   args.density,
                                                                   'train',
                                                                   args.weights_magnitude,

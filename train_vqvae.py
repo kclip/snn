@@ -8,6 +8,7 @@ from multivalued_snn.utils_multivalued.misc import str2bool
 import wispike.utils.misc as misc_wispike
 from wispike.utils import training_utils
 from wispike.utils import testing_utils
+import pickle
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='VQ-VAE')
@@ -79,8 +80,9 @@ elif args.where == 'gcloud':
 save_path = os.getcwd() + r'/results'
 dataset = data_path + r'/mnist-dvs/mnist_dvs_binary_25ms_26pxl_10_digits.hdf5'
 
-args.topology = None  # todo
-args.save_path = None  # todo
+name = r'_' + args.classifier + r'_%d_epochs_nh_%d_nout_%d' % (args.num_samples_train, args.n_h, args.n_output_enc) + args.suffix
+args.save_path = r'/home/k1804053/snn_private/results/' + args.dataset + name + '.pkl'
+args.save_path_weights = None
 
 args.disable_cuda = str2bool(args.disable_cuda)
 args.device = None
@@ -119,10 +121,8 @@ args.H, args.G, args.k = training_utils.init_ldpc(args.encodings_dim)
 
 if not args.num_samples_train:
     args.num_samples_train = args.dataset.root.stats.train_data[0]
-
 if not args.num_samples_test:
     args.num_samples_test = args.dataset.root.stats.test_data[0]
-
 
 if args.labels is not None:
     print(args.labels)
@@ -133,6 +133,9 @@ else:
     indices = np.random.choice(np.arange(args.dataset.root.stats.train_data[0]), [args.num_samples_train], replace=True)
     test_indices = np.random.choice(np.arange(args.dataset.root.stats.test_data[0]), [args.num_samples_test], replace=False)
 
+
+args.ite_test = np.arange(0, args.num_samples_train, args.test_period)
+args.test_accs = {i: [] for i in args.ite_test}
 
 # Training
 train_res_recon_error = []
@@ -152,3 +155,9 @@ for i, idx in enumerate(indices):
         print('test accuracy: %f' % acc)
         print('recon_error: %.3f' % np.mean(train_res_recon_error[-100:]))
         print('perplexity: %.3f' % np.mean(train_res_perplexity[-100:]))
+
+        args.test_accs[int(i + 1)].append(acc)
+        if args.save_path is not None:
+            with open(args.save_path, 'wb') as f:
+                pickle.dump(args.test_accs, f, pickle.HIGHEST_PROTOCOL)
+
