@@ -41,7 +41,6 @@ def launch_binary_exp(args):
         network.import_weights(args.weights)
 
     # Start training
-    test_accs = train(network, args.dataset, indices, test_indices, args.test_accs, args.lr, args.gamma, args.beta, args.kappa,
-                      args.r, args.start_idx, args, args.save_path)
+    test_accs = train(network, indices, test_indices, args)
 
     return test_accs

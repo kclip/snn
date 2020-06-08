@@ -1,6 +1,6 @@
 import numpy as np
 import tables
-from wispike.models.vqvae_zalando import Model
+from wispike.models.vqvae import Model
 import torch
 import argparse
 import torch.nn.functional as F
@@ -131,8 +131,8 @@ num_hiddens = 256
 num_residual_hiddens = 32
 num_residual_layers = 2
 
-embedding_dim = 64
-num_embeddings = 128
+embedding_dim = 32
+num_embeddings = 12
 
 commitment_cost = 0.25
 
@@ -184,7 +184,7 @@ for i, sample_idxs in enumerate(indices):
 
     optimizer.zero_grad()
 
-    vq_loss, data_recon, perplexity = model(data, snr)
+    vq_loss, data_recon, perplexity = model(data)
     recon_error = F.mse_loss(data_recon, data)
     loss = recon_error + vq_loss
     loss.backward()

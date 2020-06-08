@@ -106,17 +106,20 @@ class VectorQuantizerEMA(nn.Module):
 
             self._embedding.weight = nn.Parameter(self._ema_w / self._ema_cluster_size.unsqueeze(1))
 
-            # Loss
-            e_latent_loss = F.mse_loss(quantized.detach(), inputs)
-            loss = self._commitment_cost * e_latent_loss
+        # Loss
+        e_latent_loss = F.mse_loss(quantized.detach(), inputs)
+        loss = self._commitment_cost * e_latent_loss
 
-            # Straight Through Estimator
-            quantized = inputs + (quantized - inputs).detach()
-            avg_probs = torch.mean(encodings, dim=0)
-            perplexity = torch.exp(-torch.sum(avg_probs * torch.log(avg_probs + 1e-10)))
+        # Straight Through Estimator
+        quantized = inputs + (quantized - inputs).detach()
+        avg_probs = torch.mean(encodings, dim=0)
+        perplexity = torch.exp(-torch.sum(avg_probs * torch.log(avg_probs + 1e-10)))
 
-            # convert quantized from BHWC -> BCHW
-            return loss, quantized.permute(0, 3, 1, 2).contiguous(), perplexity, encodings
+        # convert quantized from BHWC -> BCHW
+        return loss, quantized.permute(0, 3, 1, 2).contiguous(), perplexity, encodings
+
+    def quantize_encodings(self, encodings, input_shape):
+        return torch.matmul(encodings, self._embedding.weight).view(input_shape).permute(0, 3, 1, 2).contiguous()
 
 
 
@@ -276,12 +279,13 @@ class Model(nn.Module):
         z = self._encoder(x)
         z = self._pre_vq_conv(z)
 
-        _, quantized, _, _ = self.quantizer(z)
+        _, quantized, _, encodings = self.quantizer(z)
 
-        return quantized
+        return quantized, encodings
 
 
-    def decode(self, quantized):
+    def decode(self, encodings, input_shape):
+        quantized = self.quantizer.quantize_encodings(encodings, input_shape)
         return self._decoder(quantized)
 
 

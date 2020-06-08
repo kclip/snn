@@ -31,7 +31,8 @@ def local_feedback_and_update(network, ls_tmp, eligibility_trace_hidden, eligibi
     """
 
     # local feedback
-    learning_signal = kappa * learning_signal + (1 - kappa) * ls_tmp
+    if ls_tmp != 0:
+        learning_signal = kappa * learning_signal + (1 - kappa) * ls_tmp
 
     # Update parameter
     for parameter in network.gradients:
@@ -51,11 +52,7 @@ def local_feedback_and_update(network, ls_tmp, eligibility_trace_hidden, eligibi
     return eligibility_trace_hidden, eligibility_trace_output, learning_signal, baseline_num, baseline_den
 
 
-def train(network, dataset, indices, test_indices, test_accs, learning_rate, alpha, beta, kappa, r, start_idx, args, save_path=None):
-    """"
-    Train a network.
-    """
-
+def init_training(network, args):
     network.set_mode('train')
 
     eligibility_trace_hidden = {parameter: network.gradients[parameter][network.hidden_neurons - network.n_input_neurons] for parameter in network.gradients}
@@ -66,41 +63,51 @@ def train(network, dataset, indices, test_indices, test_accs, learning_rate, alp
     baseline_num = {parameter: eligibility_trace_hidden[parameter].pow(2) * learning_signal for parameter in eligibility_trace_hidden}
     baseline_den = {parameter: eligibility_trace_hidden[parameter].pow(2) for parameter in eligibility_trace_hidden}
 
-    S_prime = dataset.root.stats.train_label[:][-1]
+    S_prime = args.dataset.root.stats.train_label[:][-1]
 
-    for j, sample_idx in enumerate(indices[start_idx:]):
-        j += start_idx
-        if (j + 1) % 5 * (dataset.root.train.data[:].shape[0]) == 0:
-            learning_rate /= 2
+    return eligibility_trace_output, eligibility_trace_hidden, learning_signal, baseline_num, baseline_den, S_prime
+
+
+def train(network, indices, test_indices, args):
+    """"
+    Train a network.
+    """
+
+    eligibility_trace_output, eligibility_trace_hidden, learning_signal, baseline_num, baseline_den, S_prime = init_training(network, indices, args)
+
+    for j, sample_idx in enumerate(indices[args.start_idx:]):
+        j += args.start_idx
+        if (j + 1) % 5 * (args.dataset.root.train.data[:].shape[0]) == 0:
+            args.lr /= 2
 
         # Regularly test the accuracy
-        if test_accs:
-            if (j + 1) in test_accs:
-                acc, loss = get_acc_and_loss(network, dataset, test_indices)
-                test_accs[int(j + 1)].append(acc)
+        if args.test_accs:
+            if (j + 1) in args.test_accs:
+                acc, loss = get_acc_and_loss(network, args.dataset, test_indices)
+                args.test_accs[int(j + 1)].append(acc)
                 print('test accuracy at ite %d: %f' % (int(j + 1), acc))
 
                 # acc_train, _ = get_train_acc_and_loss(network, dataset, args.labels)
                 # print('train accuracy at ite %d: %f' % (int(j + 1), acc_train))
 
-                if save_path is not None:
-                    with open(save_path, 'wb') as f:
-                        pickle.dump(test_accs, f, pickle.HIGHEST_PROTOCOL)
+                if args.save_path is not None:
+                    with open(args.save_path, 'wb') as f:
+                        pickle.dump(args.test_accs, f, pickle.HIGHEST_PROTOCOL)
 
                     network.set_mode('train')
 
         refractory_period(network)
-        sample = torch.cat((torch.FloatTensor(dataset.root.train.data[sample_idx]),
-                            torch.FloatTensor(dataset.root.train.label[sample_idx])), dim=0).to(network.device)
+        sample = torch.cat((torch.FloatTensor(args.dataset.root.train.data[sample_idx]),
+                            torch.FloatTensor(args.dataset.root.train.label[sample_idx])), dim=0).to(network.device)
         for s in range(S_prime):
             # Feedforward sampling
-            log_proba, ls_tmp = feedforward_sampling(network, sample[:, s], alpha, r)
+            log_proba, ls_tmp = feedforward_sampling(network, sample[:, s], args.alpha, args.r)
             # Local feedback and update
             eligibility_trace_hidden, eligibility_trace_output, learning_signal, baseline_num, baseline_den \
                 = local_feedback_and_update(network, ls_tmp, eligibility_trace_hidden, eligibility_trace_output,
-                                            learning_signal, baseline_num, baseline_den, learning_rate, beta, kappa)
+                                            learning_signal, baseline_num, baseline_den, args.lr, args.beta, args.kappa)
 
         if j % max(1, int(len(indices) / 5)) == 0:
             print('Step %d out of %d' % (j, len(indices)))
 
-    return test_accs
+    return args.test_accs

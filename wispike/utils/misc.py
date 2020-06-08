@@ -1,71 +1,56 @@
 import torch
-from binary_snn.models.SNN import SNNetwork
-from wispike.models.mlp import MLP
 import numpy as np
 import pyldpc
 
 
-def classify(classifier, sample):
-    if isinstance(classifier, SNNetwork):
-        S_prime = sample.shape[-1]
-        outputs = torch.zeros([classifier.n_output_neurons, S_prime])
+def channel(signal, device, snr_db):
+    sig_avg_db = 10 * torch.log10(torch.mean(signal))
+    noise_db = sig_avg_db - snr_db
+    sigma_noise = 10 ** (noise_db / 10)
 
-        for s in range(S_prime):
-            _ = classifier(sample[:, s])
-            outputs[:, s] = classifier.spiking_history[classifier.output_neurons, -1]
+    noise = torch.normal(0, torch.ones(signal.shape)) * sigma_noise
+    channel_output = signal + noise.to(device)
 
-        prediction = torch.max(torch.sum(outputs, dim=-1), dim=-1).indices
-
-    elif isinstance(classifier, MLP):
-        sample = sample.flatten()
-
-        output = classifier(sample)
-        prediction = torch.argmax(output)
+    channel_output[channel_output >= 0.5] = 1
+    channel_output[channel_output < 0.5] = 0
+    return channel_output
 
 
-    return prediction
-
-
-def channel_coding_decoding(args, quantized):
+def channel_coding_decoding(args, encodings):
     # Transmit through channel
-    quantized_shape = quantized.data.numpy().shape
-    # n_bits_total = np.prod(quantized.size())
+    encodings_shape = encodings.data.numpy().shape
 
-    assert np.prod(quantized.size()) == args.k  # We're sending one block
-    # n_blocks = n_bits_total // k
-    # residual = n_bits_total % k
+    to_send = np.zeros([args.k])
+    to_send[:np.prod(encodings_shape)] = encodings.clone().data.flatten()
 
-    # if residual:
-    #     n_blocks += 1
-
-    # encodings_flattened = np.zeros(n_bits_total)
-    # encodings_flattened[:n_bits_total] = source_encodings.flatten().data.numpy()
-
-    coded_quantized = pyldpc.encode(args.G, quantized.data.numpy(), args.snr)
+    coded_quantized = pyldpc.encode(args.G, to_send, args.snr)
     received = pyldpc.decode(args.H, coded_quantized, args.snr)
-    decoded = received[:args.k, :]
 
-    decoded = decoded[:np.prod(quantized_shape)]
-    decoded = torch.FloatTensor(decoded.reshape(*quantized_shape))
+    decoded = received[:np.prod(encodings_shape)]
+    decoded = torch.FloatTensor(decoded.reshape(*encodings_shape))
 
     return decoded
 
 
-def test(classifier, vqvae, args, indices):
-    predictions = torch.zeros([len(indices)])
+def example_to_framed(example, args):
+    if args.residual:
+        frames = torch.zeros([args.n_frames, 80 // (args.n_frames - 1), 26, 26])
+        frames[:-1] = example[:, :(args.n_frames - 1) * (80 // (args.n_frames - 1))].transpose(1, 0).unsqueeze(0).unsqueeze(3).reshape(frames[:-1].shape)
+        frames[-1, :args.residual] = example[:, -args.residual:].transpose(1, 0).unsqueeze(0).unsqueeze(3).reshape([args.residual, 26, 26])
+    else:
+        frames = torch.FloatTensor(example).transpose(1, 0).unsqueeze(0).unsqueeze(3).reshape([args.n_frames, 80 // args.n_frames, 26, 26])
 
-    for i, sample_idx in enumerate(indices):
-        data = torch.FloatTensor(args.dataset.root.test.data[sample_idx, :, :]).transpose(1, 0).unsqueeze(0).unsqueeze(3).reshape([n_frames, int(80 / n_frames), 26, 26])
+    return frames
 
-        quantized = vqvae.encode(data)
 
-        quantized = channel_coding_decoding(args, quantized, args.snr)
+def framed_to_example(frames, args):
+    if args.residual:
+        data_reconstructed = torch.zeros([676, 80])
+        data_reconstructed[:, :(args.n_frames - 1) * (80 // (args.n_frames - 1))] \
+            = frames[:-1].reshape([(args.n_frames - 1) * (80 // (args.n_frames - 1)), -1]).transpose(1, 0)
+        data_reconstructed[:, -args.residual:] = frames[-1, :args.residual].reshape([args.residual, -1]).transpose(1, 0)
+    else:
+        data_reconstructed = frames.reshape([80, -1]).transpose(1, 0)
 
-        sample_reconstructed = vqvae.decode(quantized)
+    return data_reconstructed
 
-        predictions[i] = classify(classifier, sample_reconstructed)
-
-    true_classes = torch.max(torch.sum(torch.FloatTensor(args.dataset.root.test.label[:][indices]), dim=-1), dim=-1).indices
-    acc = float(torch.sum(predictions == true_classes, dtype=torch.float) / len(predictions))
-
-    return acc

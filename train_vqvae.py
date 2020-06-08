@@ -1,18 +1,13 @@
 import numpy as np
 import tables
-from wispike.models.vqvae import Model
 import torch
 import argparse
 import os
-import binary_snn.utils_binary.misc as misc
+import binary_snn.utils_binary.misc as misc_snn
 from multivalued_snn.utils_multivalued.misc import str2bool
-import torch.optim as optim
-import pyldpc
-from wispike.utils.misc import test
-from wispike.utils.training_utils import train_classifier, train_vqvae
-from binary_snn.models.SNN import SNNetwork
-from utils.filters import get_filter
-from wispike.models.mlp import MLP
+import wispike.utils.misc as misc_wispike
+from wispike.utils import training_utils
+from wispike.utils import testing_utils
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='VQ-VAE')
@@ -22,20 +17,30 @@ if __name__ == '__main__':
     parser.add_argument('--where', default='local')
     parser.add_argument('--dataset', default='mnist_dvs_10_binary')
     parser.add_argument('--weights', type=str, default=None, help='Path to weights to load')
-    parser.add_argument('--model', default='binary', choices=['binary', 'wta', 'wispike'], help='Model type, either "binary" or "wta"')
     parser.add_argument('--num_ite', default=5, type=int, help='Number of times every experiment will be repeated')
     parser.add_argument('--epochs', default=None, type=int, help='Number of samples to train on for each experiment')
     parser.add_argument('--num_samples_train', default=None, type=int, help='Number of samples to train on for each experiment')
     parser.add_argument('--num_samples_test', default=None, type=int, help='Number of samples to test on')
-    parser.add_argument('--test_period', default=1000, type=int, help='')
+    parser.add_argument('--test_period', default=3, type=int, help='')
     parser.add_argument('--lr', default=0.005, type=float, help='Learning rate')
     parser.add_argument('--disable-cuda', type=str, default='true', help='Disable CUDA')
     parser.add_argument('--start_idx', type=int, default=0, help='When resuming training from existing weights, index to start over from')
     parser.add_argument('--suffix', type=str, default='', help='Appended to the name of the saved results and weights')
     parser.add_argument('--labels', nargs='+', default=None, type=int, help='Class labels to be used during training')
+    parser.add_argument('--systematic', type=str, default='true', help='Systematic communication')
+    parser.add_argument('--snr', type=float, default=100, help='SNR')
+    parser.add_argument('--n_frames', default=80, type=int, help='')
+    parser.add_argument('--classifier', type=str, default='snn', choices=['snn', 'mlp'])
+    parser.add_argument('--test_type', type=str, default='final', choices=['final', 'per_frame'])
 
 
-    # Arguments common to all models
+    # Arguments for VQ-VAE
+    parser.add_argument('--embedding_dim', default=32, type=int, help='Size of VQ-VAE latent embeddings')
+    parser.add_argument('--num_embeddings', default=12, type=int, help='Number of VQ-VAE latent embeddings')
+    parser.add_argument('--beta_vqvae', type=float, default=1.0, help='contribution of commitment loss, between 0.1 and 2.0 (default: 1.0)') # todo change
+
+
+    # Arguments for snn models
     parser.add_argument('--n_h', default=256, type=int, help='Number of hidden neurons')
     parser.add_argument('--topology_type', default='fully_connected', type=str, choices=['fully_connected', 'feedforward', 'layered', 'custom'], help='Topology of the network')
     parser.add_argument('--density', default=None, type=int, help='Density of the connections if topology_type is "sparse"')
@@ -59,57 +64,23 @@ if __name__ == '__main__':
     parser.add_argument('--beta', default=0.05, type=float, help='Baseline decay factor')
     parser.add_argument('--gamma', default=1., type=float, help='KL regularization strength')
 
-    # Arguments for Wispike
-    parser.add_argument('--systematic', type=str, default='true', help='Systematic communication')
-    parser.add_argument('--snr', type=float, default=None, help='SNR')
-    parser.add_argument('--n_output_enc', default=128, type=int, help='')
-    # parser.add_argument('--beta', type=float, default=1.0,
-    #     help='contribution of commitment loss, between 0.1 and 2.0 (default: 1.0)')
-
     args = parser.parse_args()
 
 
 if args.where == 'local':
     data_path = r'C:/Users/K1804053/PycharmProjects/datasets/'
-elif args.where == 'distant':
+elif args.where == 'rosalind':
     data_path = r'/users/k1804053/datasets/'
+elif args.where == 'jade':
+    data_path = r'/jmain01/home/JAD014/mxm09/nxs94-mxm09/datasets'
 elif args.where == 'gcloud':
     data_path = r'/home/k1804053/datasets/'
 
 save_path = os.getcwd() + r'/results'
+dataset = data_path + r'/mnist-dvs/mnist_dvs_binary_25ms_26pxl_10_digits.hdf5'
 
-datasets = {'mnist_dvs_2': r'mnist_dvs_25ms_26pxl_2_digits_polarity.hdf5',
-            'mnist_dvs_10_binary': r'mnist_dvs_binary_25ms_26pxl_10_digits.hdf5',
-            'mnist_dvs_10': r'mnist_dvs_25ms_26pxl_10_digits_polarity.hdf5',
-            'mnist_dvs_10_c_3': r'mnist_dvs_25ms_26pxl_10_digits_C_3.hdf5',
-            'mnist_dvs_10_c_5': r'mnist_dvs_25ms_26pxl_10_digits_C_5.hdf5',
-            'mnist_dvs_10_c_7': r'mnist_dvs_25ms_26pxl_10_digits_C_7.hdf5',
-            'mnist_dvs_10ms_polarity': r'mnist_dvs_10ms_26pxl_10_digits_polarity.hdf5',
-            'dvs_gesture_5ms': r'dvs_gesture_5ms_11_classes.hdf5',
-            'dvs_gesture_5ms_5_classes': r'dvs_gesture_5ms_5_classes.hdf5',
-            'dvs_gesture_20ms_2_classes': r'dvs_gesture_20ms_2_classes.hdf5',
-            'dvs_gesture_5ms_2_classes': r'dvs_gesture_5ms_2_classes.hdf5',
-            'dvs_gesture_5ms_3_classes': r'dvs_gesture_5ms_3_classes.hdf5',
-            'dvs_gesture_15ms': r'dvs_gesture_15ms_11_classes.hdf5',
-            'dvs_gesture_20ms': r'dvs_gesture_20ms_11_classes.hdf5',
-            'dvs_gesture_30ms': r'dvs_gesture_30ms_11_classes.hdf5',
-            'dvs_gesture_20ms_5_classes': r'dvs_gesture_20ms_5_classes.hdf5',
-            'dvs_gesture_1ms': r'dvs_gesture_1ms_11_classes.hdf5',
-            'shd_eng_c_2': r'shd_10ms_10_classes_eng_C_2.hdf5',
-            'shd_all_c_2': r'shd_10ms_10_classes_all_C_2.hdf5'
-            }
-
-if args.dataset[:3] == 'shd':
-    dataset = data_path + r'/shd/' + datasets[args.dataset]
-elif args.dataset[:5] == 'mnist':
-    dataset = data_path + r'/mnist-dvs/' + datasets[args.dataset]
-elif args.dataset[:11] == 'dvs_gesture':
-    dataset = data_path + r'/DvsGesture/' + datasets[args.dataset]
-elif args.dataset[:7] == 'swedish':
-    dataset = data_path + r'/SwedishLeaf_processed/' + datasets[args.dataset]
-else:
-    print('Error: dataset not found')
-
+args.topology = None  # todo
+args.save_path = None  # todo
 
 args.disable_cuda = str2bool(args.disable_cuda)
 args.device = None
@@ -120,71 +91,31 @@ else:
 
 args.dataset = tables.open_file(dataset)
 
-# Make VAE
-args.n_frames = 1
-residual = 80 % args.n_frames
-if residual:
+if args.classifier == 'snn':
+    assert args.n_frames == 80
+
+args.residual = 80 % args.n_frames
+if args.residual:
     args.n_frames += 1
 
-num_input_channels = 80 // args.n_frames
 
-num_hiddens = 128
-num_residual_hiddens = 32
-num_residual_layers = 2
+# Make VAE
+vqvae, vqvae_optimizer = training_utils.init_vqvae(args)
+example_frame = misc_wispike.example_to_framed(args.dataset.root.train.data[0], args)[0].unsqueeze(0)
+args.frame_shape = example_frame.shape
+print('frame shape ', args.frame_shape)
 
-embedding_dim = 32
-num_embeddings = 12
-
-commitment_cost = 0.25
-
-decay = 0.99
-
-learning_rate = 1e-3
-
-vqvae = Model(num_input_channels, num_hiddens, num_residual_layers, num_residual_hiddens, num_embeddings, embedding_dim, commitment_cost, decay).to(args.device)
-optimizer = optim.Adam(vqvae.parameters(), lr=learning_rate, amsgrad=False)
-
+example_quantized, example_encodings = vqvae.encode(example_frame)
+args.encodings_dim = example_encodings.data.numpy().shape
+args.quantized_dim = example_quantized.data.clone().permute(0, 2, 3, 1).contiguous().shape
+print('encodings dim', args.encodings_dim)
 
 # Make classifier
-if args.classifier == 'snn':
-    n_input_neurons = args.dataset.root.stats.train_data[1]
-    n_output_neurons = args.dataset.root.stats.train_label[1]
-
-    classifier = SNNetwork(**misc.make_network_parameters(n_input_neurons,
-                                                          n_output_neurons,
-                                                          args.n_h,
-                                                          args.topology_type,
-                                                          args.topology,
-                                                          args.density,
-                                                          'train',
-                                                          args.weights_magnitude,
-                                                          args.n_basis_ff,
-                                                          get_filter(args.ff_filter),
-                                                          args.n_basis_fb,
-                                                          get_filter(args.fb_filter),
-                                                          args.initialization,
-                                                          args.tau_ff,
-                                                          args.tau_fb,
-                                                          args.mu,
-                                                          args.save_path),
-                           device=args.device)
-
-if args.classifier == 'mlp':
-    n_input_neurons = np.prod(args.dataset.root.stats.train_data[1:])
-    n_output_neurons = args.dataset.root.stats.train_label[1]
-
-    classifier = MLP(args.n_input_neurons, args.n_h, n_output_neurons)
-
+classifier, args = training_utils.init_classifier(args)
 
 # LDPC coding
-ldpc_codewords_length = 676
-d_v = 3
-d_c = 4
-snr = 1000000
+args.H, args.G, args.k = training_utils.init_ldpc(args.encodings_dim)
 
-# Make LDPC
-H, G = pyldpc.make_ldpc(ldpc_codewords_length, d_v, d_c, systematic=True, sparse=True)
-_, k = G.shape
 
 if not args.num_samples_train:
     args.num_samples_train = args.dataset.root.stats.train_data[0]
@@ -192,31 +123,32 @@ if not args.num_samples_train:
 if not args.num_samples_test:
     args.num_samples_test = args.dataset.root.stats.test_data[0]
 
+
 if args.labels is not None:
     print(args.labels)
-    indices = np.random.choice(misc.find_train_indices_for_labels(args.dataset, args.labels), [args.num_samples_train], replace=True)
-    num_samples_test = min(args.num_samples_test, len(misc.find_test_indices_for_labels(args.dataset, args.labels)))
-    test_indices = np.random.choice(misc.find_test_indices_for_labels(args.dataset, args.labels), [num_samples_test], replace=False)
+    indices = np.random.choice(misc_snn.find_train_indices_for_labels(args.dataset, args.labels), [args.num_samples_train], replace=True)
+    num_samples_test = min(args.num_samples_test, len(misc_snn.find_test_indices_for_labels(args.dataset, args.labels)))
+    test_indices = np.random.choice(misc_snn.find_test_indices_for_labels(args.dataset, args.labels), [num_samples_test], replace=False)
 else:
     indices = np.random.choice(np.arange(args.dataset.root.stats.train_data[0]), [args.num_samples_train], replace=True)
     test_indices = np.random.choice(np.arange(args.dataset.root.stats.test_data[0]), [args.num_samples_test], replace=False)
 
-best_loss = -1.
 
 # Training
-vqvae.train()
 train_res_recon_error = []
 train_res_perplexity = []
-for i, sample_idx in enumerate(indices):
-    train_vqvae(vqvae, optimizer, args, train_res_recon_error, train_res_perplexity, sample_idx)
-    train_classifier(classifier, optimizer, args, sample_idx, weights=None)
+
+for i, idx in enumerate(indices):
+    print('ite %d' % (i + 1))
+    vqvae.train()
+    train_res_recon_error, train_res_perplexity = \
+        training_utils.train_vqvae(vqvae, vqvae_optimizer, args, train_res_recon_error, train_res_perplexity, idx)
+    classifier, args = training_utils.train_classifier(classifier, args, idx)
 
     if (i + 1) % args.test_period == 0:
-        acc = test(classifier, vqvae, args, test_indices)
-        print('test accuracy at ite %d: %f' % (int(i + 1), acc))
-
-    if (i + 1) % 100 == 0:
+        print('Testing at step %d...' % (i + 1))
+        acc = testing_utils.get_acc_classifier(classifier, vqvae, args, test_indices)
         print('%d iterations' % (i + 1))
+        print('test accuracy: %f' % acc)
         print('recon_error: %.3f' % np.mean(train_res_recon_error[-100:]))
         print('perplexity: %.3f' % np.mean(train_res_perplexity[-100:]))
-        print()
