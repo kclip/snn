@@ -79,13 +79,13 @@ if __name__ == "__main__":
 print(args)
 
 if args.where == 'local':
-    data_path = r'C:/Users/K1804053/PycharmProjects/datasets/'
+    home = r'C:/Users/K1804053/PycharmProjects'
 elif args.where == 'rosalind':
-    data_path = r'/users/k1804053/datasets/'
+    home = r'/users/k1804053'
 elif args.where == 'jade':
-    data_path = r'/jmain01/home/JAD014/mxm09/nxs94-mxm09/datasets'
+    home = r'/jmain01/home/JAD014/mxm09/nxs94-mxm09'
 elif args.where == 'gcloud':
-    data_path = r'/home/k1804053/datasets/'
+    home = r'/home/k1804053'
 
 save_path = os.getcwd() + r'/results'
 
@@ -111,13 +111,13 @@ datasets = {'mnist_dvs_2': r'mnist_dvs_25ms_26pxl_2_digits_polarity.hdf5',
             }
 
 if args.dataset[:3] == 'shd':
-    dataset = data_path + r'/shd/' + datasets[args.dataset]
+    dataset = home + r'/datasets/shd/' + datasets[args.dataset]
 elif args.dataset[:5] == 'mnist':
-    dataset = data_path + r'/mnist-dvs/' + datasets[args.dataset]
+    dataset = home + r'/datasets/mnist-dvs/' + datasets[args.dataset]
 elif args.dataset[:11] == 'dvs_gesture':
-    dataset = data_path + r'/DvsGesture/' + datasets[args.dataset]
+    dataset = home + r'/datasets/DvsGesture/' + datasets[args.dataset]
 elif args.dataset[:7] == 'swedish':
-    dataset = data_path + r'/SwedishLeaf_processed/' + datasets[args.dataset]
+    dataset = home + r'/datasets/SwedishLeaf_processed/' + datasets[args.dataset]
 else:
     print('Error: dataset not found')
 
@@ -130,8 +130,8 @@ if not args.num_samples_test:
 
 # Save results and weights
 name = r'_' + args.model + r'_%d_epochs_nh_%d_nout_%d' % (args.num_samples_train, args.n_h, args.n_output_enc) + args.suffix
-args.save_path = r'/users/k1804053/results/' + args.dataset + name + '.pkl'
-args.save_path_weights = r'/users/k1804053/results/' + args.dataset + name + '_weights.hdf5'
+args.save_path = home + r'/results/' + args.dataset + name + '.pkl'
+args.save_path_weights = r'/results/' + args.dataset + name + '_weights.hdf5'
 
 args.ite_test = np.arange(0, args.num_samples_train, args.test_period)
 

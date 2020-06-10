@@ -10,6 +10,8 @@ from wispike.utils import training_utils
 from wispike.utils import testing_utils
 import pickle
 import time
+from binary_snn.models.SNN import SNNetwork
+from pytorch_memlab import MemReporter #todo
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='VQ-VAE')
@@ -112,6 +114,8 @@ print('encodings dim', args.encodings_dim)
 
 # Make classifier
 classifier, args = training_utils.init_classifier(args)
+if isinstance(classifier, SNNetwork):
+    assert args.n_frames == 80
 
 # LDPC coding
 args.H, args.G, args.k = training_utils.init_ldpc(args.encodings_dim)
@@ -144,6 +148,8 @@ args.test_accs = {i: [] for i in args.ite_test}
 train_res_recon_error = []
 train_res_perplexity = []
 
+reporter = MemReporter() #todo
+
 for i, idx in enumerate(indices):
     print(i)
 
@@ -157,14 +163,16 @@ for i, idx in enumerate(indices):
 
     if (i + 1) % args.test_period == 0:
         print('Testing at step %d...' % (i + 1))
+        reporter.report()
         acc = testing_utils.get_acc_classifier(classifier, vqvae, args, test_indices)
+        reporter.report()
         print('%d iterations' % (i + 1))
         print('test accuracy: %f' % acc)
         print('recon_error: %.3f' % np.mean(train_res_recon_error[-100:]))
         print('perplexity: %.3f' % np.mean(train_res_perplexity[-100:]))
 
         args.test_accs[int(i + 1)].append(acc)
-        if args.save_path is not None:
-            with open(args.save_path, 'wb') as f:
-                pickle.dump(args.test_accs, f, pickle.HIGHEST_PROTOCOL)
+        # if args.save_path is not None:
+        #     with open(args.save_path, 'wb') as f:
+        #         pickle.dump(args.test_accs, f, pickle.HIGHEST_PROTOCOL)
 
