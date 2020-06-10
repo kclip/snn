@@ -26,10 +26,8 @@ def init_vqvae(args):
 
     decay = 0.99
 
-    learning_rate = 1e-3
-
     vqvae = Model(num_input_channels, num_hiddens, num_residual_layers, num_residual_hiddens, args.num_embeddings, args.embedding_dim, commitment_cost, decay).to(args.device)
-    optimizer = optim.Adam(vqvae.parameters(), lr=learning_rate, amsgrad=False)
+    optimizer = optim.Adam(vqvae.parameters(), lr=args.lr_vqvae, amsgrad=False)
 
     return vqvae, optimizer
 
@@ -89,7 +87,7 @@ def init_classifier(args):
                                                                   args.tau_ff,
                                                                   args.tau_fb,
                                                                   args.mu,
-                                                                  args.save_path),
+                                                                  None),
                                device=args.device)
 
         args.eligibility_trace_output, args.eligibility_trace_hidden, \
@@ -100,7 +98,7 @@ def init_classifier(args):
         n_output_neurons = args.dataset.root.stats.train_label[1]
 
         classifier = MLP(n_input_neurons, args.n_h, n_output_neurons)
-        args.mlp_optimizer = torch.optim.SGD(classifier.parameters(), lr=0.001)
+        args.mlp_optimizer = torch.optim.SGD(classifier.parameters(), lr=args.lr_classifier)
         args.mlp_criterion = torch.nn.CrossEntropyLoss()
 
     return classifier, args
@@ -118,14 +116,12 @@ def train_snn(network, args, sample):
         # Local feedback and update
         args.eligibility_trace_hidden, args.eligibility_trace_output, args.lr, args.baseline_num, args.baseline_den \
             = local_feedback_and_update(network, ls_tmp, args.eligibility_trace_hidden, args.eligibility_trace_output,
-                                        args.learning_signal, args.baseline_num, args.baseline_den, args.lr, args.beta, args.kappa)
+                                        args.learning_signal, args.baseline_num, args.baseline_den, args.lr_classifier, args.beta, args.kappa)
 
         return network, args
 
 
 def train_mlp(model, example, label, optimizer, criterion):
-    print('training example shape ', example.shape)
-
     # clear the gradients of all optimized variables
     optimizer.zero_grad()
 

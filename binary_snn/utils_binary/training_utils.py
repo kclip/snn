@@ -73,9 +73,9 @@ def train(network, indices, test_indices, args):
     Train a network.
     """
 
-    eligibility_trace_output, eligibility_trace_hidden, learning_signal, baseline_num, baseline_den, S_prime = init_training(network, indices, args)
+    eligibility_trace_output, eligibility_trace_hidden, learning_signal, baseline_num, baseline_den, S_prime = init_training(network, args)
 
-    for j, sample_idx in enumerate(indices[args.start_idx:]):
+    for j, idx in enumerate(indices[args.start_idx:]):
         j += args.start_idx
         if (j + 1) % 5 * (args.dataset.root.train.data[:].shape[0]) == 0:
             args.lr /= 2
@@ -94,11 +94,12 @@ def train(network, indices, test_indices, args):
                     with open(args.save_path, 'wb') as f:
                         pickle.dump(args.test_accs, f, pickle.HIGHEST_PROTOCOL)
 
-                    network.set_mode('train')
+                network.set_mode('train')
 
         refractory_period(network)
-        sample = torch.cat((torch.FloatTensor(args.dataset.root.train.data[sample_idx]),
-                            torch.FloatTensor(args.dataset.root.train.label[sample_idx])), dim=0).to(network.device)
+        sample = torch.cat((torch.FloatTensor(args.dataset.root.train.data[idx]),
+                            torch.FloatTensor(args.dataset.root.train.label[idx])), dim=0).to(network.device)
+
         for s in range(S_prime):
             # Feedforward sampling
             log_proba, ls_tmp = feedforward_sampling(network, sample[:, s], args.alpha, args.r)

@@ -9,6 +9,7 @@ import wispike.utils.misc as misc_wispike
 from wispike.utils import training_utils
 from wispike.utils import testing_utils
 import pickle
+import time
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='VQ-VAE')
@@ -18,27 +19,28 @@ if __name__ == '__main__':
     parser.add_argument('--where', default='local')
     parser.add_argument('--dataset', default='mnist_dvs_10_binary')
     parser.add_argument('--weights', type=str, default=None, help='Path to weights to load')
-    parser.add_argument('--num_ite', default=5, type=int, help='Number of times every experiment will be repeated')
+    parser.add_argument('--num_ite', default=1, type=int, help='Number of times every experiment will be repeated')
     parser.add_argument('--epochs', default=None, type=int, help='Number of samples to train on for each experiment')
     parser.add_argument('--num_samples_train', default=None, type=int, help='Number of samples to train on for each experiment')
     parser.add_argument('--num_samples_test', default=None, type=int, help='Number of samples to test on')
     parser.add_argument('--test_period', default=3, type=int, help='')
-    parser.add_argument('--lr', default=0.005, type=float, help='Learning rate')
     parser.add_argument('--disable-cuda', type=str, default='true', help='Disable CUDA')
     parser.add_argument('--start_idx', type=int, default=0, help='When resuming training from existing weights, index to start over from')
-    parser.add_argument('--suffix', type=str, default='', help='Appended to the name of the saved results and weights')
     parser.add_argument('--labels', nargs='+', default=None, type=int, help='Class labels to be used during training')
+    parser.add_argument('--classifier', type=str, default='snn', choices=['snn', 'mlp'])
+    parser.add_argument('--test_type', type=str, default='final', choices=['final', 'per_frame'])
+    parser.add_argument('--suffix', type=str, default='', help='Appended to the name of the saved results and weights')
+
     parser.add_argument('--systematic', type=str, default='true', help='Systematic communication')
     parser.add_argument('--snr', type=float, default=100, help='SNR')
     parser.add_argument('--n_frames', default=80, type=int, help='')
-    parser.add_argument('--classifier', type=str, default='snn', choices=['snn', 'mlp'])
-    parser.add_argument('--test_type', type=str, default='final', choices=['final', 'per_frame'])
+    parser.add_argument('--lr_classifier', default=0.005, type=float, help='Learning rate of classifier')
 
 
     # Arguments for VQ-VAE
     parser.add_argument('--embedding_dim', default=32, type=int, help='Size of VQ-VAE latent embeddings')
     parser.add_argument('--num_embeddings', default=12, type=int, help='Number of VQ-VAE latent embeddings')
-    parser.add_argument('--beta_vqvae', type=float, default=1.0, help='contribution of commitment loss, between 0.1 and 2.0 (default: 1.0)') # todo change
+    parser.add_argument('--lr_vqvae', default=1e-3, type=float, help='Learning rate of VQ-VAE')
 
 
     # Arguments for snn models
@@ -79,10 +81,6 @@ elif args.where == 'gcloud':
 
 save_path = os.getcwd() + r'/results'
 dataset = data_path + r'/mnist-dvs/mnist_dvs_binary_25ms_26pxl_10_digits.hdf5'
-
-name = r'_' + args.classifier + r'_%d_epochs_nh_%d_nout_%d' % (args.num_samples_train, args.n_h, args.n_output_enc) + args.suffix
-args.save_path = r'/home/k1804053/snn_private/results/' + args.dataset + name + '.pkl'
-args.save_path_weights = None
 
 args.disable_cuda = str2bool(args.disable_cuda)
 args.device = None
@@ -134,6 +132,11 @@ else:
     test_indices = np.random.choice(np.arange(args.dataset.root.stats.test_data[0]), [args.num_samples_test], replace=False)
 
 
+name = 'vqvae_' + args.classifier + r'_%d_epochs_nh_%d_nout_%d' % (args.num_samples_train, args.n_h, np.prod(args.encodings_dim)) + args.suffix
+args.save_path = r'/home/k1804053/snn/results/' + name + '.pkl'
+args.save_path_weights = None
+
+
 args.ite_test = np.arange(0, args.num_samples_train, args.test_period)
 args.test_accs = {i: [] for i in args.ite_test}
 
@@ -142,11 +145,15 @@ train_res_recon_error = []
 train_res_perplexity = []
 
 for i, idx in enumerate(indices):
-    print('ite %d' % (i + 1))
+    print(i)
+
+    t0 = time.time()
     vqvae.train()
     train_res_recon_error, train_res_perplexity = \
         training_utils.train_vqvae(vqvae, vqvae_optimizer, args, train_res_recon_error, train_res_perplexity, idx)
     classifier, args = training_utils.train_classifier(classifier, args, idx)
+
+    print('ite length: %f' % (time.time() - t0))
 
     if (i + 1) % args.test_period == 0:
         print('Testing at step %d...' % (i + 1))

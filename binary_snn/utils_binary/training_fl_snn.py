@@ -47,13 +47,7 @@ def local_feedback_and_update(network, eligibility_trace, et_temp, learning_sign
     return eligibility_trace, et_temp, learning_signal, ls_temp
 
 
-def train(network, dataset, indices, test_indices, test_accs, learning_rate, alpha, beta, kappa, deltas, r, start_idx, save_path=None):
-    """"
-    Train a network on the sequence passed as argument.
-    """
-
-    network.set_mode('train')
-
+def init_training(network, indices, args):
     eligibility_trace_hidden = {parameter: network.gradients[parameter][network.hidden_neurons - network.n_input_neurons] for parameter in network.gradients}
     eligibility_trace_output = {parameter: network.gradients[parameter][network.output_neurons - network.n_input_neurons] for parameter in network.gradients}
 
@@ -66,10 +60,22 @@ def train(network, dataset, indices, test_indices, test_accs, learning_rate, alp
     baseline_num = {parameter: eligibility_trace_hidden[parameter].pow(2) * learning_signal for parameter in eligibility_trace_hidden}
     baseline_den = {parameter: eligibility_trace_hidden[parameter].pow(2) for parameter in eligibility_trace_hidden}
 
-    S_prime = tables.open_file(dataset).root.train.label[:].shape[-1]
-    S = len(indices[start_idx:]) * S_prime
+    S_prime = tables.open_file(args.dataset).root.train.label[:].shape[-1]
+    S = len(indices[args.start_idx:]) * S_prime
 
-    dataset = tables.open_file(dataset)
+    return eligibility_trace_hidden, eligibility_trace_output, et_temp_hidden, et_temp_output, learning_signal, ls_temp, baseline_num, baseline_den, S_prime, S
+
+
+
+def train(network, indices, test_indices, args):
+    """"
+    Train a network on the sequence passed as argument.
+    """
+
+    eligibility_trace_hidden, eligibility_trace_output, et_temp_hidden, \
+        et_temp_output, learning_signal, ls_temp, baseline_num, baseline_den, S_prime, S = init_training(network, indices, args)
+    network.set_mode('train')
+    dataset = tables.open_file(args.dataset)
 
     for s in range(S):
         if s % S_prime == 0:
