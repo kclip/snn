@@ -1,12 +1,9 @@
 from wispike.utils import misc as misc_wispike
-from wispike.utils import training_utils
+from wispike.utils.training_utils import init_training_wispike
 from binary_snn.utils_binary import misc as misc_snn
 from binary_snn.models.SNN import SNNetwork
 from binary_snn.utils_binary.training_utils import local_feedback_and_update
-import tables
 import torch
-import argparse
-import os
 import numpy as np
 import pickle
 from utils.filters import get_filter
@@ -80,7 +77,7 @@ def wispike(args):
 
     # init training
     eligibility_trace_hidden_enc, eligibility_trace_hidden_dec, eligibility_trace_output_dec, \
-        learning_signal, baseline_num_enc, baseline_den_enc, baseline_num_dec, baseline_den_dec, S_prime = training_utils.init_training(encoder, decoder, args)
+        learning_signal, baseline_num_enc, baseline_den_enc, baseline_num_dec, baseline_den_dec, S_prime = init_training_wispike(encoder, decoder, args)
 
     for j, sample_idx in enumerate(indices):
         # if (j + 1) % args.dataset.root.train.data[:].shape[0] == 0:
@@ -139,4 +136,3 @@ def wispike(args):
 
         if j % max(1, int(len(indices) / 5)) == 0:
             print('Step %d out of %d' % (j, len(indices)))
-
