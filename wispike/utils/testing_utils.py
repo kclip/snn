@@ -5,6 +5,7 @@ import binary_snn.utils_binary.misc as misc_snn
 from wispike.utils.misc import channel_coding_decoding, channel, framed_to_example, example_to_framed
 import time
 
+
 def classify(classifier, example, args, howto='final'):
     if isinstance(classifier, SNNetwork):
         example = framed_to_example(example, args)
@@ -72,7 +73,6 @@ def get_acc_classifier(classifier, vqvae, args, indices, howto='final'):
         raise NotImplementedError
 
     for i, idx in enumerate(indices):
-        t0 = time.time()
         data = example_to_framed(args.dataset.root.test.data[idx, :, :], args)
         data_reconstructed = torch.zeros(data.shape)
 
@@ -84,8 +84,6 @@ def get_acc_classifier(classifier, vqvae, args, indices, howto='final'):
             encodings_decoded = channel_coding_decoding(args, encodings)
 
             data_reconstructed[j] = vqvae.decode(encodings_decoded, args.quantized_dim)
-
-        print('test ite length: %f' % (time.time() - t0))
 
         predictions[i] = classify(classifier, data_reconstructed, args, howto)
 
