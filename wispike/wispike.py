@@ -1,5 +1,6 @@
 from wispike.utils import misc as misc_wispike
 from wispike.utils.training_utils import init_training_wispike
+from wispike.utils.testing_utils import get_acc_wispike
 from binary_snn.utils_binary import misc as misc_snn
 from binary_snn.models.SNN import SNNetwork
 from binary_snn.utils_binary.training_utils import local_feedback_and_update
@@ -85,7 +86,7 @@ def wispike(args):
 
         if args.test_accs:
             if (j + 1) in args.test_accs:
-                acc = misc_wispike.get_acc_wispike(encoder, decoder, args, test_indices, n_outputs_enc)
+                acc = get_acc_wispike(encoder, decoder, args, test_indices, n_outputs_enc)
                 print('test accuracy at ite %d: %f' % (int(j + 1), acc))
                 args.test_accs[int(j + 1)].append(acc)
 
