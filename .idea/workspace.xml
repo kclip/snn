@@ -1,15 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="dfa62879-5cdc-4603-a43e-18a18161e0c9" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/binary_snn/utils_binary/training_fl_snn.py" beforeDir="false" afterPath="$PROJECT_DIR$/binary_snn/utils_binary/training_fl_snn.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/binary_snn/utils_binary/training_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/binary_snn/utils_binary/training_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/launch_job.sh" beforeDir="false" afterPath="$PROJECT_DIR$/launch_job.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train_vqvae.py" beforeDir="false" afterPath="$PROJECT_DIR$/train_vqvae.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/wispike/utils/testing_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/wispike/utils/testing_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/wispike/utils/training_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/wispike/utils/training_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/wispike/wispike.py" beforeDir="false" afterPath="$PROJECT_DIR$/wispike/wispike.py" afterDir="false" />
-    </list>
+    <list default="true" id="dfa62879-5cdc-4603-a43e-18a18161e0c9" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,11 +42,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/launch_job.sh">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="238">
-              <caret line="14" lean-forward="true" selection-start-line="11" selection-end-line="14" />
+              <caret line="14" selection-start-line="11" selection-end-line="14" />
             </state>
           </provider>
         </entry>
@@ -104,7 +96,7 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wispike/wispike.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="153">
@@ -355,12 +347,12 @@
       <workItem from="1589181534793" duration="779000" />
       <workItem from="1589182515116" duration="67296000" />
       <workItem from="1589788348701" duration="10796000" />
-      <workItem from="1590479116921" duration="159100000" />
+      <workItem from="1590479116921" duration="159169000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="297258000" />
+    <option name="totallyTimeSpent" value="297327000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
@@ -635,13 +627,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/launch_job.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="238">
-          <caret line="14" lean-forward="true" selection-start-line="11" selection-end-line="14" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/wispike/utils/training_utils.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="430">
@@ -666,6 +651,13 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="153">
           <caret line="9" column="18" lean-forward="true" selection-start-line="9" selection-start-column="18" selection-end-line="9" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/launch_job.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="238">
+          <caret line="14" selection-start-line="11" selection-end-line="14" />
         </state>
       </provider>
     </entry>
