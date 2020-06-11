@@ -3,7 +3,6 @@ from binary_snn.models.SNN import SNNetwork
 from wispike.models.mlp import MLP
 import binary_snn.utils_binary.misc as misc_snn
 from wispike.utils.misc import channel_coding_decoding, channel, framed_to_example, example_to_framed
-import time
 
 
 def classify(classifier, example, args, howto='final'):
@@ -65,6 +64,8 @@ def classify_mlp(network, example, args, howto='final'):
 
 
 def get_acc_classifier(classifier, vqvae, args, indices, howto='final'):
+    vqvae.eval()
+
     if howto == 'final':
         predictions = torch.zeros([len(indices)], dtype=torch.long)
     elif howto == 'per_frame':
@@ -79,11 +80,12 @@ def get_acc_classifier(classifier, vqvae, args, indices, howto='final'):
         for j in range(args.n_frames):
             frame = data[j].unsqueeze(0)
 
-            _, encodings = vqvae.encode(frame)
+            with torch.autograd.no_grad():
+                _, encodings = vqvae.encode(frame)
 
-            encodings_decoded = channel_coding_decoding(args, encodings)
+                encodings_decoded = channel_coding_decoding(args, encodings)
 
-            data_reconstructed[j] = vqvae.decode(encodings_decoded, args.quantized_dim)
+                data_reconstructed[j] = vqvae.decode(encodings_decoded, args.quantized_dim)
 
         predictions[i] = classify(classifier, data_reconstructed, args, howto)
 

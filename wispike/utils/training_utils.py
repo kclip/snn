@@ -33,6 +33,8 @@ def init_vqvae(args):
 
 
 def train_vqvae(model, optimizer, args, train_res_recon_error, train_res_perplexity, example_idx):
+    model.train()
+
     example = torch.FloatTensor(args.dataset.root.train.data[example_idx])
     framed = example_to_framed(example, args)
 
@@ -114,11 +116,8 @@ def train_snn(network, args, sample):
         # Feedforward sampling
         log_proba, ls_tmp = feedforward_sampling(network, sample[:, s], args.gamma, args.r)
         # Local feedback and update
-        args.eligibility_trace_hidden, args.eligibility_trace_output, args.lr, args.baseline_num, args.baseline_den \
-            = local_feedback_and_update(network, ls_tmp, args.eligibility_trace_hidden, args.eligibility_trace_output,
-                                        args.learning_signal, args.baseline_num, args.baseline_den, args.lr_classifier, args.beta, args.kappa)
-
-        return network, args
+        local_feedback_and_update(network, ls_tmp, args.eligibility_trace_hidden, args.eligibility_trace_output,
+                                  args.learning_signal, args.baseline_num, args.baseline_den, args.lr_classifier, args.beta, args.kappa)
 
 
 def train_mlp(model, example, label, optimizer, criterion):
@@ -136,7 +135,7 @@ def train_mlp(model, example, label, optimizer, criterion):
     # perform a single optimization step (parameter update)
     optimizer.step()
 
-    return model
+    # return model
 
 
 def train_classifier(model, args, idx):
@@ -144,15 +143,15 @@ def train_classifier(model, args, idx):
         example = torch.cat((torch.FloatTensor(args.dataset.root.train.data[idx]),
                             torch.FloatTensor(args.dataset.root.train.label[idx])), dim=0).to(model.device)
 
-        model, args = train_snn(model, args, example)
+        train_snn(model, args, example)
 
     elif isinstance(model, MLP):
         example = torch.FloatTensor(args.dataset.root.train.data[idx]).flatten()
         label = torch.tensor(np.argmax(np.sum(args.dataset.root.train.label[:][idx], axis=(-1)), axis=-1))
 
-        model = train_mlp(model, example, label, args.mlp_optimizer, args.mlp_criterion)
+        train_mlp(model, example, label, args.mlp_optimizer, args.mlp_criterion)
 
-    return model, args
+    # return model, args
 
 
 ### WiSpike

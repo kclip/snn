@@ -102,7 +102,7 @@ def train(network, indices, test_indices, args):
 
         for s in range(S_prime):
             # Feedforward sampling
-            log_proba, ls_tmp = feedforward_sampling(network, sample[:, s], args.alpha, args.r)
+            log_proba, ls_tmp = feedforward_sampling(network, sample[:, s], args.gamma, args.r)
             # Local feedback and update
             eligibility_trace_hidden, eligibility_trace_output, learning_signal, baseline_num, baseline_den \
                 = local_feedback_and_update(network, ls_tmp, eligibility_trace_hidden, eligibility_trace_output,
