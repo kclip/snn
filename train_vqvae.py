@@ -23,7 +23,7 @@ if __name__ == '__main__':
     parser.add_argument('--epochs', default=None, type=int, help='Number of samples to train on for each experiment')
     parser.add_argument('--num_samples_train', default=None, type=int, help='Number of samples to train on for each experiment')
     parser.add_argument('--num_samples_test', default=None, type=int, help='Number of samples to test on')
-    parser.add_argument('--test_period', default=3, type=int, help='')
+    parser.add_argument('--test_period', default=200, type=int, help='')
     parser.add_argument('--disable-cuda', type=str, default='true', help='Disable CUDA')
     parser.add_argument('--start_idx', type=int, default=0, help='When resuming training from existing weights, index to start over from')
     parser.add_argument('--labels', nargs='+', default=None, type=int, help='Class labels to be used during training')
@@ -31,7 +31,6 @@ if __name__ == '__main__':
     parser.add_argument('--test_type', type=str, default='final', choices=['final', 'per_frame'])
     parser.add_argument('--suffix', type=str, default='', help='Appended to the name of the saved results and weights')
 
-    parser.add_argument('--systematic', type=str, default='true', help='Systematic communication')
     parser.add_argument('--snr', type=float, default=100, help='SNR')
     parser.add_argument('--n_frames', default=80, type=int, help='')
     parser.add_argument('--lr_classifier', default=0.005, type=float, help='Learning rate of classifier')
@@ -39,7 +38,7 @@ if __name__ == '__main__':
 
     # Arguments for VQ-VAE
     parser.add_argument('--embedding_dim', default=32, type=int, help='Size of VQ-VAE latent embeddings')
-    parser.add_argument('--num_embeddings', default=12, type=int, help='Number of VQ-VAE latent embeddings')
+    parser.add_argument('--num_embeddings', default=10, type=int, help='Number of VQ-VAE latent embeddings')
     parser.add_argument('--lr_vqvae', default=1e-3, type=float, help='Learning rate of VQ-VAE')
 
 
@@ -63,7 +62,7 @@ if __name__ == '__main__':
     parser.add_argument('--mu', default=1.5, type=float, help='Width of basis functions')
 
     parser.add_argument('--kappa', default=0.2, type=float, help='eligibility trace decay coefficient')
-    parser.add_argument('--r', default=0.8, type=float, help='Desired spiking sparsity of the hidden neurons')
+    parser.add_argument('--r', default=0.3, type=float, help='Desired spiking sparsity of the hidden neurons')
     parser.add_argument('--beta', default=0.05, type=float, help='Baseline decay factor')
     parser.add_argument('--gamma', default=1., type=float, help='KL regularization strength')
 
