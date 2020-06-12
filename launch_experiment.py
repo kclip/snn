@@ -72,8 +72,6 @@ if __name__ == "__main__":
     parser.add_argument('--n_output_enc', default=128, type=int, help='')
 
 
-
-
     args = parser.parse_args()
 
 print(args)
@@ -140,6 +138,7 @@ if os.path.exists(args.save_path) & (args.start_idx != 0):
         args.test_accs = pickle.load(f)
 else:
     args.test_accs = {i: [] for i in args.ite_test}
+    args.test_accs[args.num_samples_train] = []
 
 
 args.dataset = tables.open_file(dataset)
