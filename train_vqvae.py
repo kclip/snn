@@ -68,18 +68,17 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-
 if args.where == 'local':
-    data_path = r'C:/Users/K1804053/PycharmProjects/datasets/'
+    home = r'C:/Users/K1804053/PycharmProjects'
 elif args.where == 'rosalind':
-    data_path = r'/users/k1804053/datasets/'
+    home = r'/users/k1804053'
 elif args.where == 'jade':
-    data_path = r'/jmain01/home/JAD014/mxm09/nxs94-mxm09/datasets'
+    home = r'/jmain01/home/JAD014/mxm09/nxs94-mxm09'
 elif args.where == 'gcloud':
-    data_path = r'/home/k1804053/datasets/'
+    home = r'/home/k1804053'
 
 save_path = os.getcwd() + r'/results'
-dataset = data_path + r'/mnist-dvs/mnist_dvs_binary_25ms_26pxl_10_digits.hdf5'
+dataset = home + r'/datasets/mnist-dvs/mnist_dvs_binary_25ms_26pxl_10_digits.hdf5'
 
 args.disable_cuda = str2bool(args.disable_cuda)
 args.device = None
