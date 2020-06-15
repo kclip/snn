@@ -34,6 +34,7 @@ if __name__ == "__main__":
     parser.add_argument('--start_idx', type=int, default=0, help='When resuming training from existing weights, index to start over from')
     parser.add_argument('--suffix', type=str, default='', help='Appended to the name of the saved results and weights')
     parser.add_argument('--labels', nargs='+', default=None, type=int, help='Class labels to be used during training')
+    parser.add_argument('--resume', type=str, default='false', help='')
 
 
     # Arguments common to all models
@@ -133,7 +134,7 @@ args.save_path_weights = r'/results/' + args.dataset + name + '_weights.hdf5'
 
 args.ite_test = np.arange(0, args.num_samples_train, args.test_period)
 
-if os.path.exists(args.save_path) & (args.start_idx != 0):
+if os.path.exists(args.save_path) & str2bool(args.resume):
     with open(args.save_path, 'rb') as f:
         args.test_accs = pickle.load(f)
 else:
@@ -180,4 +181,3 @@ for _ in range(args.num_ite):
         binary_exp.launch_binary_exp(args)
     elif args.model == 'wispike':
         wispike(args)
-

@@ -77,7 +77,7 @@ elif args.where == 'jade':
 elif args.where == 'gcloud':
     home = r'/home/k1804053'
 
-save_path = os.getcwd() + r'/results'
+save_path = home + r'/results'
 dataset = home + r'/datasets/mnist-dvs/mnist_dvs_binary_25ms_26pxl_10_digits.hdf5'
 
 args.disable_cuda = str2bool(args.disable_cuda)
