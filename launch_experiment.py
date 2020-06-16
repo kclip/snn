@@ -173,11 +173,10 @@ else:
     args.topology = None
     # Feel free to fill this with custom topologies
 
-for _ in range(args.num_ite):
-    # Create the network
-    if args.model == 'wta':
-        multivalued_exp.launch_multivalued_exp(args)
-    elif args.model == 'binary':
-        binary_exp.launch_binary_exp(args)
-    elif args.model == 'wispike':
-        wispike(args)
+# Create the network
+if args.model == 'wta':
+    multivalued_exp.launch_multivalued_exp(args)
+elif args.model == 'binary':
+    binary_exp.launch_binary_exp(args)
+elif args.model == 'wispike':
+    wispike(args)
