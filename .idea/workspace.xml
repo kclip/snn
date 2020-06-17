@@ -67,7 +67,7 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wispike/utils/misc.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="187">
@@ -91,11 +91,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/train_vqvae.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-4">
-              <caret line="101" column="46" selection-start-line="101" selection-start-column="46" selection-end-line="101" selection-end-column="46" />
+            <state relative-caret-position="251">
+              <caret line="80" selection-start-line="80" selection-end-line="80" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -195,8 +195,8 @@
         <option value="$PROJECT_DIR$/wispike/wispike.py" />
         <option value="$PROJECT_DIR$/multivalued_snn/multivalued_exp.py" />
         <option value="$PROJECT_DIR$/binary_snn/binary_exp.py" />
-        <option value="$PROJECT_DIR$/train_vqvae.py" />
         <option value="$PROJECT_DIR$/wispike/utils/misc.py" />
+        <option value="$PROJECT_DIR$/train_vqvae.py" />
       </list>
     </option>
   </component>
@@ -344,12 +344,12 @@
       <workItem from="1589182515116" duration="67296000" />
       <workItem from="1589788348701" duration="10796000" />
       <workItem from="1590479116921" duration="197100000" />
-      <workItem from="1592220148312" duration="7306000" />
+      <workItem from="1592220148312" duration="7364000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="342564000" />
+    <option name="totallyTimeSpent" value="342622000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
@@ -612,16 +612,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/train_vqvae.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-4">
-          <caret line="101" column="46" selection-start-line="101" selection-start-column="46" selection-end-line="101" selection-end-column="46" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/binary_snn/binary_exp.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="782">
@@ -658,6 +648,16 @@
           <caret line="26" column="76" selection-start-line="26" selection-start-column="76" selection-end-line="26" selection-end-column="76" />
           <folding>
             <element signature="e#0#12#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/train_vqvae.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="251">
+          <caret line="80" selection-start-line="80" selection-end-line="80" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>

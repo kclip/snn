@@ -78,7 +78,6 @@ elif args.where == 'jade':
 elif args.where == 'gcloud':
     home = r'/home/k1804053'
 
-save_path = home + r'/results'
 dataset = home + r'/datasets/mnist-dvs/mnist_dvs_binary_25ms_26pxl_10_digits.hdf5'
 
 args.disable_cuda = str2bool(args.disable_cuda)
@@ -134,7 +133,7 @@ else:
 
 
 name = 'vqvae_' + args.classifier + r'_%d_epochs_nh_%d_nout_%d' % (args.num_samples_train, args.n_h, np.prod(args.encodings_dim)) + args.suffix
-args.save_path = r'/home/k1804053/snn/results/' + name + '.pkl'
+args.save_path = home + r'/results/' + name + '.pkl'
 args.save_path_weights = None
 
 
