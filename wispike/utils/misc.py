@@ -24,7 +24,7 @@ def channel_coding_decoding(args, encodings):
     to_send[:np.prod(encodings_shape)] = encodings.clone().data.flatten()
 
     coded_quantized = pyldpc.encode(args.G, to_send, args.snr)
-    received = pyldpc.decode(args.H, coded_quantized, args.snr)
+    received = pyldpc.decode(args.H, coded_quantized, args.snr, args.maxiter)
 
     decoded = received[:np.prod(encodings_shape)]
     decoded = torch.FloatTensor(decoded.reshape(*encodings_shape))

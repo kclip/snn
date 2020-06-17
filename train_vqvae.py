@@ -40,6 +40,7 @@ if __name__ == '__main__':
     parser.add_argument('--embedding_dim', default=32, type=int, help='Size of VQ-VAE latent embeddings')
     parser.add_argument('--num_embeddings', default=10, type=int, help='Number of VQ-VAE latent embeddings')
     parser.add_argument('--lr_vqvae', default=1e-3, type=float, help='Learning rate of VQ-VAE')
+    parser.add_argument('--maxiter', default=100, type=int, help='Max number of iteration for BP decoding of LDPC code')
 
 
     # Arguments for snn models
