@@ -283,10 +283,10 @@ class SNNetwork(torch.nn.Module):
 
     ### Misc
     def save(self, path=None):
-        if path is None and self.save_path is not None:
+        if path is not None:
+            save_path = path
+        elif path is None and self.save_path is not None:
             save_path = self.save_path
-        elif path is not None:
-            save_path = os.getcwd() + path
         else:
             raise FileNotFoundError
 
