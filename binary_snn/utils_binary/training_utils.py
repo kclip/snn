@@ -91,8 +91,10 @@ def train(network, indices, test_indices, args):
                 # print('train accuracy at ite %d: %f' % (int(j + 1), acc_train))
 
                 if args.save_path is not None:
-                    with open(args.save_path, 'wb') as f:
+                    with open(args.save_path + '/test_accs.pkl', 'wb') as f:
                         pickle.dump(args.test_accs, f, pickle.HIGHEST_PROTOCOL)
+
+                    network.save(args.save_path + '/network_weights.hdf5')
 
                 network.set_mode('train')
 

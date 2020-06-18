@@ -119,8 +119,13 @@ elif args.dataset[:7] == 'swedish':
     dataset = home + r'/datasets/SwedishLeaf_processed/' + datasets[args.dataset]
 else:
     print('Error: dataset not found')
-args.dataset = tables.open_file(dataset)
 
+# Save results and weights
+name = args.dataset + r'_' + args.model + r'_%d_epochs_nh_%d_nout_%d' % (args.num_samples_train, args.n_h, args.n_output_enc) + args.suffix
+results_path = home + r'/results/'
+args.save_path = mksavedir(pre=results_path, exp_dir=name)
+
+args.dataset = tables.open_file(dataset)
 
 ### Learning parameters
 if not args.num_samples_train:
@@ -131,12 +136,6 @@ if args.test_period is not None:
         args.num_samples_test = args.dataset.root.stats.test_data[0]
 
     args.ite_test = np.arange(0, args.num_samples_train, args.test_period)
-
-
-    # Save results and weights
-    name = args.dataset + r'_' + args.model + r'_%d_epochs_nh_%d_nout_%d' % (args.num_samples_train, args.n_h, args.n_output_enc) + args.suffix
-    results_path = home + r'/results/'
-    args.save_path = mksavedir(pre=results_path, exp_dir=name)
 
     if os.path.exists(args.save_path):
         assert str2bool(args.resume), 'path already exists'
