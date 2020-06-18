@@ -4,6 +4,7 @@ from multivalued_snn.utils_multivalued.misc import str2bool
 from multivalued_snn import multivalued_exp
 from binary_snn import binary_exp
 from wispike.wispike import wispike
+from misc import mksavedir
 import time
 import numpy as np
 import tables
@@ -86,7 +87,6 @@ elif args.where == 'jade':
 elif args.where == 'gcloud':
     home = r'/home/k1804053'
 
-save_path = os.getcwd() + r'/results'
 
 datasets = {'mnist_dvs_2': r'mnist_dvs_25ms_26pxl_2_digits_polarity.hdf5',
             'mnist_dvs_10_binary': r'mnist_dvs_binary_25ms_26pxl_10_digits.hdf5',
@@ -119,30 +119,35 @@ elif args.dataset[:7] == 'swedish':
     dataset = home + r'/datasets/SwedishLeaf_processed/' + datasets[args.dataset]
 else:
     print('Error: dataset not found')
+args.dataset = tables.open_file(dataset)
+
 
 ### Learning parameters
 if not args.num_samples_train:
-    args.num_samples_train = tables.open_file(dataset).root.stats.train_data[0]
+    args.num_samples_train = args.dataset.root.stats.train_data[0]
 
-if not args.num_samples_test:
-    args.num_samples_test = tables.open_file(dataset).root.stats.test_data[0]
+if args.test_period is not None:
+    if not args.num_samples_test:
+        args.num_samples_test = args.dataset.root.stats.test_data[0]
 
-# Save results and weights
-name = r'_' + args.model + r'_%d_epochs_nh_%d_nout_%d' % (args.num_samples_train, args.n_h, args.n_output_enc) + args.suffix
-args.save_path = home + r'/results/' + args.dataset + name + '.pkl'
-args.save_path_weights = r'/results/' + args.dataset + name + '_weights.hdf5'
-
-args.ite_test = np.arange(0, args.num_samples_train, args.test_period)
-
-if os.path.exists(args.save_path) & str2bool(args.resume):
-    with open(args.save_path, 'rb') as f:
-        args.test_accs = pickle.load(f)
-else:
-    args.test_accs = {i: [] for i in args.ite_test}
-    args.test_accs[args.num_samples_train] = []
+    args.ite_test = np.arange(0, args.num_samples_train, args.test_period)
 
 
-args.dataset = tables.open_file(dataset)
+    # Save results and weights
+    name = args.dataset + r'_' + args.model + r'_%d_epochs_nh_%d_nout_%d' % (args.num_samples_train, args.n_h, args.n_output_enc) + args.suffix
+    results_path = home + r'/results/'
+    args.save_path = mksavedir(pre=results_path, exp_dir=name)
+
+    if os.path.exists(args.save_path):
+        assert str2bool(args.resume), 'path already exists'
+        with open(args.save_path + '/test_accs.pkl', 'rb') as f:
+            args.test_accs = pickle.load(f)
+    else:
+        os.mkdir(args.save_path)
+
+        args.test_accs = {i: [] for i in args.ite_test}
+        args.test_accs[args.num_samples_train] = []
+
 
 args.disable_cuda = str2bool(args.disable_cuda)
 args.device = None
@@ -150,9 +155,6 @@ if not args.disable_cuda and torch.cuda.is_available():
     args.device = torch.device('cuda')
 else:
     args.device = torch.device('cpu')
-
-
-args.systematic = str2bool(args.systematic)
 
 
 ### Network parameters
@@ -179,4 +181,5 @@ if args.model == 'wta':
 elif args.model == 'binary':
     binary_exp.launch_binary_exp(args)
 elif args.model == 'wispike':
+    args.systematic = str2bool(args.systematic)
     wispike(args)

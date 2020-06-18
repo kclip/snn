@@ -12,18 +12,15 @@ from utils.filters import get_filter
 
 def wispike(args):
     ### Network parameters
-    n_inputs_enc = args.dataset.root.stats.train_data[:][1]
     n_hidden_enc = args.n_h
-    n_outputs_enc = args.n_output_enc
 
     if args.systematic:
-        n_transmitted = n_inputs_enc + n_outputs_enc
+        n_transmitted = args.n_input_neurons + args.n_output_enc
     else:
-        n_transmitted = n_outputs_enc
+        n_transmitted = args.n_output_enc
 
     n_inputs_dec = n_transmitted
     n_hidden_dec = args.n_h
-    n_outputs_dec = args.dataset.root.stats.train_label[1]
 
     args.lr = args.lr / (n_hidden_enc + n_hidden_dec)
 
@@ -38,7 +35,7 @@ def wispike(args):
             indices = np.random.choice(np.arange(args.dataset.root.stats.train_data[0]), [args.num_samples_train], replace=True)
             test_indices = np.random.choice(np.arange(args.dataset.root.stats.test_data[0]), [args.num_samples_test], replace=False)
 
-        encoder = SNNetwork(**misc_snn.make_network_parameters(n_inputs_enc,
+        encoder = SNNetwork(**misc_snn.make_network_parameters(args.n_input_neurons,
                                                                0,
                                                                n_hidden_enc,
                                                                args.topology_type,
@@ -58,7 +55,7 @@ def wispike(args):
                             device=args.device)
 
         decoder = SNNetwork(**misc_snn.make_network_parameters(n_inputs_dec,
-                                                               n_outputs_dec,
+                                                               args.n_output_neurons,
                                                                n_hidden_dec,
                                                                args.topology_type,
                                                                args.topology,
@@ -87,14 +84,16 @@ def wispike(args):
 
             if args.test_accs:
                 if (j + 1) in args.test_accs:
-                    acc = get_acc_wispike(encoder, decoder, args, test_indices, n_outputs_enc)
+                    acc = get_acc_wispike(encoder, decoder, args, test_indices, args.n_output_enc)
                     print('test accuracy at ite %d: %f' % (int(j + 1), acc))
                     args.test_accs[int(j + 1)].append(acc)
 
                     if args.save_path is not None:
-                        with open(args.save_path, 'wb') as f:
+                        with open(args.save_path + '/test_accs.pkl', 'wb') as f:
                             pickle.dump(args.test_accs, f, pickle.HIGHEST_PROTOCOL)
 
+                        encoder.save(args.save_path + '/encoder_weights.hdf5')
+                        decoder.save(args.save_path + '/decoder_weights.hdf5')
 
                     encoder.set_mode('train')
                     decoder.set_mode('train')
@@ -111,9 +110,9 @@ def wispike(args):
                 proba_hidden_enc = torch.sigmoid(encoder.potential[encoder.hidden_neurons - encoder.n_input_neurons])
 
                 if args.systematic:
-                    decoder_input = misc_wispike.channel(torch.cat((sample_enc[:, s], encoder.spiking_history[encoder.hidden_neurons[-n_outputs_enc:], -1])), decoder.device, args.snr)
+                    decoder_input = misc_wispike.channel(torch.cat((sample_enc[:, s], encoder.spiking_history[encoder.hidden_neurons[-args.n_output_enc:], -1])), decoder.device, args.snr)
                 else:
-                    decoder_input = misc_wispike.channel(encoder.spiking_history[encoder.hidden_neurons[-n_outputs_enc:], -1], decoder.device, args.snr)
+                    decoder_input = misc_wispike.channel(encoder.spiking_history[encoder.hidden_neurons[-args.n_output_enc:], -1], decoder.device, args.snr)
 
                 sample_dec = torch.cat((decoder_input, output_dec[:, s]), dim=0).to(decoder.device)
 

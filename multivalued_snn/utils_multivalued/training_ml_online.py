@@ -43,6 +43,7 @@ def ml_update(network, eligibility_trace_hidden, eligibility_trace_output, rewar
 
 
 def train(network, dataset, indices, test_indices, test_accs, learning_rate, kappa, beta, gamma, r, start_idx=0, save_path=None, save_path_weights=None):
+    # todo update signature
     """"
     Train a network on the sequence passed as argument.
     """
@@ -75,7 +76,7 @@ def train(network, dataset, indices, test_indices, test_accs, learning_rate, kap
                     with open(save_path, 'wb') as f:
                         pickle.dump(test_accs, f, pickle.HIGHEST_PROTOCOL)
                 if save_path_weights is not None:
-                    network.save(save_path_weights)
+                    network.save(save_path_weights) # todo update
 
                 network.set_mode('train_ml')
 
