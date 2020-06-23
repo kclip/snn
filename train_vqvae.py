@@ -135,7 +135,7 @@ else:
 name = 'vqvae_' + args.classifier + r'_%d_epochs_nh_%d_nout_%d' % (args.num_samples_train, args.n_h, np.prod(args.encodings_dim)) + args.suffix
 args.save_path = home + r'/results/' + name + '.pkl'
 args.save_path_weights = None
-
+print(args.save_path)
 
 args.ite_test = np.arange(0, args.num_samples_train, args.test_period)
 args.test_accs = {i: [] for i in args.ite_test}
