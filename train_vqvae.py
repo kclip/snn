@@ -33,7 +33,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--snr', type=float, default=100, help='SNR')
     parser.add_argument('--n_frames', default=80, type=int, help='')
-    parser.add_argument('--lr_classifier', default=0.005, type=float, help='Learning rate of classifier')
+    parser.add_argument('--lr_classifier', default=0.0001, type=float, help='Learning rate of classifier')
 
 
     # Arguments for VQ-VAE

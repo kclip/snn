@@ -6,6 +6,7 @@ import torch.nn.functional as F
 import numpy as np
 import pyldpc
 
+
 class VectorQuantizer(nn.Module):
     def __init__(self, num_embeddings, embedding_dim, commitment_cost):
         super(VectorQuantizer, self).__init__()
