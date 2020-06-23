@@ -1,20 +1,14 @@
-from __future__ import print_function
-import torch
-from multivalued_snn.utils_multivalued.misc import str2bool
-from multivalued_snn import multivalued_exp
-from binary_snn import binary_exp
-from wispike.wispike import wispike
-from misc import mksavedir
-import time
-import numpy as np
-import tables
 import pickle
+from wispike.utils.misc import channel
+import torch
+import tables
 import argparse
-import os
-
-''''
-Train a WTA-SNN with VOWEL.
-'''
+from multivalued_snn.utils_multivalued.misc import str2bool
+from binary_snn.models.SNN import SNNetwork
+from binary_snn.utils_binary import misc as misc_snn
+from utils.filters import get_filter
+from binary_snn.utils_binary.misc import refractory_period
+import numpy as np
 
 if __name__ == "__main__":
     # setting the hyper parameters
@@ -24,18 +18,10 @@ if __name__ == "__main__":
     parser.add_argument('--where', default='local')
     parser.add_argument('--dataset', default='mnist_dvs_10_binary')
     parser.add_argument('--weights', type=str, default=None, help='Path to weights to load')
-    parser.add_argument('--model', default='binary', choices=['binary', 'wta', 'wispike'], help='Model type, either "binary" or "wta"')
-    parser.add_argument('--num_ite', default=5, type=int, help='Number of times every experiment will be repeated')
-    parser.add_argument('--epochs', default=None, type=int, help='Number of samples to train on for each experiment')
-    parser.add_argument('--num_samples_train', default=None, type=int, help='Number of samples to train on for each experiment')
-    parser.add_argument('--num_samples_test', default=None, type=int, help='Number of samples to test on')
-    parser.add_argument('--test_period', default=1000, type=int, help='')
-    parser.add_argument('--lr', default=0.0001, type=float, help='Learning rate')
+    parser.add_argument('--model', default='wispike', help='Model type, either "binary" or "wta"')
+    parser.add_argument('--lr', default=0.005, type=float, help='Learning rate')
     parser.add_argument('--disable-cuda', type=str, default='true', help='Disable CUDA')
-    parser.add_argument('--start_idx', type=int, default=0, help='When resuming training from existing weights, index to start over from')
-    parser.add_argument('--suffix', type=str, default='', help='Appended to the name of the saved results and weights')
     parser.add_argument('--labels', nargs='+', default=None, type=int, help='Class labels to be used during training')
-    parser.add_argument('--resume', type=str, default='false', help='')
 
 
     # Arguments common to all models
@@ -62,17 +48,10 @@ if __name__ == "__main__":
     parser.add_argument('--beta', default=0.05, type=float, help='Baseline decay factor')
     parser.add_argument('--gamma', default=1., type=float, help='KL regularization strength')
 
-
-    # Arguments for WTA models
-    parser.add_argument('--dropout_rate', default=None, type=float, help='')
-    parser.add_argument('--T', type=float, default=1., help='temperature')
-    parser.add_argument('--n_neurons_per_layer', default=None, type=int, help='Number of neurons per layer if topology_type is "layered"')
-
     # Arguments for Wispike
-    parser.add_argument('--systematic', type=str, default='true', help='Systematic communication')
+    parser.add_argument('--systematic', type=str, default='false', help='Systematic communication')
     parser.add_argument('--snr', type=float, default=None, help='SNR')
     parser.add_argument('--n_output_enc', default=128, type=int, help='')
-
 
     args = parser.parse_args()
 
@@ -120,33 +99,7 @@ elif args.dataset[:7] == 'swedish':
 else:
     print('Error: dataset not found')
 
-# Save results and weights
-name = args.dataset + r'_' + args.model + r'_%d_epochs_nh_%d_nout_%d' % (args.num_samples_train, args.n_h, args.n_output_enc) + args.suffix
-results_path = home + r'/results/'
-args.save_path = mksavedir(pre=results_path, exp_dir=name)
-
 args.dataset = tables.open_file(dataset)
-
-### Learning parameters
-if not args.num_samples_train:
-    args.num_samples_train = args.dataset.root.stats.train_data[0]
-
-if args.test_period is not None:
-    if not args.num_samples_test:
-        args.num_samples_test = args.dataset.root.stats.test_data[0]
-
-    args.ite_test = np.arange(0, args.num_samples_train, args.test_period)
-
-    if os.path.exists(args.save_path):
-        assert str2bool(args.resume), 'path already exists'
-        with open(args.save_path + '/test_accs.pkl', 'rb') as f:
-            args.test_accs = pickle.load(f)
-    else:
-        os.mkdir(args.save_path)
-
-        args.test_accs = {i: [] for i in args.ite_test}
-        args.test_accs[args.num_samples_train] = []
-
 
 args.disable_cuda = str2bool(args.disable_cuda)
 args.device = None
@@ -155,6 +108,17 @@ if not args.disable_cuda and torch.cuda.is_available():
 else:
     args.device = torch.device('cpu')
 
+args.save_path = None
+args.topology = None
+
+### Learning parameters
+args.num_samples_test = args.dataset.root.stats.test_data[0]
+if args.labels is not None:
+    print(args.labels)
+    num_samples_test = min(args.num_samples_test, len(misc_snn.find_test_indices_for_labels(args.dataset, args.labels)))
+    test_indices = np.random.choice(misc_snn.find_test_indices_for_labels(args.dataset, args.labels), [num_samples_test], replace=False)
+else:
+    test_indices = np.random.choice(np.arange(args.dataset.root.stats.test_data[0]), [args.num_samples_test], replace=False)
 
 ### Network parameters
 args.n_input_neurons = args.dataset.root.stats.train_data[1]
@@ -162,23 +126,62 @@ args.n_output_neurons = args.dataset.root.stats.train_label[1]
 args.n_hidden_neurons = args.n_h
 
 
-if args.topology_type == 'custom':
-    args.topology = torch.zeros([args.n_hidden_neurons + args.n_output_neurons,
-                                 args.n_input_neurons + args.n_hidden_neurons + args.n_output_neurons])
-    args.topology[-args.n_output_neurons:, args.n_input_neurons:-args.n_output_neurons] = 1
-    args.topology[:args.n_hidden_neurons, :(args.n_input_neurons + args.n_hidden_neurons)] = 1
+network = SNNetwork(**misc_snn.make_network_parameters(args.n_input_neurons,
+                                                       args.n_output_neurons,
+                                                       args.n_h,
+                                                       args.topology_type,
+                                                       args.topology,
+                                                       args.density,
+                                                       'train',
+                                                       args.weights_magnitude,
+                                                       args.n_basis_ff,
+                                                       get_filter(args.ff_filter),
+                                                       args.n_basis_fb,
+                                                       get_filter(args.fb_filter),
+                                                       args.initialization,
+                                                       args.tau_ff,
+                                                       args.tau_fb,
+                                                       args.mu,
+                                                       args.save_path),
+                    device=args.device)
 
-    print(args.topology)
 
-else:
-    args.topology = None
-    # Feel free to fill this with custom topologies
+weights = r'C:/Users/K1804053/PycharmProjects/results/results_wispike/002__18-06-2020_mnist_dvs_10_binary_binary_20000_epochs_nh_256_nout_128'
+network_weights = weights + r'/network_weights.hdf5'
 
-# Create the network
-if args.model == 'wta':
-    multivalued_exp.launch_multivalued_exp(args)
-elif args.model == 'binary':
-    binary_exp.launch_binary_exp(args)
-elif args.model == 'wispike':
-    args.systematic = str2bool(args.systematic)
-    wispike(args)
+network.import_weights(network_weights)
+snr_list = [-5, 0, 1, 5]
+
+res = {snr: 0 for snr in snr_list}
+
+for snr in snr_list:
+    network.set_mode('test')
+    network.reset_internal_state()
+
+    S_prime = args.dataset.root.test.label[:].shape[-1]
+
+    outputs = torch.zeros([len(test_indices), network.n_output_neurons, S_prime])
+    loss = 0
+
+    rec = torch.zeros([network.n_learnable_neurons, S_prime])
+
+    for j, sample_idx in enumerate(test_indices):
+        refractory_period(network)
+
+        sample = channel(torch.FloatTensor(args.dataset.root.test.data[sample_idx]).to(network.device), network.device, snr)
+
+        for s in range(S_prime):
+            log_proba = network(sample[:, s])
+            # loss += torch.sum(log_proba).numpy()
+            outputs[j, :, s] = network.spiking_history[network.output_neurons, -1]
+            rec[:, s] = network.spiking_history[network.learnable_neurons, -1]
+
+    predictions = torch.max(torch.sum(outputs, dim=-1), dim=-1).indices
+    true_classes = torch.max(torch.sum(torch.FloatTensor(args.dataset.root.test.label[:][test_indices]), dim=-1), dim=-1).indices
+    acc = float(torch.sum(predictions == true_classes, dtype=torch.float) / len(predictions))
+    print('snr %d, acc %f' % (snr, acc))
+    res[snr] = acc
+
+with open(weights + r'/acc_per_snr.npy', 'wb') as f:
+    pickle.dump(res, f, pickle.HIGHEST_PROTOCOL)
+

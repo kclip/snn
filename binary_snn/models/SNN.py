@@ -76,7 +76,7 @@ class SNNetwork(torch.nn.Module):
                                              .reshape([self.n_learnable_neurons, self.n_neurons, self.n_basis_feedforward]), dtype=torch.float).to(self.device)
         self.feedforward_weights = None
         self.initialize_ff_weights(topology, howto=initialization, gain=weights_magnitude)
-        self.feedforward_filter = feedforward_filter(tau_fb, self.n_basis_feedforward, mu).to(self.device)
+        self.feedforward_filter = feedforward_filter(tau_ff, self.n_basis_feedforward, mu).to(self.device)
         self.tau_ff = tau_ff
 
 
@@ -196,19 +196,19 @@ class SNNetwork(torch.nn.Module):
 
 
     def set_ff_weights(self, new_weights):
-        assert new_weights.shape == self.feedforward_weights.shape, 'Wrong shape, got ' + str(new_weights.shape) + ', expected' + str(self.feedforward_weights.shape)
+        assert new_weights.shape == self.feedforward_weights.shape, 'Wrong shape, got ' + str(new_weights.shape) + ', expected ' + str(self.feedforward_weights.shape)
         self.feedforward_weights = new_weights.to(self.device)
         return
 
 
     def set_fb_weights(self, new_weights):
-        assert new_weights.shape == self.feedback_weights.shape, 'Wrong shape, got ' + str(new_weights.shape) + ', expected' + str(self.feedback_weights.shape)
+        assert new_weights.shape == self.feedback_weights.shape, 'Wrong shape, got ' + str(new_weights.shape) + ', expected ' + str(self.feedback_weights.shape)
         self.feedback_weights = new_weights.to(self.device)
         return
 
 
     def set_bias(self, new_bias):
-        assert new_bias.shape == self.bias.shape, 'Wrong shape, got ' + str(new_bias.shape) + ', expected' + str(self.bias.shape)
+        assert new_bias.shape == self.bias.shape, 'Wrong shape, got ' + str(new_bias.shape) + ', expected ' + str(self.bias.shape)
         self.bias = new_bias.to(self.device)
         return
 

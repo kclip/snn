@@ -127,7 +127,7 @@ def get_acc_wispike(encoder, decoder, args, test_indices, n_outputs_enc, howto='
             if args.systematic:
                 decoder_input = channel(torch.cat((sample_enc[:, s], encoder.spiking_history[encoder.hidden_neurons[-n_outputs_enc:], -1])), decoder.device, args.snr)
             else:
-                decoder_input = channel(encoder.spiking_history[encoder.hidden_neurons[-n_outputs_enc:], -1], decoder.device, args.snr)
+                decoder_input = channel(encoder.spiking_history[encoder.hidden_neurons[-args.n_output_enc:], -1], decoder.device, args.snr)
 
             _ = decoder(decoder_input)
             outputs[j, :, s] = decoder.spiking_history[decoder.output_neurons, -1]
