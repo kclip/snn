@@ -57,7 +57,7 @@
         <entry file="file://$PROJECT_DIR$/train_vqvae.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="333">
-              <caret line="137" column="20" selection-start-line="137" selection-start-column="20" selection-end-line="137" selection-end-column="20" />
+              <caret line="161" lean-forward="true" selection-start-line="161" selection-end-line="161" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -310,12 +310,12 @@
       <workItem from="1589788348701" duration="10796000" />
       <workItem from="1590479116921" duration="197100000" />
       <workItem from="1592220148312" duration="36388000" />
-      <workItem from="1592816660040" duration="18480000" />
+      <workItem from="1592816660040" duration="19171000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="390126000" />
+    <option name="totallyTimeSpent" value="390817000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
@@ -685,7 +685,7 @@
     <entry file="file://$PROJECT_DIR$/train_vqvae.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="333">
-          <caret line="137" column="20" selection-start-line="137" selection-start-column="20" selection-end-line="137" selection-end-column="20" />
+          <caret line="161" lean-forward="true" selection-start-line="161" selection-end-line="161" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
           </folding>

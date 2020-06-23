@@ -135,7 +135,6 @@ else:
 name = 'vqvae_' + args.classifier + r'_%d_epochs_nh_%d_nout_%d' % (args.num_samples_train, args.n_h, np.prod(args.encodings_dim)) + args.suffix
 args.save_path = home + r'/results/' + name + '.pkl'
 args.save_path_weights = None
-print(args.save_path)
 
 args.ite_test = np.arange(0, args.num_samples_train, args.test_period)
 args.test_accs = {i: [] for i in args.ite_test}
@@ -147,19 +146,17 @@ train_res_perplexity = []
 for i, idx in enumerate(indices):
     train_res_recon_error, train_res_perplexity = \
         training_utils.train_vqvae(vqvae, vqvae_optimizer, args, train_res_recon_error, train_res_perplexity, idx)
-    training_utils.train_classifier(classifier, args, idx)
+    # training_utils.train_classifier(classifier, args, idx)
 
     if (i + 1) % args.test_period == 0:
         print('Testing at step %d...' % (i + 1))
-        acc = testing_utils.get_acc_classifier(classifier, vqvae, args, test_indices)
-
-        print('test accuracy: %f' % acc)
+        # acc = testing_utils.get_acc_classifier(classifier, vqvae, args, test_indices)
+        # print('test accuracy: %f' % acc)
         print('recon_error: %.3f' % np.mean(train_res_recon_error[-100:]))
         print('perplexity: %.3f' % np.mean(train_res_perplexity[-100:]))
 
-        args.test_accs[int(i + 1)].append(acc)
-
-        if args.save_path is not None:
-            with open(args.save_path, 'wb') as f:
-                pickle.dump(args.test_accs, f, pickle.HIGHEST_PROTOCOL)
+        # args.test_accs[int(i + 1)].append(acc)
+        # if args.save_path is not None:
+        #     with open(args.save_path, 'wb') as f:
+        #         pickle.dump(args.test_accs, f, pickle.HIGHEST_PROTOCOL)
 
