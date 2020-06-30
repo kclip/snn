@@ -150,7 +150,7 @@ weights = r'C:/Users/K1804053/PycharmProjects/results/results_wispike/002__18-06
 network_weights = weights + r'/network_weights.hdf5'
 
 network.import_weights(network_weights)
-snr_list = [-5, 0, 1, 5]
+snr_list = [0, -2, -4, -6, -8, -10]
 
 res = {snr: 0 for snr in snr_list}
 
@@ -172,7 +172,6 @@ for snr in snr_list:
 
         for s in range(S_prime):
             log_proba = network(sample[:, s])
-            # loss += torch.sum(log_proba).numpy()
             outputs[j, :, s] = network.spiking_history[network.output_neurons, -1]
             rec[:, s] = network.spiking_history[network.learnable_neurons, -1]
 

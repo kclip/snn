@@ -8,7 +8,7 @@ def channel(signal, device, snr_db):
     noise_db = sig_avg_db - snr_db
     sigma_noise = 10 ** (noise_db / 10)
 
-    noise = torch.normal(0, torch.ones(signal.shape)) * sigma_noise
+    noise = torch.normal(0, torch.ones(signal.shape) * sigma_noise)
     channel_output = signal + noise.to(device)
 
     channel_output[channel_output >= 0.5] = 1
