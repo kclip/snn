@@ -15,7 +15,7 @@ def feedforward_sampling(network, example, args):
     # Accumulate learning signal
     proba_hidden = torch.sigmoid(network.potential[network.hidden_neurons - network.n_input_neurons])
     ls = torch.sum(log_proba[network.output_neurons - network.n_input_neurons]) \
-          - args.alpha * torch.sum(network.spiking_history[network.hidden_neurons, -1]
+          - args.gamma * torch.sum(network.spiking_history[network.hidden_neurons, -1]
           * torch.log(1e-12 + proba_hidden / args.r)
           + (1 - network.spiking_history[network.hidden_neurons, -1]) * torch.log(1e-12 + (1. - proba_hidden) / (1 - args.r)))
 
