@@ -8,7 +8,7 @@ import torch
 import numpy as np
 import pickle
 from utils.filters import get_filter
-
+import time
 
 def wispike(args):
     ### Network parameters
@@ -119,6 +119,8 @@ def wispike(args):
                 log_proba_dec = decoder(sample_dec)
                 proba_hidden_dec = torch.sigmoid(decoder.potential[decoder.hidden_neurons - decoder.n_input_neurons])
 
+
+
                 ls = torch.sum(log_proba_dec[decoder.output_neurons - decoder.n_input_neurons]) \
                      - args.gamma * torch.sum(torch.cat((encoder.spiking_history[encoder.hidden_neurons, -1], decoder.spiking_history[decoder.hidden_neurons, -1]))
                                               * torch.log(1e-12 + torch.cat((proba_hidden_enc, proba_hidden_dec)) / args.r)
@@ -128,12 +130,11 @@ def wispike(args):
                 # Local feedback and update
                 eligibility_trace_hidden_dec, eligibility_trace_output_dec, learning_signal, baseline_num_dec, baseline_den_dec \
                     = local_feedback_and_update(decoder, ls, eligibility_trace_hidden_dec, eligibility_trace_output_dec,
-                                                learning_signal, baseline_num_dec, baseline_den_dec, args.lr, args.beta, args.kappa)
+                                                learning_signal, baseline_num_dec, baseline_den_dec, args)
 
                 eligibility_trace_hidden_enc, _, _, baseline_num_enc, baseline_den_enc \
                     = local_feedback_and_update(encoder, 0, eligibility_trace_hidden_enc, None,
-                                                learning_signal, baseline_num_enc, baseline_den_enc, args.lr, args.beta, args.kappa)
-
+                                                learning_signal, baseline_num_enc, baseline_den_enc, args)
 
             if j % max(1, int(len(indices) / 5)) == 0:
                 print('Step %d out of %d' % (j, len(indices)))

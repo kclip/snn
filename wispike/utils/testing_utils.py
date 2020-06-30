@@ -145,7 +145,7 @@ def get_acc_wispike(encoder, decoder, args, test_indices, n_outputs_enc, howto='
         accs = torch.zeros([S_prime], dtype=torch.float)
 
         for s in range(1, S_prime):
-            predictions = torch.max(torch.sum(outputs[:, :, :s], dim=-1), dim=-1).indices
+            predictions = torch.sum(outputs[:, :, :s], dim=-1).argmax(-1)
             acc = float(torch.sum(predictions == true_classes, dtype=torch.float) / len(predictions))
             accs[s] = acc
     else:

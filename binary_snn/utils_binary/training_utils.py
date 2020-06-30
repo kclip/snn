@@ -3,7 +3,7 @@ import pickle
 from binary_snn.utils_binary.misc import refractory_period, get_acc_and_loss, get_train_acc_and_loss
 
 
-def feedforward_sampling(network, example, alpha, r):
+def feedforward_sampling(network, example, args):
     """"
     Feedforward sampling step:
     - passes information through the network
@@ -15,15 +15,15 @@ def feedforward_sampling(network, example, alpha, r):
     # Accumulate learning signal
     proba_hidden = torch.sigmoid(network.potential[network.hidden_neurons - network.n_input_neurons])
     ls = torch.sum(log_proba[network.output_neurons - network.n_input_neurons]) \
-          - alpha*torch.sum(network.spiking_history[network.hidden_neurons, -1]
-          * torch.log(1e-12 + proba_hidden / r)
-          + (1 - network.spiking_history[network.hidden_neurons, -1]) * torch.log(1e-12 + (1. - proba_hidden) / (1 - r)))
+          - args.alpha * torch.sum(network.spiking_history[network.hidden_neurons, -1]
+          * torch.log(1e-12 + proba_hidden / args.r)
+          + (1 - network.spiking_history[network.hidden_neurons, -1]) * torch.log(1e-12 + (1. - proba_hidden) / (1 - args.r)))
 
     return log_proba, ls
 
 
 def local_feedback_and_update(network, ls_tmp, eligibility_trace_hidden, eligibility_trace_output,
-                              learning_signal, baseline_num, baseline_den, learning_rate, beta, kappa):
+                              learning_signal, baseline_num, baseline_den, args):
     """"
     Runs the local feedback and update steps:
     - computes the learning signal
@@ -32,22 +32,22 @@ def local_feedback_and_update(network, ls_tmp, eligibility_trace_hidden, eligibi
 
     # local feedback
     if ls_tmp != 0:
-        learning_signal = kappa * learning_signal + (1 - kappa) * ls_tmp
+        learning_signal = args.kappa * learning_signal + (1 - args.kappa) * ls_tmp
 
     # Update parameter
     for parameter in network.gradients:
-        eligibility_trace_hidden[parameter].mul_(kappa).add_(1 - kappa, network.gradients[parameter][network.hidden_neurons - network.n_input_neurons])
+        eligibility_trace_hidden[parameter].mul_(args.kappa).add_(1 - args.kappa, network.gradients[parameter][network.hidden_neurons - network.n_input_neurons])
 
-        baseline_num[parameter].mul_(beta).add_(1 - beta, eligibility_trace_hidden[parameter].pow(2).mul_(learning_signal))
-        baseline_den[parameter].mul_(beta).add_(1 - beta, eligibility_trace_hidden[parameter].pow(2))
+        baseline_num[parameter].mul_(args.beta).add_(1 - args.beta, eligibility_trace_hidden[parameter].pow(2).mul_(learning_signal))
+        baseline_den[parameter].mul_(args.beta).add_(1 - args.beta, eligibility_trace_hidden[parameter].pow(2))
         baseline = (baseline_num[parameter]) / (baseline_den[parameter] + 1e-07)
 
         network.get_parameters()[parameter][network.hidden_neurons - network.n_input_neurons] \
-            += learning_rate * (learning_signal - baseline) * eligibility_trace_hidden[parameter]
+            += args.lr * (learning_signal - baseline) * eligibility_trace_hidden[parameter]
 
         if eligibility_trace_output is not None:
-            eligibility_trace_output[parameter].mul_(kappa).add_(1 - kappa, network.gradients[parameter][network.output_neurons - network.n_input_neurons])
-            network.get_parameters()[parameter][network.output_neurons - network.n_input_neurons] += learning_rate * eligibility_trace_output[parameter]
+            eligibility_trace_output[parameter].mul_(args.kappa).add_(1 - args.kappa, network.gradients[parameter][network.output_neurons - network.n_input_neurons])
+            network.get_parameters()[parameter][network.output_neurons - network.n_input_neurons] += args.lr * eligibility_trace_output[parameter]
 
     return eligibility_trace_hidden, eligibility_trace_output, learning_signal, baseline_num, baseline_den
 
@@ -104,11 +104,11 @@ def train(network, indices, test_indices, args):
 
         for s in range(S_prime):
             # Feedforward sampling
-            log_proba, ls_tmp = feedforward_sampling(network, sample[:, s], args.gamma, args.r)
+            log_proba, ls_tmp = feedforward_sampling(network, sample[:, s], args)
             # Local feedback and update
             eligibility_trace_hidden, eligibility_trace_output, learning_signal, baseline_num, baseline_den \
                 = local_feedback_and_update(network, ls_tmp, eligibility_trace_hidden, eligibility_trace_output,
-                                            learning_signal, baseline_num, baseline_den, args.lr, args.beta, args.kappa)
+                                            learning_signal, baseline_num, baseline_den, args)
 
         if j % max(1, int(len(indices) / 5)) == 0:
             print('Step %d out of %d' % (j, len(indices)))

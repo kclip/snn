@@ -4,7 +4,7 @@
 #SBATCH --mem-per-cpu=8GB
 #SBATCH --partition=nms_research
 
-python /users/k1804053/snn_private/launch_experiment.py --where=rosalind --dataset=mnist_dvs_10_binary --n_h=512 --n_output_enc=512 --num_samples_train=30000 \
+python /users/k1804053/snn_private/launch_experiment.py --where=gcloud --dataset=mnist_dvs_10_binary --n_h=512 --n_output_enc=512 --num_samples_train=30000 \
 --test_period=500 --num_ite=5 --suffix=_snr_0 \
 --model=wispike --systematic=false --snr=0 --r=0.3 --labels 1 7
 
@@ -13,4 +13,3 @@ python /users/k1804053/snn_private/launch_experiment.py --where=rosalind --datas
 #python launch_experiment.py --where=gcloud --dataset=mnist_dvs_10_binary --n_h=128 --n_output_enc=64 --num_samples_train=100000 \
 #--model=wispike --systematic=true --snr=5 --r=0.3 --labels 1 7 \
 #--test_period=5000 --num_ite=1 --suffix=_sytematic_snr_5_2_labels
-
