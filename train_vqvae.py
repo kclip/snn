@@ -144,8 +144,8 @@ train_res_recon_error = []
 train_res_perplexity = []
 
 for i, idx in enumerate(indices):
-    train_res_recon_error, train_res_perplexity = \
-        training_utils.train_vqvae(vqvae, vqvae_optimizer, args, train_res_recon_error, train_res_perplexity, idx)
+    # train_res_recon_error, train_res_perplexity = \
+    #     training_utils.train_vqvae(vqvae, vqvae_optimizer, args, train_res_recon_error, train_res_perplexity, idx)
     training_utils.train_classifier(classifier, args, idx)
 
     if (i + 1) % args.test_period == 0:
