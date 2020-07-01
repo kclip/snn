@@ -3,6 +3,7 @@ from binary_snn.models.SNN import SNNetwork
 from wispike.models.mlp import MLP
 import binary_snn.utils_binary.misc as misc_snn
 from wispike.utils.misc import channel_coding_decoding, channel, framed_to_example, example_to_framed
+import numpy as np
 
 
 def classify(classifier, example, args, howto='final'):
@@ -87,8 +88,8 @@ def get_acc_classifier(classifier, vqvae, args, indices, howto='final'):
 
                 data_reconstructed[j] = vqvae.decode(encodings_decoded, args.quantized_dim)
 
-            data_reconstructed[j] = channel(frame, classifier.device, args.snr)  # todo
         predictions[i] = classify(classifier, data_reconstructed, args, howto)
+        print(torch.sum(data == data_reconstructed) / np.prod(data.shape))  # todo
 
     true_classes = torch.max(torch.sum(torch.FloatTensor(args.dataset.root.test.label[:][indices]), dim=-1), dim=-1).indices
 
