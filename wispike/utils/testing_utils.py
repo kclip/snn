@@ -89,7 +89,7 @@ def get_acc_classifier(classifier, vqvae, args, indices, howto='final'):
                 data_reconstructed[j] = vqvae.decode(encodings_decoded, args.quantized_dim)
 
         predictions[i] = classify(classifier, data_reconstructed, args, howto)
-        print(torch.sum(data == data_reconstructed) / np.prod(data.shape))  # todo
+        print( float(torch.sum(data == data_reconstructed)) / np.prod(data.shape))  # todo
 
     true_classes = torch.max(torch.sum(torch.FloatTensor(args.dataset.root.test.label[:][indices]), dim=-1), dim=-1).indices
 
