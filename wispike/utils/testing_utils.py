@@ -74,7 +74,7 @@ def get_acc_classifier(classifier, vqvae, args, indices, howto='final'):
     else:
         raise NotImplementedError
 
-    for i, idx in enumerate(indices):
+    for i, idx in enumerate(indices[:1]):
         data = example_to_framed(args.dataset.root.test.data[idx, :, :], args)
         data_reconstructed = torch.zeros(data.shape)
 
@@ -90,6 +90,8 @@ def get_acc_classifier(classifier, vqvae, args, indices, howto='final'):
 
         predictions[i] = classify(classifier, data_reconstructed, args, howto)
         print(float(torch.sum(data == data_reconstructed)), float(torch.sum(data == data_reconstructed)) / np.prod(data.shape))  # todo
+        print(data[:10, 0, 0, 0])
+        print(data_reconstructed[:10, 0, 0, 0])
 
     true_classes = torch.max(torch.sum(torch.FloatTensor(args.dataset.root.test.label[:][indices]), dim=-1), dim=-1).indices
 
