@@ -30,7 +30,7 @@ def mksavedir(pre='results/', exp_dir=None):
         else:
             expDirN = "%03d" % (int((prelist[len(prelist) - 1].split("__"))[0]) + 1)
 
-        save_dir = time.strftime(pre + expDirN + "__" + "%d-%m-%Y", time.localtime()) + '_' +   exp_dir
+        save_dir = time.strftime(pre + expDirN + "__" + "%d-%m-%Y", time.localtime()) + '_' + exp_dir
 
     else:
         raise TypeError('exp_dir should be a string')

@@ -36,6 +36,7 @@ if __name__ == "__main__":
     parser.add_argument('--suffix', type=str, default='', help='Appended to the name of the saved results and weights')
     parser.add_argument('--labels', nargs='+', default=None, type=int, help='Class labels to be used during training')
     parser.add_argument('--resume', type=str, default='false', help='')
+    parser.add_argument('--save_path', type=str, default=None, help='')
 
 
     # Arguments common to all models
@@ -123,7 +124,9 @@ else:
 # Save results and weights
 name = args.dataset + r'_' + args.model + r'_%d_epochs_nh_%d_nout_%d' % (args.num_samples_train, args.n_h, args.n_output_enc) + args.suffix
 results_path = home + r'/results/'
-args.save_path = mksavedir(pre=results_path, exp_dir=name)
+
+if not str2bool(args.resume):
+    args.save_path = mksavedir(pre=results_path, exp_dir=name)
 
 args.dataset = tables.open_file(dataset)
 
@@ -138,7 +141,7 @@ if args.test_period is not None:
     args.ite_test = np.arange(0, args.num_samples_train, args.test_period)
 
     if os.path.exists(args.save_path):
-        assert str2bool(args.resume), 'path already exists'
+        assert str2bool(args.resume), 'path already exists' # todo change mksavedir to find existing paths
         with open(args.save_path + '/test_accs.pkl', 'rb') as f:
             args.test_accs = pickle.load(f)
     else:
