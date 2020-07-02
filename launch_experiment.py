@@ -118,16 +118,16 @@ elif args.dataset[:7] == 'swedish':
     dataset = home + r'/datasets/SwedishLeaf_processed/' + datasets[args.dataset]
 else:
     print('Error: dataset not found')
-args.dataset = tables.open_file(dataset)
+dataset = tables.open_file(dataset)
 
 
 ### Learning parameters
 if not args.num_samples_train:
-    args.num_samples_train = args.dataset.root.stats.train_data[0]
+    args.num_samples_train = dataset.root.stats.train_data[0]
 
 if args.test_period is not None:
     if not args.num_samples_test:
-        args.num_samples_test = args.dataset.root.stats.test_data[0]
+        args.num_samples_test = dataset.root.stats.test_data[0]
 
     args.ite_test = np.arange(0, args.num_samples_train, args.test_period)
 
@@ -144,7 +144,7 @@ results_path = home + r'/results/'
 if args.save_path is not None:
     args.save_path = mksavedir(pre=results_path, exp_dir=name)
 
-
+args.dataset = dataset
 
 args.disable_cuda = str2bool(args.disable_cuda)
 args.device = None
