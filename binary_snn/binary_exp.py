@@ -38,8 +38,8 @@ def launch_binary_exp(args):
             test_indices = np.random.choice(np.arange(args.dataset.root.stats.test_data[0]), [args.num_samples_test], replace=False)
 
         # Import weights if specified
-        if args.weights is not None:
-            network.import_weights(args.weights)
+        if args.start_idx > 0:
+            network.import_weights(args.save_path + r'network_weights.hdf5')
 
         # Start training
         test_accs = train(network, indices, test_indices, args)
