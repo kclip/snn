@@ -39,7 +39,7 @@ def launch_binary_exp(args):
 
         # Import weights if specified
         if args.start_idx > 0:
-            network.import_weights(args.save_path + r'network_weights.hdf5')
+            network.import_weights(args.save_path + r'/network_weights.hdf5')
 
         # Start training
         test_accs = train(network, indices, test_indices, args)
