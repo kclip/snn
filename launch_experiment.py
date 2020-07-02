@@ -141,7 +141,7 @@ if args.test_period is not None:
 # Save results and weights
 name = args.dataset + r'_' + args.model + r'_%d_epochs_nh_%d_nout_%d' % (args.num_samples_train, args.n_h, args.n_output_enc) + args.suffix
 results_path = home + r'/results/'
-if args.save_path is not None:
+if args.save_path is None:
     args.save_path = mksavedir(pre=results_path, exp_dir=name)
 
 args.dataset = dataset
