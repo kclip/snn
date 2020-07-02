@@ -89,6 +89,9 @@ def get_acc_classifier(classifier, vqvae, args, indices, howto='final'):
                 data_reconstructed[j] = vqvae.decode(encodings_decoded, args.quantized_dim)
 
         predictions[i] = classify(classifier, data_reconstructed, args, howto)
+        data_reconstructed[data_reconstructed < 0.5] = 0. # todo
+        data_reconstructed[data_reconstructed >= 0.5] = 1. # todo
+
         print(float(torch.sum(data == data_reconstructed)), float(torch.sum(data == data_reconstructed)) / np.prod(data.shape))  # todo
         print(data[:10, 0, 0, 0])
         print(data_reconstructed[:10, 0, 0, 0])

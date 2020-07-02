@@ -155,8 +155,8 @@ for i, idx in enumerate(indices):
         print('recon_error: %.3f' % np.mean(train_res_recon_error[-100:]))
         print('perplexity: %.3f' % np.mean(train_res_perplexity[-100:]))
 
-        args.test_accs[int(i + 1)].append(acc)
-        if args.save_path is not None:
-            with open(args.save_path, 'wb') as f:
-                pickle.dump(args.test_accs, f, pickle.HIGHEST_PROTOCOL)
+        # args.test_accs[int(i + 1)].append(acc)
+        # if args.save_path is not None:
+        #     with open(args.save_path, 'wb') as f:
+        #         pickle.dump(args.test_accs, f, pickle.HIGHEST_PROTOCOL)
 
