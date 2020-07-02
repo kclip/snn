@@ -10,6 +10,7 @@ import pickle
 from utils.filters import get_filter
 import time
 
+
 def wispike(args):
     ### Network parameters
     n_hidden_enc = args.n_h
@@ -73,6 +74,9 @@ def wispike(args):
                                                                args.save_path),
                             device=args.device)
 
+        if args.start_idx > 0:
+            encoder.import_weights(args.save_path + r'encoder_weights.hdf5')
+            decoder.import_weights(args.save_path + r'decoder_weights.hdf5')
 
         # init training
         eligibility_trace_hidden_enc, eligibility_trace_hidden_dec, eligibility_trace_output_dec, \

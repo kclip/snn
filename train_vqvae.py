@@ -10,6 +10,8 @@ from wispike.utils import training_utils
 from wispike.utils import testing_utils
 from binary_snn.models.SNN import SNNetwork
 import pickle
+from misc import mksavedir
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='VQ-VAE')
@@ -18,7 +20,7 @@ if __name__ == '__main__':
     # Training arguments
     parser.add_argument('--where', default='local')
     parser.add_argument('--dataset', default='mnist_dvs_10_binary')
-    parser.add_argument('--weights', type=str, default=None, help='Path to weights to load')
+    parser.add_argument('--save_path', type=str, default=None, help='Path to weights to load')
     parser.add_argument('--num_ite', default=1, type=int, help='Number of times every experiment will be repeated')
     parser.add_argument('--epochs', default=None, type=int, help='Number of samples to train on for each experiment')
     parser.add_argument('--num_samples_train', default=None, type=int, help='Number of samples to train on for each experiment')
@@ -133,8 +135,10 @@ else:
 
 
 name = 'vqvae_' + args.classifier + r'_%d_epochs_nh_%d_nout_%d' % (args.num_samples_train, args.n_h, np.prod(args.encodings_dim)) + args.suffix
-args.save_path = home + r'/results/' + name + '.pkl'
-args.save_path_weights = None
+results_path = home + r'/results/'
+if args.save_path is None:
+    args.save_path = mksavedir(pre=results_path, exp_dir=name)
+
 
 args.ite_test = np.arange(0, args.num_samples_train, args.test_period)
 args.test_accs = {i: [] for i in args.ite_test}
@@ -146,7 +150,7 @@ train_res_perplexity = []
 for i, idx in enumerate(indices):
     train_res_recon_error, train_res_perplexity = \
         training_utils.train_vqvae(vqvae, vqvae_optimizer, args, train_res_recon_error, train_res_perplexity, idx)
-    # training_utils.train_classifier(classifier, args, idx)
+    training_utils.train_classifier(classifier, args, idx)
 
     if (i + 1) % args.test_period == 0:
         print('Testing at step %d...' % (i + 1))
@@ -155,8 +159,12 @@ for i, idx in enumerate(indices):
         print('recon_error: %.3f' % np.mean(train_res_recon_error[-100:]))
         print('perplexity: %.3f' % np.mean(train_res_perplexity[-100:]))
 
-        # args.test_accs[int(i + 1)].append(acc)
-        # if args.save_path is not None:
-        #     with open(args.save_path, 'wb') as f:
-        #         pickle.dump(args.test_accs, f, pickle.HIGHEST_PROTOCOL)
+        args.test_accs[int(i + 1)].append(acc)
+        with open(args.save_path + r'/test_accs.pkl', 'wb') as f:
+            pickle.dump(args.test_accs, f, pickle.HIGHEST_PROTOCOL)
+        if isinstance(classifier, SNNetwork):
+            classifier.save(args.save_path + r'/snn_weights.hdf5')
+        else:
+            torch.save(classifier.state_dict(), args.save_path + r'mlp_weights.pt')
+        torch.save(vqvae.state_dict(), args.save_path + r'vqvae_weights.pt')
 

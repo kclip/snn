@@ -2,13 +2,16 @@ import torch
 from binary_snn.models.SNN import SNNetwork
 from wispike.models.mlp import MLP
 import binary_snn.utils_binary.misc as misc_snn
-from wispike.utils.misc import channel_coding_decoding, channel, framed_to_example, example_to_framed
+from wispike.utils.misc import channel_coding_decoding, channel, framed_to_example, example_to_framed, binarize
 import numpy as np
 
 
 def classify(classifier, example, args, howto='final'):
     if isinstance(classifier, SNNetwork):
         example = framed_to_example(example, args)
+        # SNNs only accept binary inputs
+        example = binarize(example)
+
         predictions = classify_snn(classifier, example, args, howto)
 
     elif isinstance(classifier, MLP):
@@ -89,12 +92,6 @@ def get_acc_classifier(classifier, vqvae, args, indices, howto='final'):
                 data_reconstructed[j] = vqvae.decode(encodings_decoded, args.quantized_dim)
 
         predictions[i] = classify(classifier, data_reconstructed, args, howto)
-        data_reconstructed[data_reconstructed < 0.5] = 0. # todo
-        data_reconstructed[data_reconstructed >= 0.5] = 1. # todo
-
-        print(float(torch.sum(data == data_reconstructed)), float(torch.sum(data == data_reconstructed)) / np.prod(data.shape))  # todo
-        print(data[:10, 0, 0, 0])
-        print(data_reconstructed[:10, 0, 0, 0])
 
     true_classes = torch.max(torch.sum(torch.FloatTensor(args.dataset.root.test.label[:][indices]), dim=-1), dim=-1).indices
 

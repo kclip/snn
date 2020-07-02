@@ -3,6 +3,12 @@ import numpy as np
 import pyldpc
 
 
+def binarize(signal):
+    signal[signal >= 0.5] = 1.
+    signal[signal < 0.5] = 0.
+    return signal
+
+
 def channel(signal, device, snr_db):
     sig_avg_db = 10 * torch.log10(torch.mean(signal))
     noise_db = sig_avg_db - snr_db
@@ -11,8 +17,7 @@ def channel(signal, device, snr_db):
     noise = torch.normal(0, torch.ones(signal.shape) * sigma_noise)
     channel_output = signal + noise.to(device)
 
-    channel_output[channel_output >= 0.5] = 1
-    channel_output[channel_output < 0.5] = 0
+    channel_output = binarize(channel_output)
     return channel_output
 
 
