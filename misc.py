@@ -35,5 +35,7 @@ def mksavedir(pre='results/', exp_dir=None):
     else:
         raise TypeError('exp_dir should be a string')
 
+
+    os.makedirs(save_dir)
     print(("Created experiment directory {0}".format(save_dir)))
-    return save_dir + '/'
+    return save_dir + r'/'
