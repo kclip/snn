@@ -80,8 +80,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/wispike/utils/testing_utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="245">
-              <caret line="97" lean-forward="true" selection-start-line="97" selection-end-line="97" />
+            <state relative-caret-position="75">
+              <caret line="93" selection-start-line="93" selection-end-line="93" />
               <folding>
                 <element signature="e#0#12#0" expanded="true" />
               </folding>
@@ -345,12 +345,12 @@
       <workItem from="1592220148312" duration="36388000" />
       <workItem from="1592816660040" duration="25635000" />
       <workItem from="1593425359846" duration="26862000" />
-      <workItem from="1594027154773" duration="278000" />
+      <workItem from="1594027154773" duration="897000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="424421000" />
+    <option name="totallyTimeSpent" value="425040000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
@@ -719,8 +719,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/wispike/utils/testing_utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="245">
-          <caret line="97" lean-forward="true" selection-start-line="97" selection-end-line="97" />
+        <state relative-caret-position="75">
+          <caret line="93" selection-start-line="93" selection-end-line="93" />
           <folding>
             <element signature="e#0#12#0" expanded="true" />
           </folding>
