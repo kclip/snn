@@ -8,7 +8,7 @@ import torch
 import numpy as np
 import pickle
 from utils.filters import get_filter
-import time
+import os
 
 
 def wispike(args):
@@ -142,3 +142,13 @@ def wispike(args):
 
             if j % max(1, int(len(indices) / 5)) == 0:
                 print('Step %d out of %d' % (j, len(indices)))
+
+        # At the end of training, save final weights if none exist or if this ite was better than all the others
+        if not os.path.exists(args.save_path + '/encoder_weights_final.hdf5'):
+            encoder.save(args.save_path + '/encoder_weights_final.hdf5')
+            decoder.save(args.save_path + '/decoder_weights_final.hdf5')
+        else:
+            if args.test_accs[list(args.test_accs.keys())[-1]][-1] >= max(args.test_accs[list(args.test_accs.keys())[-1]][:-1]):
+                encoder.save(args.save_path + '/encoder_weights_final.hdf5')
+                decoder.save(args.save_path + '/decoder_weights_final.hdf5')
+
