@@ -152,7 +152,6 @@ def train(rank, num_nodes, args):
             network.set_mode('train')
 
             samples_indices_train = np.random.choice(indices_local, [args.num_samples_train], replace=True)
-            print(rank, len(samples_indices_train), samples_indices_train)
         dist.barrier(all_nodes)
 
 
@@ -173,12 +172,12 @@ def train(rank, num_nodes, args):
                 # Local feedback and update
                 eligibility_trace, et_temp, learning_signal, ls_temp = local_feedback_and_update(network, eligibility_trace, et_temp, learning_signal, ls_temp, s, args)
 
-                ## Every few timesteps, record test losses
-                if ((s + 1) % args.test_interval == 0) & ((s + 1) != S):
-                    _, loss = get_acc_and_loss(network, args.dataset, test_indices)
-                    test_loss[s + 1].append(loss)
-                    save_results(test_loss, test_loss_save_path)
-                    network.set_mode('train')
+            ## Every few timesteps, record test losses
+            if ((s + 1) // S_prime) % args.test_interval == 0:
+                _, loss = get_acc_and_loss(network, args.dataset, test_indices)
+                test_loss[s + 1].append(loss)
+                save_results(test_loss, test_loss_save_path)
+                network.set_mode('train')
 
             # Global update
             if (s + 1) % (args.tau * args.deltas) == 0:
