@@ -92,8 +92,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/mnist_online_distributed.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3049">
-              <caret line="271" column="40" lean-forward="true" selection-start-line="271" selection-start-column="40" selection-end-line="271" selection-end-column="40" />
+            <state relative-caret-position="312">
+              <caret line="125" column="42" selection-start-line="125" selection-start-column="42" selection-end-line="125" selection-end-column="42" />
               <folding>
                 <element signature="e#0#37#0" expanded="true" />
               </folding>
@@ -373,12 +373,12 @@
       <workItem from="1593425359846" duration="26862000" />
       <workItem from="1594027154773" duration="26398000" />
       <workItem from="1594292839649" duration="3787000" />
-      <workItem from="1594630216142" duration="16686000" />
+      <workItem from="1594630216142" duration="16943000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="471014000" />
+    <option name="totallyTimeSpent" value="471271000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
@@ -792,8 +792,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/mnist_online_distributed.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3049">
-          <caret line="271" column="40" lean-forward="true" selection-start-line="271" selection-start-column="40" selection-end-line="271" selection-end-column="40" />
+        <state relative-caret-position="312">
+          <caret line="125" column="42" selection-start-line="125" selection-start-column="42" selection-end-line="125" selection-end-column="42" />
           <folding>
             <element signature="e#0#37#0" expanded="true" />
           </folding>

@@ -123,7 +123,7 @@ def train(rank, num_nodes, args):
         test_indices = np.random.choice(find_test_indices_for_labels(args.dataset, args.labels), [num_samples_test], replace=False)
     else:
         test_indices = np.random.choice(np.arange(args.dataset.root.stats.test_data[0]), [args.num_samples_test], replace=False)
-
+        args.labels = [i for i in range(10)]
 
     if args.save_path is None:
         test_loss_save_path = os.getcwd() + r'/results/test_loss_%d_labels_node_%d.pkl' % (len(args.labels), rank)
