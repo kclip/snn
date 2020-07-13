@@ -208,7 +208,7 @@ if __name__ == "__main__":
 
     # Training arguments
     parser.add_argument('--num_ite', default=10, type=int, help='Number of times every experiment will be repeated')
-    parser.add_argument('--num_samples', default=200, type=int, help='Number of samples to train on for each experiment')
+    parser.add_argument('--num_samples_train', default=200, type=int, help='Number of samples to train on for each experiment')
     parser.add_argument('--num_samples_test', default=None, type=int, help='Number of samples to test on')
     parser.add_argument('--test_interval', default=40, type=int, help='Test interval')
     parser.add_argument('--rate', default=None, type=float, help='Fixed communication rate')
