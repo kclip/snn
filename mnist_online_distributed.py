@@ -112,10 +112,6 @@ def train(rank, num_nodes, args):
     S_prime = args.dataset.root.stats.train_data[-1]
     S = args.num_samples_train * S_prime
 
-    args.test_interval = args.test_interval * S_prime
-    test_loss = {i: [] for i in range(0, args.num_samples_train, args.test_interval)}
-    test_loss[args.num_samples_train] = []
-
     args.num_samples_test = args.dataset.root.stats.test_data[0]
     if args.labels is not None:
         print(args.labels)
@@ -125,10 +121,22 @@ def train(rank, num_nodes, args):
         test_indices = np.random.choice(np.arange(args.dataset.root.stats.test_data[0]), [args.num_samples_test], replace=False)
         args.labels = [i for i in range(10)]
 
-    if args.save_path is None:
-        test_loss_save_path = os.getcwd() + r'/results/test_loss_%d_labels_node_%d.pkl' % (len(args.labels), rank)
+    if rank == 0:
+        if args.save_path is None:
+            test_acc_save_path = os.getcwd() + r'/results/test_acc_master_tau_%d.pkl' % args.tau
+        else:
+            test_acc_save_path = args.save_path + r'/results/test_acc_master_tau_%d.pkl' % args.tau
+        test_accs = []
     else:
-        test_loss_save_path = args.save_path + r'test_loss_%d_labels_node_%d.pkl' % (len(args.labels), rank)
+        if args.save_path is None:
+            test_loss_save_path = os.getcwd() + r'/results/test_loss_%d_labels_node_%d.pkl' % (len(args.labels), rank)
+        else:
+            test_loss_save_path = args.save_path + r'test_loss_%d_labels_node_%d.pkl' % (len(args.labels), rank)
+
+        args.test_interval = args.test_interval * S_prime
+        test_loss = {i: [] for i in range(0, args.num_samples_train, args.test_interval)}
+        test_loss[args.num_samples_train] = []
+
 
     for i in range(args.num_ite):
         # Initialize main parameters for training
@@ -178,10 +186,12 @@ def train(rank, num_nodes, args):
                 global_update(all_nodes, rank, network, weights_list)
                 dist.barrier(all_nodes)
 
-        # if rank == 0:
-            # global_acc, _ = get_acc_and_loss(network, args.dataset, test_indices)
-            # print('Iteration: %d, final accuracy: %f' % (i, global_acc))
-        if rank != 0:
+        if rank == 0:
+            global_acc, _ = get_acc_and_loss(network, args.dataset, test_indices)
+            print('Iteration: %d, final accuracy: %f' % (i, global_acc))
+            test_accs.append(global_acc)
+            save_results(test_accs, test_acc_save_path)
+        else:
             _, loss = get_acc_and_loss(network, args.dataset, test_indices)
             test_loss[S].append(loss)
             save_results(test_loss, test_loss_save_path)
