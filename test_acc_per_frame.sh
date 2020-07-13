@@ -1,5 +1,5 @@
 #!/bin/bash
-python test_performance.py --dataset=mnist_dvs_10_binary --n_h=256 --n_output_enc=256 \
---model=wispike --systematic=false --snr=-5 \
---weights=005__19-06-2020_mnist_dvs_10_binary_wispike_30000_epochs_nh_256_nout_256_snr_m_5_lr_1em4 \
+python comparison_performance.py --model=vqvae --n_h=512 --n_output_enc=512 \
+--systematic=false --snr=0 \
+--weights=017__06-07-2020_vqvae_snn_100000_epochs_nh_512_nout_360_snr_m_4 \
 --labels 1 7

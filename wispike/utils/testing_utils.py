@@ -24,20 +24,28 @@ def classify_snn(network, example, args, howto='final'):
     network.set_mode('test')
     network.reset_internal_state()
 
-    S_prime = args.dataset.root.test.label[:].shape[-1]
-    outputs = torch.zeros([network.n_output_neurons, S_prime])
+    T = args.dataset.root.test.label[:].shape[-1]
+    outputs = torch.zeros([network.n_output_neurons, T])
 
-    for s in range(S_prime):
-        _ = network(example[:, s])
-        outputs[:, s] = network.spiking_history[network.output_neurons, -1]
+    for t in range(T):
+        _ = network(example[:, t])
+        outputs[:, t] = network.spiking_history[network.output_neurons, -1]
 
     if howto == 'final':
         predictions = torch.max(torch.sum(outputs, dim=-1), dim=-1).indices
 
     elif howto == 'per_frame':
-        predictions = torch.zeros([S_prime])
-        for s in range(1, S_prime):
-            predictions[s] = torch.max(torch.sum(outputs[:, :s], dim=-1), dim=-1).indices
+        predictions = torch.zeros([T])
+        for t in range(1, T):
+            predictions[t] = torch.max(torch.sum(outputs[:, :t], dim=-1), dim=-1).indices
+
+    elif howto == 'both':
+        predictions_final = torch.max(torch.sum(outputs, dim=-1), dim=-1).indices
+        predictions_pf = torch.zeros([T])
+        for t in range(1, T):
+            predictions_pf[t] = torch.max(torch.sum(outputs[:, :t], dim=-1), dim=-1).indices
+        return predictions_final, predictions_pf
+
     else:
         raise NotImplementedError
 
@@ -88,7 +96,7 @@ def get_acc_classifier(classifier, vqvae, args, indices, howto='final'):
                 _, encodings = vqvae.encode(frame)
 
                 encodings_decoded = channel_coding_decoding(args, encodings)
-
+                print('encodings_decoded ', encodings_decoded.shape)
                 data_reconstructed[j] = vqvae.decode(encodings_decoded, args.quantized_dim)
 
         predictions[i] = classify(classifier, data_reconstructed, args, howto)
@@ -115,29 +123,29 @@ def get_acc_wispike(encoder, decoder, args, test_indices, n_outputs_enc, howto='
     decoder.set_mode('test')
     decoder.reset_internal_state()
 
-    S_prime = args.dataset.root.test.label[:].shape[-1]
-    outputs = torch.zeros([len(test_indices), decoder.n_output_neurons, S_prime])
+    T = args.dataset.root.test.label[:].shape[-1]
+    outputs = torch.zeros([len(test_indices), decoder.n_output_neurons, T])
 
-    hidden_hist = torch.zeros([encoder.n_hidden_neurons + decoder.n_hidden_neurons, S_prime])
+    hidden_hist = torch.zeros([encoder.n_hidden_neurons + decoder.n_hidden_neurons, T])
 
     for j, sample_idx in enumerate(test_indices):
         misc_snn.refractory_period(encoder)
         misc_snn.refractory_period(decoder)
         sample_enc = torch.FloatTensor(args.dataset.root.test.data[sample_idx]).to(encoder.device)
 
-        for s in range(S_prime):
-            _ = encoder(sample_enc[:, s])
+        for t in range(T):
+            _ = encoder(sample_enc[:, t])
 
             if args.systematic:
-                decoder_input = channel(torch.cat((sample_enc[:, s], encoder.spiking_history[encoder.hidden_neurons[-n_outputs_enc:], -1])), decoder.device, args.snr)
+                decoder_input = channel(torch.cat((sample_enc[:, t], encoder.spiking_history[encoder.hidden_neurons[-n_outputs_enc:], -1])), decoder.device, args.snr)
             else:
                 decoder_input = channel(encoder.spiking_history[encoder.hidden_neurons[-args.n_output_enc:], -1], decoder.device, args.snr)
 
             _ = decoder(decoder_input)
-            outputs[j, :, s] = decoder.spiking_history[decoder.output_neurons, -1]
+            outputs[j, :, t] = decoder.spiking_history[decoder.output_neurons, -1]
 
-            hidden_hist[:encoder.n_hidden_neurons, s] = encoder.spiking_history[encoder.hidden_neurons, -1]
-            hidden_hist[encoder.n_hidden_neurons:, s] = decoder.spiking_history[decoder.hidden_neurons, -1]
+            hidden_hist[:encoder.n_hidden_neurons, t] = encoder.spiking_history[encoder.hidden_neurons, -1]
+            hidden_hist[encoder.n_hidden_neurons:, t] = decoder.spiking_history[decoder.hidden_neurons, -1]
 
     true_classes = torch.max(torch.sum(torch.FloatTensor(args.dataset.root.test.label[:][test_indices]), dim=-1), dim=-1).indices
 
@@ -146,9 +154,9 @@ def get_acc_wispike(encoder, decoder, args, test_indices, n_outputs_enc, howto='
         accs = float(torch.sum(predictions == true_classes, dtype=torch.float) / len(predictions))
 
     elif howto == 'per_frame':
-        accs = torch.zeros([S_prime], dtype=torch.float)
+        accs = torch.zeros([T], dtype=torch.float)
 
-        for s in range(1, S_prime):
+        for s in range(1, T):
             predictions = torch.sum(outputs[:, :, :s], dim=-1).argmax(-1)
             acc = float(torch.sum(predictions == true_classes, dtype=torch.float) / len(predictions))
             accs[s] = acc

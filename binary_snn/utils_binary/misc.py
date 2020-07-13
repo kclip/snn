@@ -115,7 +115,7 @@ def get_acc_and_loss(network, dataset, test_indices):
 
         for s in range(S_prime):
             log_proba = network(sample[:, s])
-            # loss += torch.sum(log_proba).numpy()
+            loss += torch.sum(log_proba).numpy()
             outputs[j, :, s] = network.spiking_history[network.output_neurons, -1]
             rec[:, s] = network.spiking_history[network.learnable_neurons, -1]
 

@@ -103,18 +103,18 @@ def init_classifier(args):
         args.mlp_optimizer = torch.optim.SGD(classifier.parameters(), lr=args.lr_classifier)
         args.mlp_criterion = torch.nn.CrossEntropyLoss()
 
-    return classifier, args
+    return classifier
 
 
 def train_snn(network, args, sample):
     network.set_mode('train')
 
-    S_prime = sample.shape[-1]
+    T = sample.shape[-1]
 
     refractory_period(network)
-    for s in range(S_prime):
+    for t in range(T):
         # Feedforward sampling
-        log_proba, ls_tmp = feedforward_sampling(network, sample[:, s], args)
+        log_proba, ls_tmp = feedforward_sampling(network, sample[:, t], args)
         # Local feedback and update
         local_feedback_and_update(network, ls_tmp, args.eligibility_trace_hidden, args.eligibility_trace_output,
                                   args.learning_signal, args.baseline_num, args.baseline_den, args)
@@ -171,8 +171,8 @@ def init_training_wispike(encoder, decoder, args):
     baseline_num_dec = {parameter: eligibility_trace_hidden_dec[parameter].pow(2) * learning_signal for parameter in eligibility_trace_hidden_dec}
     baseline_den_dec = {parameter: eligibility_trace_hidden_dec[parameter].pow(2) for parameter in eligibility_trace_hidden_dec}
 
-    S_prime = args.dataset.root.train.data.shape[-1]
+    T = args.dataset.root.train.data.shape[-1]
 
     return eligibility_trace_hidden_enc, eligibility_trace_hidden_dec, eligibility_trace_output_dec, \
-            learning_signal, baseline_num_enc, baseline_den_enc, baseline_num_dec, baseline_den_dec, S_prime
+            learning_signal, baseline_num_enc, baseline_den_enc, baseline_num_dec, baseline_den_dec, T
 

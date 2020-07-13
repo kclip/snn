@@ -59,6 +59,8 @@ class SNNetwork(torch.nn.Module):
         else:
             print('Mode should be one of "train" or "test"')
             raise AttributeError
+        #todo change this for train/eval in pytorch
+        # todo harmonize behaviors between getters for gradients / parameters
 
 
         # Sanity checks

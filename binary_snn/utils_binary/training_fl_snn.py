@@ -4,45 +4,44 @@ import pickle
 from binary_snn.utils_binary.misc import refractory_period, get_acc_and_loss
 
 
-def feedforward_sampling(network, example, ls, et, alpha, r, gradients_accum=None):
+def feedforward_sampling(network, example, ls, et, args, gradients_accum=None):
     log_proba = network(example)
 
     # Accumulate learning signal
     proba_hidden = torch.sigmoid(network.potential[network.hidden_neurons - network.n_input_neurons])
     ls += torch.sum(log_proba[network.output_neurons - network.n_input_neurons]) \
-          - alpha*torch.sum(network.spiking_history[network.hidden_neurons, -1]
-          * torch.log
-                            (1e-12 + proba_hidden / r)
-          + (1 - network.spiking_history[network.hidden_neurons, -1]) * torch.log(1e-12 + (1. - proba_hidden) / (1 - r)))
+          - args.alpha * torch.sum(network.spiking_history[network.hidden_neurons, -1]
+          * torch.log(1e-12 + proba_hidden / args.r)
+          + (1 - network.spiking_history[network.hidden_neurons, -1]) * torch.log(1e-12 + (1. - proba_hidden) / (1 - args.r)))
 
     for parameter in network.gradients:
         # Only when the comm. rate is fixed
         if (parameter == 'ff_weights') & (gradients_accum is not None):
-            gradients_accum += torch.abs(network.get_gradients()[parameter])
+            gradients_accum += torch.abs(network.gradients[parameter])
 
         et[parameter] += network.gradients[parameter]
 
     return log_proba, ls, et, gradients_accum
 
 
-def local_feedback_and_update(network, eligibility_trace, et_temp, learning_signal, ls_temp, learning_rate, beta, kappa, s, deltas):
+def local_feedback_and_update(network, eligibility_trace, et_temp, learning_signal, ls_temp, s, args):
     """"
     Runs the local feedback and update steps:
     - computes the learning signal
     - updates the learning parameter
     """
     # At local algorithmic timesteps, do a local update
-    if (s + 1) % deltas == 0:
+    if (s + 1) % args.deltas == 0:
         # local feedback
-        learning_signal = kappa * learning_signal + (1 - kappa) * ls_temp
+        learning_signal = args.kappa * learning_signal + (1 - args.kappa) * ls_temp
         ls_temp = 0
 
         # Update parameter
         for parameter in network.gradients:
-            eligibility_trace[parameter].mul_(kappa).add_(1 - kappa, et_temp[parameter])
+            eligibility_trace[parameter].mul_(args.kappa).add_(1 - args.kappa, et_temp[parameter])
             et_temp[parameter] = 0
 
-            network.get_parameters()[parameter] += learning_rate * eligibility_trace[parameter]
+            network.get_parameters()[parameter] += args.lr * eligibility_trace[parameter]
 
     return eligibility_trace, et_temp, learning_signal, ls_temp
 
@@ -64,50 +63,3 @@ def init_training(network, indices, args):
     S = len(indices[args.start_idx:]) * S_prime
 
     return eligibility_trace_hidden, eligibility_trace_output, et_temp_hidden, et_temp_output, learning_signal, ls_temp, baseline_num, baseline_den, S_prime, S
-
-
-
-def train(network, indices, test_indices, args):
-    """"
-    Train a network on the sequence passed as argument.
-    """
-
-    eligibility_trace_hidden, eligibility_trace_output, et_temp_hidden, \
-        et_temp_output, learning_signal, ls_temp, baseline_num, baseline_den, S_prime, S = init_training(network, indices, args)
-    network.set_mode('train')
-    dataset = tables.open_file(args.dataset)
-
-    for s in range(S):
-        if s % S_prime == 0:
-            refractory_period(network)
-
-            if (int(s / S_prime) + 1) % dataset.root.train.data[:].shape[0] == 0:
-                learning_rate /= 2
-
-            if test_accs:
-                if (int(s / S_prime) + 1) in test_accs:
-                    acc, loss = get_acc_and_loss(network, dataset, test_indices)
-                    test_accs[int(s / S_prime + 1)].append(acc)
-                    print('test accuracy at ite %d: %f' % (int(s / S_prime + 1), acc))
-
-                    if save_path is not None:
-                        with open(save_path, 'wb') as f:
-                            pickle.dump(test_accs, f, pickle.HIGHEST_PROTOCOL)
-
-                    network.set_mode('train')
-
-            sample = torch.cat((torch.FloatTensor(dataset.root.train.data[indices[int(s / S_prime)]]),
-                                torch.FloatTensor(dataset.root.train.label[indices[int(s / S_prime)]])), dim=0)
-
-        # Feedforward sampling step
-        log_proba, ls_temp, et_temp_hidden, et_temp_output = feedforward_sampling(network, sample[:, s % S_prime], ls_temp, et_temp_hidden, et_temp_output, alpha, r)
-
-        # Local feedback and update
-        eligibility_trace_hidden, eligibility_trace_output, et_temp_hidden, et_temp_output, learning_signal, ls_temp, baseline_num, baseline_den \
-            = local_feedback_and_update(network, eligibility_trace_hidden, eligibility_trace_output, et_temp_hidden, et_temp_output,
-                                        learning_signal, ls_temp, baseline_num, baseline_den, learning_rate, beta, kappa, s, deltas)
-
-        if s % int(S / 5) == 0:
-            print('Step %d out of %d' % (s, S))
-
-    return test_accs

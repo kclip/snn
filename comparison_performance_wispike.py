@@ -185,8 +185,8 @@ decoder = SNNetwork(**misc_snn.make_network_parameters(n_inputs_dec,
                     device=args.device)
 
 weights = r'C:/Users/K1804053/PycharmProjects/results/results_wispike/' + args.weights
-encoder_weights = weights + r'/encoder_weights.hdf5'
-decoder_weights = weights + r'/decoder_weights.hdf5'
+encoder_weights = weights + r'/encoder_weights_final.hdf5'
+decoder_weights = weights + r'/decoder_weights_final.hdf5'
 
 encoder.import_weights(encoder_weights)
 decoder.import_weights(decoder_weights)

@@ -9,6 +9,9 @@ from binary_snn.utils_binary import misc as misc_snn
 from utils.filters import get_filter
 from binary_snn.utils_binary.misc import refractory_period
 import numpy as np
+from wispike.utils import training_utils, testing_utils
+from wispike.utils.misc import channel_coding_decoding, channel, framed_to_example, example_to_framed, binarize, get_intermediate_dims
+
 
 if __name__ == "__main__":
     # setting the hyper parameters
@@ -30,7 +33,6 @@ if __name__ == "__main__":
     parser.add_argument('--density', default=None, type=int, help='Density of the connections if topology_type is "sparse"')
     parser.add_argument('--initialization', default='uniform', type=str, choices=['uniform', 'glorot'], help='Initialization of the weights')
     parser.add_argument('--weights_magnitude', default=0.05, type=float, help='Magnitude of weights at initialization')
-
     parser.add_argument('--n_basis_ff', default=8, type=int, help='Number of basis functions for synaptic connections')
     parser.add_argument('--ff_filter', default='raised_cosine_pillow_08', type=str,
                         choices=['base_ff_filter', 'base_fb_filter', 'cosine_basis', 'raised_cosine', 'raised_cosine_pillow_05', 'raised_cosine_pillow_08'],
@@ -53,6 +55,12 @@ if __name__ == "__main__":
     parser.add_argument('--snr', type=float, default=None, help='SNR')
     parser.add_argument('--n_output_enc', default=128, type=int, help='')
 
+    parser.add_argument('--embedding_dim', default=32, type=int, help='Size of VQ-VAE latent embeddings')
+    parser.add_argument('--num_embeddings', default=10, type=int, help='Number of VQ-VAE latent embeddings')
+    parser.add_argument('--lr_vqvae', default=1e-3, type=float, help='Learning rate of VQ-VAE')
+    parser.add_argument('--maxiter', default=100, type=int, help='Max number of iteration for BP decoding of LDPC code')
+
+
     args = parser.parse_args()
 
 print(args)
@@ -66,40 +74,7 @@ elif args.where == 'jade':
 elif args.where == 'gcloud':
     home = r'/home/k1804053'
 
-
-datasets = {'mnist_dvs_2': r'mnist_dvs_25ms_26pxl_2_digits_polarity.hdf5',
-            'mnist_dvs_10_binary': r'mnist_dvs_binary_25ms_26pxl_10_digits.hdf5',
-            'mnist_dvs_10': r'mnist_dvs_25ms_26pxl_10_digits_polarity.hdf5',
-            'mnist_dvs_10_c_3': r'mnist_dvs_25ms_26pxl_10_digits_C_3.hdf5',
-            'mnist_dvs_10_c_5': r'mnist_dvs_25ms_26pxl_10_digits_C_5.hdf5',
-            'mnist_dvs_10_c_7': r'mnist_dvs_25ms_26pxl_10_digits_C_7.hdf5',
-            'mnist_dvs_10ms_polarity': r'mnist_dvs_10ms_26pxl_10_digits_polarity.hdf5',
-            'dvs_gesture_5ms': r'dvs_gesture_5ms_11_classes.hdf5',
-            'dvs_gesture_5ms_5_classes': r'dvs_gesture_5ms_5_classes.hdf5',
-            'dvs_gesture_20ms_2_classes': r'dvs_gesture_20ms_2_classes.hdf5',
-            'dvs_gesture_5ms_2_classes': r'dvs_gesture_5ms_2_classes.hdf5',
-            'dvs_gesture_5ms_3_classes': r'dvs_gesture_5ms_3_classes.hdf5',
-            'dvs_gesture_15ms': r'dvs_gesture_15ms_11_classes.hdf5',
-            'dvs_gesture_20ms': r'dvs_gesture_20ms_11_classes.hdf5',
-            'dvs_gesture_30ms': r'dvs_gesture_30ms_11_classes.hdf5',
-            'dvs_gesture_20ms_5_classes': r'dvs_gesture_20ms_5_classes.hdf5',
-            'dvs_gesture_1ms': r'dvs_gesture_1ms_11_classes.hdf5',
-            'shd_eng_c_2': r'shd_10ms_10_classes_eng_C_2.hdf5',
-            'shd_all_c_2': r'shd_10ms_10_classes_all_C_2.hdf5'
-            }
-
-if args.dataset[:3] == 'shd':
-    dataset = home + r'/datasets/shd/' + datasets[args.dataset]
-elif args.dataset[:5] == 'mnist':
-    dataset = home + r'/datasets/mnist-dvs/' + datasets[args.dataset]
-elif args.dataset[:11] == 'dvs_gesture':
-    dataset = home + r'/datasets/DvsGesture/' + datasets[args.dataset]
-elif args.dataset[:7] == 'swedish':
-    dataset = home + r'/datasets/SwedishLeaf_processed/' + datasets[args.dataset]
-else:
-    print('Error: dataset not found')
-
-args.dataset = tables.open_file(dataset)
+args.dataset = tables.open_file(home + r'/datasets/mnist-dvs/mnist_dvs_binary_25ms_26pxl_10_digits.hdf5')
 
 args.disable_cuda = str2bool(args.disable_cuda)
 args.device = None
@@ -124,8 +99,13 @@ else:
 args.n_input_neurons = args.dataset.root.stats.train_data[1]
 args.n_output_neurons = args.dataset.root.stats.train_label[1]
 args.n_hidden_neurons = args.n_h
+args.n_frames = 80
 
+args.residual = 80 % args.n_frames
+if args.residual:
+    args.n_frames += 1
 
+### Encoder & classifier
 network = SNNetwork(**misc_snn.make_network_parameters(args.n_input_neurons,
                                                        args.n_output_neurons,
                                                        args.n_h,
@@ -145,15 +125,23 @@ network = SNNetwork(**misc_snn.make_network_parameters(args.n_input_neurons,
                                                        args.save_path),
                     device=args.device)
 
+vqvae, _ = training_utils.init_vqvae(args)
 
-weights = r'C:/Users/K1804053/PycharmProjects/results/results_wispike/002__18-06-2020_mnist_dvs_10_binary_binary_20000_epochs_nh_256_nout_128'
-network_weights = weights + r'/network_weights.hdf5'
-
-# weights = r'C:\Users\K1804053\PycharmProjects\results\results_wispike\017__06-07-2020_vqvae_snn_100000_epochs_nh_512_nout_360_snr_m_4'
-# network_weights = weights + r'/snn_weights.hdf5'
-
+weights = r'C:\Users\K1804053\PycharmProjects\results\results_wispike\017__06-07-2020_vqvae_snn_100000_epochs_nh_512_nout_360_snr_m_4'
+network_weights = weights + r'/snn_weights.hdf5'
+vqvae_weights = weights + r'/vqvae_weights.pt'
 
 network.import_weights(network_weights)
+vqvae.load_state_dict(torch.load(vqvae_weights))
+network.set_mode('test')
+vqvae.eval()
+
+
+### Channel & coding
+args.quantized_dim, args.encodings_dim = get_intermediate_dims(vqvae, args)
+args.H, args.G, args.k = training_utils.init_ldpc(args.encodings_dim)
+
+
 snr_list = [0, -2, -4, -6, -8, -10]
 # snr_list = [0]
 
@@ -162,32 +150,35 @@ res_pf = {snr: 0 for snr in snr_list}
 
 
 for snr in snr_list:
-    network.set_mode('test')
+    args.snr = snr
     network.reset_internal_state()
+
+    predictions_final = torch.zeros([len(test_indices)], dtype=torch.long)
+    predictions_pf = torch.zeros([len(test_indices), args.n_frames], dtype=torch.long)
 
     T = args.dataset.root.test.label[:].shape[-1]
 
     outputs = torch.zeros([len(test_indices), network.n_output_neurons, T])
-    loss = 0
 
-    for j, sample_idx in enumerate(test_indices):
-        refractory_period(network)
-
-        sample = channel(torch.FloatTensor(args.dataset.root.test.data[sample_idx]).to(network.device), network.device, snr)
+    for i, idx in enumerate(test_indices):
+        data = example_to_framed(args.dataset.root.test.data[idx, :, :], args)
+        data_reconstructed = torch.zeros(data.shape)
 
         for t in range(T):
-            log_proba = network(sample[:, t])
-            outputs[j, :, t] = network.spiking_history[network.output_neurons, -1]
+            frame = data[t].unsqueeze(0)
+            with torch.autograd.no_grad():
+                _, encodings = vqvae.encode(frame)
+                encodings_decoded = channel_coding_decoding(args, encodings)
+                data_reconstructed[t] = vqvae.decode(encodings_decoded, args.quantized_dim)
+
+        predictions_final[i], predictions_pf[i] = testing_utils.classify(network, data_reconstructed, args, 'both')
 
     true_classes = torch.max(torch.sum(torch.FloatTensor(args.dataset.root.test.label[:][test_indices]), dim=-1), dim=-1).indices
 
-    predictions_final = torch.max(torch.sum(outputs, dim=-1), dim=-1).indices
     accs_final = float(torch.sum(predictions_final == true_classes, dtype=torch.float) / len(predictions_final))
-
     accs_per_frame = torch.zeros([T], dtype=torch.float)
     for t in range(1, T):
-        predictions_pf = torch.sum(outputs[:, :, :t], dim=-1).argmax(-1)
-        acc = float(torch.sum(predictions_pf == true_classes, dtype=torch.float) / len(predictions_pf))
+        acc = float(torch.sum(predictions_pf[:, t] == true_classes, dtype=torch.float) / len(predictions_pf))
         accs_per_frame[t] = acc
 
     print('snr %d, acc %f' % (snr, acc))

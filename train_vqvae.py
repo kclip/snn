@@ -101,17 +101,10 @@ if args.residual:
 
 # Make VAE
 vqvae, vqvae_optimizer = training_utils.init_vqvae(args)
-example_frame = misc_wispike.example_to_framed(args.dataset.root.train.data[0], args)[0].unsqueeze(0)
-args.frame_shape = example_frame.shape
-print('frame shape ', args.frame_shape)
-
-example_quantized, example_encodings = vqvae.encode(example_frame)
-args.encodings_dim = example_encodings.data.numpy().shape
-args.quantized_dim = example_quantized.data.clone().permute(0, 2, 3, 1).contiguous().shape
-print('encodings dim', args.encodings_dim)
+args.quantized_dim, args.encodings_dim = misc_wispike.get_intermediate_dims(vqvae, args)
 
 # Make classifier
-classifier, args = training_utils.init_classifier(args)
+classifier = training_utils.init_classifier(args)
 if isinstance(classifier, SNNetwork):
     assert args.n_frames == 80
 

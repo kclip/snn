@@ -8,7 +8,7 @@ import torch.multiprocessing as mp
 import os
 from binary_snn.utils_binary.training_fl_snn import feedforward_sampling, local_feedback_and_update
 from binary_snn.utils_binary.distributed_utils import init_processes, init_training, global_update, global_update_subset
-from binary_snn.utils_binary.misc import refractory_period, get_acc_and_loss, save_results
+from binary_snn.utils_binary.misc import refractory_period, get_acc_and_loss, save_results, find_test_indices_for_labels
 import tables
 
 """"
@@ -16,6 +16,7 @@ import tables
 Runs FL-SNN using two devices. 
 
 """
+
 
 def train_fixed_rate(rank, num_nodes, net_params, train_params):
     # Setup training parameters
@@ -72,7 +73,7 @@ def train_fixed_rate(rank, num_nodes, net_params, train_params):
                                             torch.FloatTensor(dataset.root.train.label[samples_indices_train[s // S_prime]])), dim=0).to(network.device)
 
                     # lr decay
-                    if s % S / 5 == 0:
+                    if (s + 1) % int(S / 4) == 0:
                         learning_rate /= 2
 
                     # Feedforward sampling
@@ -89,7 +90,7 @@ def train_fixed_rate(rank, num_nodes, net_params, train_params):
                     gradients_accum = torch.zeros(network.feedforward_weights.shape, dtype=torch.float)
                     dist.barrier(all_nodes)
 
-            if rank == 0:
+            if (rank == 0) & ((s + 1) % test_interval == 0):
                 global_acc, _ = get_acc_and_loss(network, dataset, test_indices)
                 test_accs[tau].append(global_acc)
                 save_results(test_accs, test_acc_save_path)
@@ -101,52 +102,49 @@ def train_fixed_rate(rank, num_nodes, net_params, train_params):
 
 
 
-def train(rank, num_nodes, net_params, train_params):
+def train(rank, num_nodes):
     # Setup training parameters
-    dataset = tables.open_file(train_params['dataset'])
-    num_samples_train = train_params['num_samples_train']
-    num_samples_test = train_params['num_samples_test']
-    test_interval = train_params['test_interval']
-    save_path = train_params['save_path']
-    labels = train_params['labels']
-    num_ite = train_params['num_ite']
-    learning_rate = train_params['learning_rate']
-    alpha = train_params['alpha']
-    r = train_params['r']
-    beta = train_params['beta']
-    kappa = train_params['kappa']
-    deltas = train_params['deltas']
+    args.dataset = tables.open_file(args.dataset)
 
     # Create network groups for communication
     all_nodes = dist.new_group([0, 1, 2], timeout=datetime.timedelta(0, 360000))
 
-    S_prime = dataset.root.stats.train_data[-1]
-    S = num_samples_train * S_prime
+    S_prime = args.dataset.root.stats.train_data[-1]
+    S = args.num_samples_train * S_prime
 
-    test_loss = {i: [] for i in range(0, S, test_interval)}
-    test_loss[S] = []
+    args.test_interval = args.test_interval * S_prime
+    test_loss = {i: [] for i in range(0, args.num_samples_train, args.test_interval)}
+    test_loss[args.num_samples_train] = []
 
-    test_indices = np.random.choice(np.arange(num_samples_test), [num_samples_test], replace=False)
-
-    if save_path is None:
-        test_loss_save_path = os.getcwd() + r'/results/test_loss_%d_labels_node_%d.pkl' % (len(labels), rank)
+    args.num_samples_test = args.dataset.root.stats.test_data[0]
+    if args.labels is not None:
+        print(args.labels)
+        num_samples_test = min(args.num_samples_test, len(find_test_indices_for_labels(args.dataset, args.labels)))
+        test_indices = np.random.choice(find_test_indices_for_labels(args.dataset, args.labels), [num_samples_test], replace=False)
     else:
-        test_loss_save_path = save_path + r'test_loss_%d_labels_node_%d.pkl' % (len(labels), rank)
+        test_indices = np.random.choice(np.arange(args.dataset.root.stats.test_data[0]), [args.num_samples_test], replace=False)
 
-    for i in range(num_ite):
+
+    if args.save_path is None:
+        test_loss_save_path = os.getcwd() + r'/results/test_loss_%d_labels_node_%d.pkl' % (len(args.labels), rank)
+    else:
+        test_loss_save_path = args.save_path + r'test_loss_%d_labels_node_%d.pkl' % (len(args.labels), rank)
+
+    for i in range(args.num_ite):
         # Initialize main parameters for training
-        network, indices_local, weights_list, eligibility_trace, et_temp, learning_signal, ls_temp = init_training(rank, num_nodes, all_nodes, dataset, labels, net_params)
+        network, indices_local, weights_list, eligibility_trace, et_temp, learning_signal, ls_temp = init_training(rank, num_nodes, all_nodes, args)
 
         dist.barrier(all_nodes)
 
+
+        # Test loss at beginning + selection of training indices
         if rank != 0:
-            _, loss = get_acc_and_loss(network, dataset, test_indices)
+            _, loss = get_acc_and_loss(network, args.dataset, test_indices)
             test_loss[0].append(loss)
             network.set_mode('train')
 
-
-            samples_indices_train = np.random.choice(indices_local, [num_samples_train], replace=True)
-
+            samples_indices_train = np.random.choice(indices_local, [args.num_samples_train], replace=True)
+            print(rank, len(samples_indices_train), samples_indices_train)
         dist.barrier(all_nodes)
 
 
@@ -154,39 +152,37 @@ def train(rank, num_nodes, net_params, train_params):
             if rank != 0:
                 if s % S_prime == 0:  # Reset internal state for each example
                     refractory_period(network)
-
-                    sample = torch.cat((torch.FloatTensor(dataset.root.train.data[samples_indices_train[s // S_prime]]),
-                                        torch.FloatTensor(dataset.root.train.label[samples_indices_train[s // S_prime]])), dim=0).to(network.device)
+                    sample = torch.cat((torch.FloatTensor(args.dataset.root.train.data[samples_indices_train[s // S_prime]]),
+                                        torch.FloatTensor(args.dataset.root.train.label[samples_indices_train[s // S_prime]])), dim=0).to(network.device)
 
                 # lr decay
-                if s % S / 5 == 0:
-                    learning_rate /= 2
+                if s % S / 4 == 0:
+                    args.lr /= 2
 
                 # Feedforward sampling
-                log_proba, ls_temp, et_temp, _ = feedforward_sampling(network, sample[:, s % S_prime], ls_temp, et_temp, alpha, r)
+                log_proba, ls_temp, et_temp, _ = feedforward_sampling(network, sample[:, s % S_prime], ls_temp, et_temp, args)
 
                 # Local feedback and update
-                eligibility_trace, et_temp, learning_signal, ls_temp = local_feedback_and_update(network, eligibility_trace, et_temp,
-                                                                                                 learning_signal, ls_temp, learning_rate, beta, kappa, s, deltas)
+                eligibility_trace, et_temp, learning_signal, ls_temp = local_feedback_and_update(network, eligibility_trace, et_temp, learning_signal, ls_temp, s, args)
 
                 ## Every few timesteps, record test losses
-                if ((s + 1) % test_interval == 0) & ((s + 1) != S):
-                    _, loss = get_acc_and_loss(network, dataset, test_indices)
+                if ((s + 1) % args.test_interval == 0) & ((s + 1) != S):
+                    _, loss = get_acc_and_loss(network, args.dataset, test_indices)
                     test_loss[s + 1].append(loss)
                     save_results(test_loss, test_loss_save_path)
                     network.set_mode('train')
 
             # Global update
-            if (s + 1) % (tau * deltas) == 0:
+            if (s + 1) % (args.tau * args.deltas) == 0:
                 dist.barrier(all_nodes)
                 global_update(all_nodes, rank, network, weights_list)
                 dist.barrier(all_nodes)
 
-        if rank == 0:
-            global_acc, _ = get_acc_and_loss(network, dataset, test_indices)
-            print('Iteration: %d, final accuracy: %f' % (i, global_acc))
-        else:
-            _, loss = get_acc_and_loss(network, dataset, test_indices)
+        # if rank == 0:
+            # global_acc, _ = get_acc_and_loss(network, args.dataset, test_indices)
+            # print('Iteration: %d, final accuracy: %f' % (i, global_acc))
+        if rank != 0:
+            _, loss = get_acc_and_loss(network, args.dataset, test_indices)
             test_loss[S].append(loss)
             save_results(test_loss, test_loss_save_path)
 
@@ -204,7 +200,7 @@ if __name__ == "__main__":
     parser.add_argument('--node_rank', type=int, help='Rank of the current node')
     parser.add_argument('--world_size', default=1, type=int, help='Total number of processes to run')
     parser.add_argument('--processes_per_node', default=1, type=int, help='Number of processes in the node')
-    parser.add_argument('--dataset', help='Path to the dataset')
+    parser.add_argument('--dataset', help='Path to the dataset', default='/home/k1804053/datasets/mnist-dvs/mnist_dvs_binary_25ms_26pxl_10_digits.hdf5')
     parser.add_argument('--labels', nargs='+', default=None, type=int)
 
     # Pytorch arguments
@@ -213,7 +209,7 @@ if __name__ == "__main__":
     # Training arguments
     parser.add_argument('--num_ite', default=10, type=int, help='Number of times every experiment will be repeated')
     parser.add_argument('--num_samples', default=200, type=int, help='Number of samples to train on for each experiment')
-    parser.add_argument('--num_samples_test', default=200, type=int, help='Number of samples to test on')
+    parser.add_argument('--num_samples_test', default=None, type=int, help='Number of samples to test on')
     parser.add_argument('--test_interval', default=40, type=int, help='Test interval')
     parser.add_argument('--rate', default=None, type=float, help='Fixed communication rate')
     parser.add_argument('--save_path', default=None)
@@ -246,10 +242,10 @@ if __name__ == "__main__":
     assert (args.world_size % n_processes == 0), 'Each node must have the same number of processes'
     assert (node_rank + n_processes) <= args.world_size, 'There are more processes specified than world_size'
 
-    n_input_neurons = 26**2
-    n_output_neurons = 10
-    n_hidden_neurons = args.n_hidden_neurons
-    n_neurons = n_input_neurons + n_output_neurons + n_hidden_neurons
+    args.n_input_neurons = 26**2
+    args.n_output_neurons = 10
+    args.n_hidden_neurons = args.n_hidden_neurons
+    args.n_neurons = args.n_input_neurons + args.n_output_neurons + args.n_hidden_neurons
 
 
     filters_dict = {'base_ff_filter': filters.base_feedforward_filter, 'base_fb_filter': filters.base_feedback_filter, 'cosine_basis': filters.cosine_basis,
@@ -264,45 +260,16 @@ if __name__ == "__main__":
         assert args.rate is not None, 'rate and tau_list must be specified together'
         tau = None
 
+    args.ff_filter = filters_dict[args.ff_filter]
+    args.fb_filter = filters_dict[args.ff_filter]
+    args.n_basis_fb = 1
 
-    network_parameters = {'n_input_neurons': n_input_neurons,
-                          'n_hidden_neurons': n_hidden_neurons,
-                          'n_output_neurons': n_output_neurons,
-                          'topology_type': args.topology_type,
-                          'n_basis_ff': args.n_basis_ff,
-                          'ff_filter': filters_dict[args.ff_filter],
-                          'n_basis_fb': 1,
-                          'fb_filter': filters_dict[args.ff_filter],
-                          'tau_ff': args.tau_ff,
-                          'tau_fb': args.tau_ff,
-                          'mu': args.mu,
-                          'weights_magnitude': args.weights_magnitude,
-                          'save_path': args.save_path,
-                          }
-
-    training_parameters = {'dataset': args.dataset,
-                           'tau': tau,
-                           'tau_list': args.tau_list,
-                           'rate': args.rate,
-                           'learning_rate': args.lr,
-                           'num_samples_train': args.num_samples,
-                           'num_samples_test': args.num_samples_test,
-                           'test_interval': args.test_interval,
-                           'labels': args.labels,
-                           'kappa': args.kappa,
-                           'deltas': args.deltas,
-                           'alpha': args.alpha,
-                           'beta': args.beta,
-                           'r': args.r,
-                           'num_ite': args.num_ite,
-                           'save_path': args.save_path
-                           }
     processes = []
     for local_rank in range(n_processes):
         if args.tau_list is not None:
-            p = mp.Process(target=init_processes, args=(node_rank + local_rank, args.world_size, args.backend, args.dist_url, network_parameters, training_parameters, train_fixed_rate))
+            p = mp.Process(target=init_processes, args=(node_rank + local_rank, args.world_size, args.backend, args.dist_url, args, train_fixed_rate))
         else:
-            p = mp.Process(target=init_processes, args=(node_rank + local_rank, args.world_size, args.backend, args.dist_url, network_parameters, training_parameters, train))
+            p = mp.Process(target=init_processes, args=(node_rank + local_rank, args.world_size, args.backend, args.dist_url, args, train))
         p.start()
         processes.append(p)
 
