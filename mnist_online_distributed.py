@@ -90,7 +90,7 @@ def train_fixed_rate(rank, num_nodes, net_params, train_params):
                     gradients_accum = torch.zeros(network.feedforward_weights.shape, dtype=torch.float)
                     dist.barrier(all_nodes)
 
-            if (rank == 0) & ((s + 1) % test_interval == 0):
+            if rank == 0:
                 global_acc, _ = get_acc_and_loss(network, dataset, test_indices)
                 test_accs[tau].append(global_acc)
                 save_results(test_accs, test_acc_save_path)
@@ -133,7 +133,7 @@ def train(rank, num_nodes, args):
         else:
             test_loss_save_path = args.save_path + r'test_loss_%d_labels_node_%d.pkl' % (len(args.labels), rank)
 
-        args.test_interval = args.test_interval * S_prime
+        
         test_loss = {i: [] for i in range(0, args.num_samples_train, args.test_interval)}
         test_loss[args.num_samples_train] = []
 
@@ -172,7 +172,6 @@ def train(rank, num_nodes, args):
                 # Local feedback and update
                 eligibility_trace, et_temp, learning_signal, ls_temp = local_feedback_and_update(network, eligibility_trace, et_temp, learning_signal, ls_temp, s, args)
 
-            if rank != 0:
                 ## Every few timesteps, record test losses
                 if ((s + 1) // S_prime) % args.test_interval == 0:
                     _, loss = get_acc_and_loss(network, args.dataset, test_indices)
