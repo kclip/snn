@@ -260,8 +260,8 @@ if __name__ == "__main__":
         assert args.rate is not None, 'rate and tau_list must be specified together'
         tau = None
 
-    args.ff_filter = filters_dict[args.ff_filter]
     args.fb_filter = filters_dict[args.ff_filter]
+    args.ff_filter = filters_dict[args.ff_filter]
     args.n_basis_fb = 1
 
     processes = []
