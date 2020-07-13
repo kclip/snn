@@ -102,7 +102,7 @@ def train_fixed_rate(rank, num_nodes, net_params, train_params):
 
 
 
-def train(rank, num_nodes):
+def train(rank, num_nodes, args):
     # Setup training parameters
     args.dataset = tables.open_file(args.dataset)
 
