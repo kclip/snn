@@ -176,7 +176,7 @@ def train(rank, num_nodes, args):
                 ## Every few timesteps, record test losses
                 if ((s + 1) // S_prime) % args.test_interval == 0:
                     _, loss = get_acc_and_loss(network, args.dataset, test_indices)
-                    test_loss[s + 1].append(loss)
+                    test_loss[(s + 1) // S_prime].append(loss)
                     save_results(test_loss, test_loss_save_path)
                     network.set_mode('train')
 
