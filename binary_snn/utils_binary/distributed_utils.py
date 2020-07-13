@@ -34,7 +34,7 @@ def init_training(rank, num_nodes, nodes_group, args):
                                                        args.ff_filter,
                                                        args.n_basis_fb,
                                                        args.fb_filter,
-                                                       args.initialization,
+                                                       'uniform',
                                                        args.tau_ff,
                                                        args.tau_fb,
                                                        args.mu,
