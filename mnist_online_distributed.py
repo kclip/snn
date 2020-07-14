@@ -133,7 +133,7 @@ def train(rank, num_nodes, args):
         else:
             test_loss_save_path = args.save_path + r'test_loss_%d_labels_node_%d.pkl' % (len(args.labels), rank)
 
-        
+
         test_loss = {i: [] for i in range(0, args.num_samples_train, args.test_interval)}
         test_loss[args.num_samples_train] = []
 
@@ -157,7 +157,14 @@ def train(rank, num_nodes, args):
 
         for s in range(S):
             if rank != 0:
-                if s % S_prime == 0:  # Reset internal state for each example
+                if s % S_prime == 0:  # at each example
+                    ## Every test_interval samples, record test losses
+                    if (1 + s // S_prime) % args.test_interval == 0:
+                        _, loss = get_acc_and_loss(network, args.dataset, test_indices)
+                        test_loss[1 + s // S_prime].append(loss)
+                        save_results(test_loss, test_loss_save_path)
+                        network.set_mode('train')
+
                     refractory_period(network)
                     sample = torch.cat((torch.FloatTensor(args.dataset.root.train.data[samples_indices_train[s // S_prime]]),
                                         torch.FloatTensor(args.dataset.root.train.label[samples_indices_train[s // S_prime]])), dim=0).to(network.device)
@@ -172,18 +179,12 @@ def train(rank, num_nodes, args):
                 # Local feedback and update
                 eligibility_trace, et_temp, learning_signal, ls_temp = local_feedback_and_update(network, eligibility_trace, et_temp, learning_signal, ls_temp, s, args)
 
-                ## Every few timesteps, record test losses
-                if ((s + 1) // S_prime) % args.test_interval == 0:
-                    _, loss = get_acc_and_loss(network, args.dataset, test_indices)
-                    test_loss[(s + 1) // S_prime].append(loss)
-                    save_results(test_loss, test_loss_save_path)
-                    network.set_mode('train')
-
             # Global update
             if (s + 1) % (args.tau * args.deltas) == 0:
                 dist.barrier(all_nodes)
                 global_update(all_nodes, rank, network, weights_list)
                 dist.barrier(all_nodes)
+
 
         if rank == 0:
             global_acc, _ = get_acc_and_loss(network, args.dataset, test_indices)
