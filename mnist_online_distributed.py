@@ -123,9 +123,9 @@ def train(rank, num_nodes, args):
 
     if rank == 0:
         if args.save_path is None:
-            test_acc_save_path = os.getcwd() + r'/results/test_acc_master_tau_%d.pkl' % args.tau
+            test_acc_save_path = os.getcwd() + r'/test_acc_master_tau_%d.pkl' % args.tau
         else:
-            test_acc_save_path = args.save_path + r'/results/test_acc_master_tau_%d.pkl' % args.tau
+            test_acc_save_path = args.save_path + r'/test_acc_master_tau_%d.pkl' % args.tau
         test_accs = []
     else:
         if args.save_path is None:
@@ -193,7 +193,7 @@ def train(rank, num_nodes, args):
             save_results(test_accs, test_acc_save_path)
         else:
             _, loss = get_acc_and_loss(network, args.dataset, test_indices)
-            test_loss[S].append(loss)
+            test_loss[args.num_samples_train].append(loss)
             save_results(test_loss, test_loss_save_path)
 
     if rank != 0:

@@ -12,6 +12,7 @@ import torch.optim as optim
 from utils.filters import get_filter
 from binary_snn.utils_binary.training_utils import init_training
 import pyldpc
+from wispike.utils.misc import binarize
 
 
 ### VQ-VAE & LDPC
@@ -49,6 +50,10 @@ def train_vqvae(model, optimizer, args, train_res_recon_error, train_res_perplex
 
     train_res_recon_error.append(recon_error.item())
     train_res_perplexity.append(perplexity.item())
+
+    with torch.no_grad():
+        print(float(torch.sum(framed == binarize(data_recon))) / data_recon.numel())
+
 
     return train_res_recon_error, train_res_perplexity
 

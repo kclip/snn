@@ -4,12 +4,11 @@ import argparse
 from multivalued_snn.utils_multivalued.misc import str2bool
 from binary_snn.models.SNN import SNNetwork
 from binary_snn.utils_binary import misc as misc_snn
-from utils.filters import get_filter
 from wispike.utils.testing_utils import get_acc_wispike, classify
 import numpy as np
 import pickle
 from binary_snn.utils_binary.misc import refractory_period
-from wispike.utils.misc import channel, get_intermediate_dims, example_to_framed, channel_coding_decoding
+from wispike.utils.misc import channel, get_intermediate_dims, example_to_framed, channel_coding_decoding, binarize
 from wispike.utils.training_utils import init_vqvae, init_ldpc
 
 if __name__ == "__main__":
@@ -21,9 +20,7 @@ if __name__ == "__main__":
     parser.add_argument('--model', choices=['wispike', 'ook', 'vqvae'])
     parser.add_argument('--dataset', default='mnist_dvs_10_binary')
     parser.add_argument('--weights', type=str, default=None, help='Path to weights to load')
-    parser.add_argument('--lr', default=0.005, type=float, help='Learning rate')
     parser.add_argument('--disable-cuda', type=str, default='true', help='Disable CUDA')
-    parser.add_argument('--labels', nargs='+', default=None, type=int, help='Class labels to be used during training')
 
     parser.add_argument('--embedding_dim', default=32, type=int, help='Size of VQ-VAE latent embeddings')
     parser.add_argument('--num_embeddings', default=10, type=int, help='Number of VQ-VAE latent embeddings')
@@ -32,27 +29,6 @@ if __name__ == "__main__":
 
     # Arguments common to all models
     parser.add_argument('--n_h', default=256, type=int, help='Number of hidden neurons')
-    parser.add_argument('--topology_type', default='fully_connected', type=str, choices=['fully_connected', 'feedforward', 'layered', 'custom'], help='Topology of the network')
-    parser.add_argument('--density', default=None, type=int, help='Density of the connections if topology_type is "sparse"')
-    parser.add_argument('--initialization', default='uniform', type=str, choices=['uniform', 'glorot'], help='Initialization of the weights')
-    parser.add_argument('--weights_magnitude', default=0.05, type=float, help='Magnitude of weights at initialization')
-
-    parser.add_argument('--n_basis_ff', default=8, type=int, help='Number of basis functions for synaptic connections')
-    parser.add_argument('--ff_filter', default='raised_cosine_pillow_08', type=str,
-                        choices=['base_ff_filter', 'base_fb_filter', 'cosine_basis', 'raised_cosine', 'raised_cosine_pillow_05', 'raised_cosine_pillow_08'],
-                        help='Basis function to use for synaptic connections')
-    parser.add_argument('--tau_ff', default=10, type=int, help='Feedforward connections time constant')
-    parser.add_argument('--n_basis_fb', default=1, type=int, help='Number of basis functions for feedback connections')
-    parser.add_argument('--fb_filter', default='raised_cosine_pillow_08', type=str,
-                        choices=['base_ff_filter', 'base_fb_filter', 'cosine_basis', 'raised_cosine', 'raised_cosine_pillow_05', 'raised_cosine_pillow_08'],
-                        help='Basis function to use for feedback connections')
-    parser.add_argument('--tau_fb', default=10, type=int, help='Feedback connections time constant')
-    parser.add_argument('--mu', default=1.5, type=float, help='Width of basis functions')
-
-    parser.add_argument('--kappa', default=0.2, type=float, help='eligibility trace decay coefficient')
-    parser.add_argument('--r', default=0.3, type=float, help='Desired spiking sparsity of the hidden neurons')
-    parser.add_argument('--beta', default=0.05, type=float, help='Baseline decay factor')
-    parser.add_argument('--gamma', default=1., type=float, help='KL regularization strength')
 
     # Arguments for Wispike
     parser.add_argument('--systematic', type=str, default='false', help='Systematic communication')
@@ -73,37 +49,7 @@ elif args.where == 'gcloud':
     home = r'/home/k1804053'
 
 
-datasets = {'mnist_dvs_2': r'mnist_dvs_25ms_26pxl_2_digits_polarity.hdf5',
-            'mnist_dvs_10_binary': r'mnist_dvs_binary_25ms_26pxl_10_digits.hdf5',
-            'mnist_dvs_10': r'mnist_dvs_25ms_26pxl_10_digits_polarity.hdf5',
-            'mnist_dvs_10_c_3': r'mnist_dvs_25ms_26pxl_10_digits_C_3.hdf5',
-            'mnist_dvs_10_c_5': r'mnist_dvs_25ms_26pxl_10_digits_C_5.hdf5',
-            'mnist_dvs_10_c_7': r'mnist_dvs_25ms_26pxl_10_digits_C_7.hdf5',
-            'mnist_dvs_10ms_polarity': r'mnist_dvs_10ms_26pxl_10_digits_polarity.hdf5',
-            'dvs_gesture_5ms': r'dvs_gesture_5ms_11_classes.hdf5',
-            'dvs_gesture_5ms_5_classes': r'dvs_gesture_5ms_5_classes.hdf5',
-            'dvs_gesture_20ms_2_classes': r'dvs_gesture_20ms_2_classes.hdf5',
-            'dvs_gesture_5ms_2_classes': r'dvs_gesture_5ms_2_classes.hdf5',
-            'dvs_gesture_5ms_3_classes': r'dvs_gesture_5ms_3_classes.hdf5',
-            'dvs_gesture_15ms': r'dvs_gesture_15ms_11_classes.hdf5',
-            'dvs_gesture_20ms': r'dvs_gesture_20ms_11_classes.hdf5',
-            'dvs_gesture_30ms': r'dvs_gesture_30ms_11_classes.hdf5',
-            'dvs_gesture_20ms_5_classes': r'dvs_gesture_20ms_5_classes.hdf5',
-            'dvs_gesture_1ms': r'dvs_gesture_1ms_11_classes.hdf5',
-            'shd_eng_c_2': r'shd_10ms_10_classes_eng_C_2.hdf5',
-            'shd_all_c_2': r'shd_10ms_10_classes_all_C_2.hdf5'
-            }
-
-if args.dataset[:3] == 'shd':
-    dataset = home + r'/datasets/shd/' + datasets[args.dataset]
-elif args.dataset[:5] == 'mnist':
-    dataset = home + r'/datasets/mnist-dvs/' + datasets[args.dataset]
-elif args.dataset[:11] == 'dvs_gesture':
-    dataset = home + r'/datasets/DvsGesture/' + datasets[args.dataset]
-elif args.dataset[:7] == 'swedish':
-    dataset = home + r'/datasets/SwedishLeaf_processed/' + datasets[args.dataset]
-else:
-    print('Error: dataset not found')
+dataset = home + r'/datasets/mnist-dvs/mnist_dvs_binary_25ms_26pxl_10_digits.hdf5'
 
 args.dataset = tables.open_file(dataset)
 
@@ -118,29 +64,14 @@ args.save_path = None
 
 ### Learning parameters
 args.num_samples_test = args.dataset.root.stats.test_data[0]
-if args.labels is not None:
-    print(args.labels)
-    num_samples_test = min(args.num_samples_test, len(misc_snn.find_test_indices_for_labels(args.dataset, args.labels)))
-    test_indices = np.random.choice(misc_snn.find_test_indices_for_labels(args.dataset, args.labels), [num_samples_test], replace=False)
-else:
-    test_indices = np.random.choice(np.arange(args.dataset.root.stats.test_data[0]), [args.num_samples_test], replace=False)
+args.labels = [1, 7]
+num_samples_test = min(args.num_samples_test, len(misc_snn.find_test_indices_for_labels(args.dataset, args.labels)))
+test_indices = np.random.choice(misc_snn.find_test_indices_for_labels(args.dataset, args.labels), [num_samples_test], replace=False)
 
 ### Network parameters
 args.n_input_neurons = args.dataset.root.stats.train_data[1]
 args.n_output_neurons = args.dataset.root.stats.train_label[1]
 args.n_hidden_neurons = args.n_h
-
-if args.topology_type == 'custom':
-    args.topology = torch.zeros([args.n_hidden_neurons + args.n_output_neurons,
-                                 args.n_input_neurons + args.n_hidden_neurons + args.n_output_neurons])
-    args.topology[-args.n_output_neurons:, args.n_input_neurons:-args.n_output_neurons] = 1
-    args.topology[:args.n_hidden_neurons, :(args.n_input_neurons + args.n_hidden_neurons)] = 1
-
-    print(args.topology)
-
-else:
-    args.topology = None
-
 
 
 if args.model == 'wispike':
@@ -157,40 +88,12 @@ if args.model == 'wispike':
 
     encoder = SNNetwork(**misc_snn.make_network_parameters(args.n_input_neurons,
                                                            0,
-                                                           n_hidden_enc,
-                                                           args.topology_type,
-                                                           args.topology,
-                                                           args.density,
-                                                           'train',
-                                                           args.weights_magnitude,
-                                                           args.n_basis_ff,
-                                                           get_filter(args.ff_filter),
-                                                           args.n_basis_fb,
-                                                           get_filter(args.fb_filter),
-                                                           args.initialization,
-                                                           args.tau_ff,
-                                                           args.tau_fb,
-                                                           args.mu,
-                                                           args.save_path),
+                                                           n_hidden_enc),
                         device=args.device)
 
     decoder = SNNetwork(**misc_snn.make_network_parameters(n_inputs_dec,
                                                            args.n_output_neurons,
-                                                           n_hidden_dec,
-                                                           args.topology_type,
-                                                           args.topology,
-                                                           args.density,
-                                                           'train',
-                                                           args.weights_magnitude,
-                                                           args.n_basis_ff,
-                                                           get_filter(args.ff_filter),
-                                                           args.n_basis_fb,
-                                                           get_filter(args.fb_filter),
-                                                           args.initialization,
-                                                           args.tau_ff,
-                                                           args.tau_fb,
-                                                           args.mu,
-                                                           args.save_path),
+                                                           n_hidden_dec),
                         device=args.device)
 
     weights = r'C:/Users/K1804053/PycharmProjects/results/results_wispike/' + args.weights
@@ -209,21 +112,7 @@ if args.model == 'wispike':
 elif args.model == 'ook':
     network = SNNetwork(**misc_snn.make_network_parameters(args.n_input_neurons,
                                                            args.n_output_neurons,
-                                                           args.n_h,
-                                                           args.topology_type,
-                                                           args.topology,
-                                                           args.density,
-                                                           'train',
-                                                           args.weights_magnitude,
-                                                           args.n_basis_ff,
-                                                           get_filter(args.ff_filter),
-                                                           args.n_basis_fb,
-                                                           get_filter(args.fb_filter),
-                                                           args.initialization,
-                                                           args.tau_ff,
-                                                           args.tau_fb,
-                                                           args.mu,
-                                                           args.save_path),
+                                                           args.n_h),
                         device=args.device)
 
     weights = r'C:/Users/K1804053/PycharmProjects/results/results_wispike/' + args.weights
@@ -268,10 +157,10 @@ elif args.model == 'ook':
         res_final[snr] = accs_final
         res_pf[snr] = accs_per_frame
 
-    with open(weights + r'/acc_per_snr_final.npy', 'wb') as f:
+    with open(weights + r'/acc_per_snr_final.pkl', 'wb') as f:
         pickle.dump(res_final, f, pickle.HIGHEST_PROTOCOL)
 
-    with open(weights + r'/acc_per_snr_per_frame.npy', 'wb') as f:
+    with open(weights + r'/acc_per_snr_per_frame.pkl', 'wb') as f:
         pickle.dump(res_pf, f, pickle.HIGHEST_PROTOCOL)
 
 
@@ -285,21 +174,7 @@ elif args.model == 'vqvae':
     ### Encoder & classifier
     network = SNNetwork(**misc_snn.make_network_parameters(args.n_input_neurons,
                                                            args.n_output_neurons,
-                                                           args.n_h,
-                                                           args.topology_type,
-                                                           args.topology,
-                                                           args.density,
-                                                           'train',
-                                                           args.weights_magnitude,
-                                                           args.n_basis_ff,
-                                                           get_filter(args.ff_filter),
-                                                           args.n_basis_fb,
-                                                           get_filter(args.fb_filter),
-                                                           args.initialization,
-                                                           args.tau_ff,
-                                                           args.tau_fb,
-                                                           args.mu,
-                                                           args.save_path),
+                                                           args.n_h),
                         device=args.device)
 
     vqvae, _ = init_vqvae(args)
@@ -317,7 +192,8 @@ elif args.model == 'vqvae':
     args.quantized_dim, args.encodings_dim = get_intermediate_dims(vqvae, args)
     args.H, args.G, args.k = init_ldpc(args.encodings_dim)
 
-    snr_list = [0, -2, -4, -6, -8, -10]
+    # snr_list = [0, -2, -4, -6, -8, -10]
+    snr_list = [50]
 
     res_final = {snr: 0 for snr in snr_list}
     res_pf = {snr: 0 for snr in snr_list}
@@ -344,7 +220,9 @@ elif args.model == 'vqvae':
                     encodings_decoded = channel_coding_decoding(args, encodings)
                     data_reconstructed[t] = vqvae.decode(encodings_decoded, args.quantized_dim)
 
-            predictions_final[i], predictions_pf[i] = classify(network, data_reconstructed, args, 'both')
+            print(float(torch.sum(data == binarize(data_reconstructed))) / data_reconstructed.numel())
+            # predictions_final[i], predictions_pf[i] = classify(network, data_reconstructed, args, 'both')
+
 
         true_classes = torch.max(torch.sum(torch.FloatTensor(args.dataset.root.test.label[:][test_indices]), dim=-1), dim=-1).indices
 
@@ -358,8 +236,8 @@ elif args.model == 'vqvae':
         res_final[snr] = accs_final
         res_pf[snr] = accs_per_frame
 
-    with open(weights + r'/acc_per_snr_final.npy', 'wb') as f:
-        pickle.dump(res_final, f, pickle.HIGHEST_PROTOCOL)
-
-    with open(weights + r'/acc_per_snr_per_frame.npy', 'wb') as f:
-        pickle.dump(res_pf, f, pickle.HIGHEST_PROTOCOL)
+    # with open(weights + r'/acc_per_snr_final.npy', 'wb') as f:
+    #     pickle.dump(res_final, f, pickle.HIGHEST_PROTOCOL)
+    #
+    # with open(weights + r'/acc_per_snr_per_frame.npy', 'wb') as f:
+    #     pickle.dump(res_pf, f, pickle.HIGHEST_PROTOCOL)
