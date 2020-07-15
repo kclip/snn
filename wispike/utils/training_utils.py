@@ -105,7 +105,7 @@ def init_classifier(args):
         n_output_neurons = args.dataset.root.stats.train_label[1]
 
         classifier = MLP(n_input_neurons, args.n_h, n_output_neurons)
-        args.mlp_optimizer = torch.optim.SGD(classifier.parameters(), lr=args.lr_classifier)
+        args.mlp_optimizer = torch.optim.SGD(classifier.parameters(), lr=args.lr)
         args.mlp_criterion = torch.nn.CrossEntropyLoss()
 
     return classifier

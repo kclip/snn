@@ -21,6 +21,7 @@ if __name__ == "__main__":
     parser.add_argument('--dataset', default='mnist_dvs_10_binary')
     parser.add_argument('--weights', type=str, default=None, help='Path to weights to load')
     parser.add_argument('--disable-cuda', type=str, default='true', help='Disable CUDA')
+    parser.add_argument('--classifier', type=str, default='snn', choices=['snn', 'mlp'])
 
     parser.add_argument('--embedding_dim', default=32, type=int, help='Size of VQ-VAE latent embeddings')
     parser.add_argument('--num_embeddings', default=10, type=int, help='Number of VQ-VAE latent embeddings')
@@ -116,10 +117,10 @@ elif args.model == 'ook':
                         device=args.device)
 
     weights = r'C:/Users/K1804053/PycharmProjects/results/results_wispike/' + args.weights
-    # network.import_weights(weights + r'/snn_weights.hdf5')
-    # snr_list = [0]
-    network.import_weights(weights + r'/network_weights.hdf5')
-    snr_list = [0, -2, -4, -6, -8, -10]
+    network.import_weights(weights + r'/mlp_weights.hdf5')
+    snr_list = [0]
+    # network.import_weights(weights + r'/network_weights.hdf5')
+    # snr_list = [0, -2, -4, -6, -8, -10]
 
     res_final = {snr: 0 for snr in snr_list}
     res_pf = {snr: 0 for snr in snr_list}
@@ -180,7 +181,10 @@ elif args.model == 'vqvae':
     vqvae, _ = init_vqvae(args)
 
     weights = r'C:/Users/K1804053/PycharmProjects/results/results_wispike/' + args.weights
-    network_weights = weights + r'/snn_weights.hdf5'
+    if args.classifier == 'snn':
+        network_weights = weights + r'/snn_weights.hdf5'
+    elif args.classifier == 'mlp':
+        network_weights = weights + r'/snn_weights.hdf5'
     vqvae_weights = weights + r'/vqvae_weights.pt'
 
     network.import_weights(network_weights)
@@ -192,8 +196,7 @@ elif args.model == 'vqvae':
     args.quantized_dim, args.encodings_dim = get_intermediate_dims(vqvae, args)
     args.H, args.G, args.k = init_ldpc(args.encodings_dim)
 
-    # snr_list = [0, -2, -4, -6, -8, -10]
-    snr_list = [50]
+    snr_list = [0, -2, -4, -6, -8, -10]
 
     res_final = {snr: 0 for snr in snr_list}
     res_pf = {snr: 0 for snr in snr_list}
@@ -220,9 +223,7 @@ elif args.model == 'vqvae':
                     encodings_decoded = channel_coding_decoding(args, encodings)
                     data_reconstructed[t] = vqvae.decode(encodings_decoded, args.quantized_dim)
 
-            print(float(torch.sum(data == binarize(data_reconstructed))) / data_reconstructed.numel())
-            # predictions_final[i], predictions_pf[i] = classify(network, data_reconstructed, args, 'both')
-
+            predictions_final[i], predictions_pf[i] = classify(network, data_reconstructed, args, 'both')
 
         true_classes = torch.max(torch.sum(torch.FloatTensor(args.dataset.root.test.label[:][test_indices]), dim=-1), dim=-1).indices
 
@@ -236,8 +237,8 @@ elif args.model == 'vqvae':
         res_final[snr] = accs_final
         res_pf[snr] = accs_per_frame
 
-    # with open(weights + r'/acc_per_snr_final.npy', 'wb') as f:
-    #     pickle.dump(res_final, f, pickle.HIGHEST_PROTOCOL)
-    #
-    # with open(weights + r'/acc_per_snr_per_frame.npy', 'wb') as f:
-    #     pickle.dump(res_pf, f, pickle.HIGHEST_PROTOCOL)
+    with open(weights + r'/acc_per_snr_final.npy', 'wb') as f:
+        pickle.dump(res_final, f, pickle.HIGHEST_PROTOCOL)
+
+    with open(weights + r'/acc_per_snr_per_frame.npy', 'wb') as f:
+        pickle.dump(res_pf, f, pickle.HIGHEST_PROTOCOL)
