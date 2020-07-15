@@ -97,7 +97,7 @@ if args.model == 'wispike':
                                                            n_hidden_dec),
                         device=args.device)
 
-    weights = r'C:/Users/K1804053/PycharmProjects/results/results_wispike/' + args.weights
+    weights = home + r'/results/results_wispike/' + args.weights
     encoder_weights = weights + r'/encoder_weights_final.hdf5'
     decoder_weights = weights + r'/decoder_weights_final.hdf5'
 
@@ -116,7 +116,7 @@ elif args.model == 'ook':
                                                            args.n_h),
                         device=args.device)
 
-    weights = r'C:/Users/K1804053/PycharmProjects/results/results_wispike/' + args.weights
+    weights = home + r'/results/results_wispike/' + args.weights
     network.import_weights(weights + r'/mlp_weights.hdf5')
     snr_list = [0]
     # network.import_weights(weights + r'/network_weights.hdf5')
@@ -180,7 +180,7 @@ elif args.model == 'vqvae':
 
     vqvae, _ = init_vqvae(args)
 
-    weights = r'C:/Users/K1804053/PycharmProjects/results/results_wispike/' + args.weights
+    weights = home + r'C:/results/results_wispike/' + args.weights
     if args.classifier == 'snn':
         network_weights = weights + r'/snn_weights.hdf5'
     elif args.classifier == 'mlp':
