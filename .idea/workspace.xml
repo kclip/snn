@@ -3,8 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="dfa62879-5cdc-4603-a43e-18a18161e0c9" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/comparison_performance.py" beforeDir="false" afterPath="$PROJECT_DIR$/comparison_performance.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test_acc_per_frame.sh" beforeDir="false" afterPath="$PROJECT_DIR$/test_acc_per_frame.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/wispike/utils/testing_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/wispike/utils/testing_utils.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -34,11 +32,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/comparison_performance.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="386">
-              <caret line="218" lean-forward="true" selection-start-line="218" selection-end-line="218" />
+            <state relative-caret-position="270">
+              <caret line="224" lean-forward="true" selection-start-line="219" selection-end-line="224" />
               <folding>
                 <element signature="e#0#12#0" expanded="true" />
               </folding>
@@ -46,7 +44,7 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wispike/utils/testing_utils.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="80">
@@ -209,8 +207,8 @@
         <option value="$PROJECT_DIR$/train_vqvae.py" />
         <option value="$PROJECT_DIR$/wispike/utils/training_utils.py" />
         <option value="$PROJECT_DIR$/test_acc_per_frame.sh" />
-        <option value="$PROJECT_DIR$/comparison_performance.py" />
         <option value="$PROJECT_DIR$/wispike/utils/testing_utils.py" />
+        <option value="$PROJECT_DIR$/comparison_performance.py" />
       </list>
     </option>
   </component>
@@ -345,12 +343,12 @@
       <workItem from="1593425359846" duration="26862000" />
       <workItem from="1594027154773" duration="26398000" />
       <workItem from="1594292839649" duration="3787000" />
-      <workItem from="1594630216142" duration="42503000" />
+      <workItem from="1594630216142" duration="43118000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="496831000" />
+    <option name="totallyTimeSpent" value="497446000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
@@ -752,20 +750,20 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/comparison_performance.py">
+    <entry file="file://$PROJECT_DIR$/wispike/utils/testing_utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="386">
-          <caret line="218" lean-forward="true" selection-start-line="218" selection-end-line="218" />
+        <state relative-caret-position="80">
+          <caret line="141" lean-forward="true" selection-start-line="141" selection-end-line="141" />
           <folding>
             <element signature="e#0#12#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wispike/utils/testing_utils.py">
+    <entry file="file://$PROJECT_DIR$/comparison_performance.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="80">
-          <caret line="141" lean-forward="true" selection-start-line="141" selection-end-line="141" />
+        <state relative-caret-position="270">
+          <caret line="224" lean-forward="true" selection-start-line="219" selection-end-line="224" />
           <folding>
             <element signature="e#0#12#0" expanded="true" />
           </folding>

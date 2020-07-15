@@ -217,8 +217,8 @@ elif args.model == 'vqvae':
         res_final[snr] = accs_final
         res_pf[snr] = accs_per_frame
 
-    with open(weights + r'/acc_per_snr_final.npy', 'wb') as f:
-        pickle.dump(res_final, f, pickle.HIGHEST_PROTOCOL)
+        with open(weights + r'/acc_per_snr_final.npy', 'wb') as f:
+            pickle.dump(res_final, f, pickle.HIGHEST_PROTOCOL)
 
-    with open(weights + r'/acc_per_snr_per_frame.npy', 'wb') as f:
-        pickle.dump(res_pf, f, pickle.HIGHEST_PROTOCOL)
+        with open(weights + r'/acc_per_snr_per_frame.npy', 'wb') as f:
+            pickle.dump(res_pf, f, pickle.HIGHEST_PROTOCOL)
