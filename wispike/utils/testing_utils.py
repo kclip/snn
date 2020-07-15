@@ -12,12 +12,12 @@ def classify(classifier, example, args, howto='final'):
         # SNNs only accept binary inputs
         example = binarize(example)
 
-        predictions = classify_snn(classifier, example, args, howto)
+        predictions_final, predictions_pf = classify_snn(classifier, example, args, howto)
 
     elif isinstance(classifier, MLP):
-        predictions = classify_mlp(classifier, example, args, howto)
+        predictions_final, predictions_pf = classify_mlp(classifier, example, args, howto)
 
-    return predictions
+    return predictions_final, predictions_pf
 
 
 def classify_snn(network, example, args, howto='final'):
@@ -32,12 +32,14 @@ def classify_snn(network, example, args, howto='final'):
         outputs[:, t] = network.spiking_history[network.output_neurons, -1]
 
     if howto == 'final':
-        predictions = torch.max(torch.sum(outputs, dim=-1), dim=-1).indices
+        predictions_final = torch.max(torch.sum(outputs, dim=-1), dim=-1).indices
+        return predictions_final, 0
 
     elif howto == 'per_frame':
-        predictions = torch.zeros([T])
+        predictions_pf = torch.zeros([T])
         for t in range(1, T):
-            predictions[t] = torch.max(torch.sum(outputs[:, :t], dim=-1), dim=-1).indices
+            predictions_pf[t] = torch.max(torch.sum(outputs[:, :t], dim=-1), dim=-1).indices
+        return 0, predictions_pf
 
     elif howto == 'both':
         predictions_final = torch.max(torch.sum(outputs, dim=-1), dim=-1).indices
@@ -49,25 +51,41 @@ def classify_snn(network, example, args, howto='final'):
     else:
         raise NotImplementedError
 
-    return predictions
-
 
 def classify_mlp(network, example, args, howto='final'):
-    example_padded = torch.zeros(example.shape)
-
     if howto == 'final':
         inputs = framed_to_example(example, args).flatten()
         output = network(inputs)
-        predictions = torch.argmax(output)
+        predictions_final = torch.argmax(output)
+        return predictions_final, 0
 
     elif howto == 'per_frame':
-        predictions = torch.zeros([example.shape[0]])
+        predictions_pf = torch.zeros([example.shape[0]])
+        example_padded = torch.zeros(example.shape)
 
         for i in range(example.shape[0]):
             example_padded[i] = example[i]
             inputs = framed_to_example(example_padded, args).flatten()
             output = network(inputs)
-            predictions[i] = torch.argmax(output)
+            predictions_pf[i] = torch.argmax(output)
+        return 0, predictions_pf
+
+    elif howto == 'both':
+        inputs = framed_to_example(example, args).flatten()
+        output = network(inputs)
+        predictions_final = torch.argmax(output)
+        example_padded = torch.zeros(example.shape)
+
+        predictions_pf = torch.zeros([example.shape[0]])
+        for i in range(example.shape[0]):
+            example_padded[i] = example[i]
+            inputs = framed_to_example(example_padded, args).flatten()
+            output = network(inputs)
+            predictions_pf[i] = torch.argmax(output)
+
+        return predictions_final, predictions_pf
+
+
 
     else:
         raise NotImplementedError
@@ -78,12 +96,8 @@ def classify_mlp(network, example, args, howto='final'):
 def get_acc_classifier(classifier, vqvae, args, indices, howto='final'):
     vqvae.eval()
 
-    if howto == 'final':
-        predictions = torch.zeros([len(indices)], dtype=torch.long)
-    elif howto == 'per_frame':
-        predictions = torch.zeros([len(indices), args.n_frames], dtype=torch.long)
-    else:
-        raise NotImplementedError
+    predictions_final = torch.zeros([len(indices)], dtype=torch.long)
+    predictions_pf = torch.zeros([len(indices), args.n_frames], dtype=torch.long)
 
     for i, idx in enumerate(indices):
         data = example_to_framed(args.dataset.root.test.data[idx, :, :], args)
@@ -96,24 +110,35 @@ def get_acc_classifier(classifier, vqvae, args, indices, howto='final'):
                 _, encodings = vqvae.encode(frame)
 
                 encodings_decoded = channel_coding_decoding(args, encodings)
-                print('encodings_decoded ', encodings_decoded.shape)
                 data_reconstructed[j] = vqvae.decode(encodings_decoded, args.quantized_dim)
 
-        predictions[i] = classify(classifier, data_reconstructed, args, howto)
+        predictions_final[i], predictions_pf[i] = classify(classifier, data_reconstructed, args, howto)
 
     true_classes = torch.max(torch.sum(torch.FloatTensor(args.dataset.root.test.label[:][indices]), dim=-1), dim=-1).indices
 
     if howto == 'final':
-        accs = float(torch.sum(predictions == true_classes, dtype=torch.float) / len(predictions))
+        accs_final = float(torch.sum(predictions_final == true_classes, dtype=torch.float) / len(predictions_final))
+
+        return accs_final, None
 
     elif howto == 'per_frame':
-        accs = torch.zeros([args.n_frames], dtype=torch.float)
+        accs_pf = torch.zeros([args.n_frames], dtype=torch.float)
 
         for i in range(args.n_frames):
-            acc = float(torch.sum(predictions[:, i] == true_classes, dtype=torch.float) / len(predictions))
-            accs[i] = acc
+            acc = float(torch.sum(predictions_pf[:, i] == true_classes, dtype=torch.float) / len(predictions_pf))
+            accs_pf[i] = acc
 
-    return accs
+        return None, accs_pf
+
+    elif howto == 'both':
+        accs_final = float(torch.sum(predictions_final == true_classes, dtype=torch.float) / len(predictions_final))
+        accs_pf = torch.zeros([args.n_frames], dtype=torch.float)
+
+        for i in range(args.n_frames):
+            acc = float(torch.sum(predictions_pf[:, i] == true_classes, dtype=torch.float) / len(predictions_pf))
+            accs_pf[i] = acc
+
+        return accs_final, accs_pf
 
 
 def get_acc_wispike(encoder, decoder, args, test_indices, n_outputs_enc, howto='final'):
