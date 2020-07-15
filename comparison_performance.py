@@ -180,7 +180,7 @@ elif args.model == 'vqvae':
 
     vqvae, _ = init_vqvae(args)
 
-    weights = home + r'C:/results/results_wispike/' + args.weights
+    weights = home + r'/results/results_wispike/' + args.weights
     if args.classifier == 'snn':
         network_weights = weights + r'/snn_weights.hdf5'
     elif args.classifier == 'mlp':
