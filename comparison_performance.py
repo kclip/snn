@@ -184,7 +184,7 @@ elif args.model == 'vqvae':
     if args.classifier == 'snn':
         network_weights = weights + r'/snn_weights.hdf5'
     elif args.classifier == 'mlp':
-        network_weights = weights + r'/mlp_weights.hdf5'
+        network_weights = weights + r'/mlp_weights.pt'
     vqvae_weights = weights + r'/vqvae_weights.pt'
 
     network.import_weights(network_weights)
