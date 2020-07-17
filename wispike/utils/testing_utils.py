@@ -189,3 +189,34 @@ def get_acc_wispike(encoder, decoder, args, test_indices, n_outputs_enc, howto='
         raise NotImplementedError
 
     return accs
+
+
+def get_acc_jscc(encoder, decoder, args, test_indices, n_outputs_enc):
+    encoder.set_mode('test')
+    encoder.reset_internal_state()
+
+    decoder.set_mode('test')
+    decoder.reset_internal_state()
+
+    T = args.dataset.root.test.label[:].shape[-1]
+    outputs = torch.zeros([len(test_indices), decoder.n_output_neurons, T])
+
+    for j, sample_idx in enumerate(test_indices):
+        misc_snn.refractory_period(encoder)
+        misc_snn.refractory_period(decoder)
+        sample_enc = torch.FloatTensor(args.dataset.root.test.data[sample_idx]).to(encoder.device)
+
+        for t in range(T):
+            _ = encoder(sample_enc[:, t])
+
+            if args.systematic:
+                decoder_input = channel(torch.cat((sample_enc[:, t], encoder.spiking_history[encoder.hidden_neurons[-n_outputs_enc:], -1])), decoder.device, args.snr)
+            else:
+                decoder_input = channel(encoder.spiking_history[encoder.hidden_neurons[-args.n_output_enc:], -1], decoder.device, args.snr)
+
+            _ = decoder(decoder_input)
+            outputs[j, :, t] = decoder.spiking_history[decoder.output_neurons, -1]
+
+    acc = float(torch.sum(outputs == torch.FloatTensor(args.dataset.root.test.data[:][test_indices]))) / outputs.numel()
+
+    return acc

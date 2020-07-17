@@ -6,12 +6,10 @@ from binary_snn import binary_exp
 from wispike.wispike import wispike
 from wispike.snn_jscc import jscc
 from misc import mksavedir
-import time
 import numpy as np
 import tables
 import pickle
 import argparse
-import json
 
 ''''
 Train a WTA-SNN with VOWEL.
@@ -145,8 +143,8 @@ results_path = home + r'/results/'
 if args.save_path is None:
     args.save_path = mksavedir(pre=results_path, exp_dir=name)
 
-with open(args.save_path + 'commandline_args.txt', 'w') as f:
-    json.dump(args.__dict__, f, indent=2)
+with open(args.save_path + 'commandline_args.pkl', 'wb') as f:
+    pickle.dump(args.__dict__, f, pickle.HIGHEST_PROTOCOL)
 
 args.dataset = dataset
 

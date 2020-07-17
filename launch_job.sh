@@ -1,12 +1,12 @@
 #!/bin/bash
-#SBATCH --ntasks=24
+#SBATCH --ntasks=16
 #SBATCH --time=168:00:00
 #SBATCH --mem-per-cpu=8GB
 #SBATCH --partition=nms_research
 
-python /users/k1804053/snn_private/launch_experiment.py --where=rosalind --dataset=mnist_dvs_10_binary --n_h=512 --n_output_enc=512 --num_samples_train=60000 \
---test_period=2000 --num_ite=1 --suffix=_snr_m_4 \
---model=wispike --systematic=false --snr=-4 --r=0.3 --labels 1 7
+python /users/k1804053/snn_private/launch_experiment.py --where=rosalind --dataset=mnist_dvs_10_binary --n_h=512 --n_output_enc=512 --num_samples_train=30000 \
+--test_period=2000 --num_ite=1 --suffix=_snr_m_6 \
+--model=jscc --systematic=false --snr=-6 --r=0.3 --labels 1 7
 
 #--save_path=/users/k1804053/results/009__23-06-2020_mnist_dvs_10_binary_wispike_30000_epochs_nh_512_nout_512_snr_m_6/
 
