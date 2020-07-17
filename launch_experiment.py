@@ -4,13 +4,14 @@ from multivalued_snn.utils_multivalued.misc import str2bool
 from multivalued_snn import multivalued_exp
 from binary_snn import binary_exp
 from wispike.wispike import wispike
+from wispike.snn_jscc import jscc
 from misc import mksavedir
 import time
 import numpy as np
 import tables
 import pickle
 import argparse
-import os
+import json
 
 ''''
 Train a WTA-SNN with VOWEL.
@@ -23,7 +24,7 @@ if __name__ == "__main__":
     # Training arguments
     parser.add_argument('--where', default='local')
     parser.add_argument('--dataset', default='mnist_dvs_10_binary')
-    parser.add_argument('--model', default='binary', choices=['binary', 'wta', 'wispike'], help='Model type, either "binary" or "wta"')
+    parser.add_argument('--model', default='binary', choices=['binary', 'wta', 'wispike', 'jscc'], help='Model type, either "binary" or "wta"')
     parser.add_argument('--num_ite', default=5, type=int, help='Number of times every experiment will be repeated')
     parser.add_argument('--epochs', default=None, type=int, help='Number of samples to train on for each experiment')
     parser.add_argument('--num_samples_train', default=None, type=int, help='Number of samples to train on for each experiment')
@@ -144,6 +145,9 @@ results_path = home + r'/results/'
 if args.save_path is None:
     args.save_path = mksavedir(pre=results_path, exp_dir=name)
 
+with open(args.save_path + 'commandline_args.txt', 'w') as f:
+    json.dump(args.__dict__, f, indent=2)
+
 args.dataset = dataset
 
 args.disable_cuda = str2bool(args.disable_cuda)
@@ -180,3 +184,7 @@ elif args.model == 'binary':
 elif args.model == 'wispike':
     args.systematic = str2bool(args.systematic)
     wispike(args)
+elif args.model == 'jscc':
+    args.systematic = str2bool(args.systematic)
+    jscc(args)
+
