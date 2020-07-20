@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="dfa62879-5cdc-4603-a43e-18a18161e0c9" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/launch_vqvae.sh" beforeDir="false" afterPath="$PROJECT_DIR$/launch_vqvae.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_train.sh" beforeDir="false" afterPath="$PROJECT_DIR$/local_train.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train_vqvae.py" beforeDir="false" afterPath="$PROJECT_DIR$/train_vqvae.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wispike/snn_jscc.py" beforeDir="false" afterPath="$PROJECT_DIR$/wispike/snn_jscc.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wispike/utils/testing_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/wispike/utils/testing_utils.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -43,11 +43,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/train_vqvae.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="117">
-              <caret line="156" column="23" lean-forward="true" selection-start-line="156" selection-start-column="23" selection-end-line="156" selection-end-column="23" />
+              <caret line="156" column="23" selection-start-line="156" selection-start-column="23" selection-end-line="156" selection-end-column="23" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -79,8 +79,23 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wispike/snn_jscc.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-2249">
-              <caret line="2" column="52" selection-start-line="2" selection-start-column="52" selection-end-line="2" selection-end-column="52" />
+            <state relative-caret-position="114">
+              <caret line="90" column="32" selection-start-line="90" selection-start-column="32" selection-end-line="90" selection-end-column="32" />
+              <folding>
+                <element signature="e#0#46#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/wispike/wispike_toy.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="219">
+              <caret line="162" column="112" lean-forward="true" selection-start-line="162" selection-end-line="163" />
+              <folding>
+                <element signature="e#0#43#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -97,11 +112,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/wispike/utils/testing_utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="83">
-              <caret line="193" column="68" selection-start-line="193" selection-start-column="68" selection-end-line="193" selection-end-column="68" />
+            <state relative-caret-position="213">
+              <caret line="220" lean-forward="true" selection-start-line="220" selection-end-line="220" />
               <folding>
                 <element signature="e#0#12#0" expanded="true" />
               </folding>
@@ -123,15 +138,6 @@
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="51">
               <caret line="3" column="64" selection-start-line="3" selection-start-column="64" selection-end-line="3" selection-end-column="64" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/test_acc_per_frame.sh">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="17">
-              <caret line="1" column="56" selection-start-line="1" selection-start-column="56" selection-end-line="1" selection-end-column="56" />
             </state>
           </provider>
         </entry>
@@ -219,13 +225,13 @@
         <option value="$PROJECT_DIR$/test_acc_per_frame.sh" />
         <option value="$PROJECT_DIR$/comparison_performance.py" />
         <option value="$PROJECT_DIR$/mnist_online_distributed.py" />
-        <option value="$PROJECT_DIR$/wispike/utils/testing_utils.py" />
-        <option value="$PROJECT_DIR$/wispike/snn_jscc.py" />
         <option value="$PROJECT_DIR$/launch_experiment.py" />
         <option value="$PROJECT_DIR$/launch_job.sh" />
         <option value="$PROJECT_DIR$/local_train.sh" />
         <option value="$PROJECT_DIR$/launch_vqvae.sh" />
         <option value="$PROJECT_DIR$/train_vqvae.py" />
+        <option value="$PROJECT_DIR$/wispike/snn_jscc.py" />
+        <option value="$PROJECT_DIR$/wispike/utils/testing_utils.py" />
       </list>
     </option>
   </component>
@@ -361,12 +367,12 @@
       <workItem from="1593425359846" duration="26862000" />
       <workItem from="1594027154773" duration="26398000" />
       <workItem from="1594292839649" duration="3787000" />
-      <workItem from="1594630216142" duration="51964000" />
+      <workItem from="1594630216142" duration="53145000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="506292000" />
+    <option name="totallyTimeSpent" value="507473000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
@@ -435,16 +441,6 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/local/wispike/train_vqvae.py" />
     <entry file="file://$PROJECT_DIR$/wispike/vqvae.py" />
-    <entry file="file://$PROJECT_DIR$/wispike/wispike_toy.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2567">
-          <caret line="151" selection-start-line="147" selection-end-line="151" />
-          <folding>
-            <element signature="e#0#43#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/multivalued_snn/models/WTA_SNN.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="68">
@@ -730,13 +726,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wispike/snn_jscc.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2249">
-          <caret line="2" column="52" selection-start-line="2" selection-start-column="52" selection-end-line="2" selection-end-column="52" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/launch_experiment.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="136">
@@ -758,16 +747,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wispike/utils/testing_utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="83">
-          <caret line="193" column="68" selection-start-line="193" selection-start-column="68" selection-end-line="193" selection-end-column="68" />
-          <folding>
-            <element signature="e#0#12#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/local_train.sh">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="51">
@@ -785,9 +764,39 @@
     <entry file="file://$PROJECT_DIR$/train_vqvae.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="117">
-          <caret line="156" column="23" lean-forward="true" selection-start-line="156" selection-start-column="23" selection-end-line="156" selection-end-column="23" />
+          <caret line="156" column="23" selection-start-line="156" selection-start-column="23" selection-end-line="156" selection-end-column="23" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wispike/snn_jscc.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="114">
+          <caret line="90" column="32" selection-start-line="90" selection-start-column="32" selection-end-line="90" selection-end-column="32" />
+          <folding>
+            <element signature="e#0#46#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wispike/wispike_toy.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="219">
+          <caret line="162" column="112" lean-forward="true" selection-start-line="162" selection-end-line="163" />
+          <folding>
+            <element signature="e#0#43#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wispike/utils/testing_utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="213">
+          <caret line="220" lean-forward="true" selection-start-line="220" selection-end-line="220" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
           </folding>
         </state>
       </provider>

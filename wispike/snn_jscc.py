@@ -106,7 +106,7 @@ def jscc(args):
             misc_snn.refractory_period(decoder)
 
             sample_enc = torch.FloatTensor(args.dataset.root.train.data[sample_idx]).to(encoder.device)
-            output_dec = sample_enc
+            output_dec = torch.cat((torch.zeros([sample_enc.shape[0], 2]), sample_enc[:, :-2]), dim=-1).to(decoder.device)
 
             for s in range(S_prime):
                 # Feedforward sampling encoder

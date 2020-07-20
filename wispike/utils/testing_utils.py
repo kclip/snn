@@ -217,6 +217,6 @@ def get_acc_jscc(encoder, decoder, args, test_indices, n_outputs_enc):
             _ = decoder(decoder_input)
             outputs[j, :, t] = decoder.spiking_history[decoder.output_neurons, -1]
 
-    acc = float(torch.sum(outputs == torch.FloatTensor(args.dataset.root.test.data[:][test_indices]))) / outputs.numel()
+    acc = float(torch.sum(outputs[:, :, 2:] == torch.FloatTensor(args.dataset.root.test.data[:][test_indices, :, :-2]))) / outputs.numel()
 
     return acc
