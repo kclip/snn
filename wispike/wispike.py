@@ -1,6 +1,6 @@
 from wispike.utils import misc as misc_wispike
 from wispike.utils.training_utils import init_training_wispike
-from wispike.utils.testing_utils import get_acc_wispike
+from wispike.test.testing_utils import get_acc_wispike
 from binary_snn.utils_binary import misc as misc_snn
 from binary_snn.models.SNN import SNNetwork
 from binary_snn.utils_binary.training_utils import local_feedback_and_update

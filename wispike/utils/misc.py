@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 import pyldpc
+from bitstring import BitArray
 
 
 def binarize(signal):
@@ -23,10 +24,10 @@ def channel(signal, device, snr_db):
 
 def channel_coding_decoding(args, encodings):
     # Transmit through channel
-    encodings_shape = encodings.data.numpy().shape
+    encodings_shape = encodings.shape
 
     to_send = np.zeros([args.k])
-    to_send[:np.prod(encodings_shape)] = encodings.clone().data.flatten()
+    to_send[:np.prod(encodings_shape)] = encodings.flatten()
 
     coded_quantized = pyldpc.encode(args.G, to_send, args.snr)
     received = pyldpc.decode(args.H, coded_quantized, args.snr, args.maxiter)
@@ -69,4 +70,40 @@ def get_intermediate_dims(vqvae, args):
     quantized_dim = example_quantized.data.clone().permute(0, 2, 3, 1).contiguous().shape
 
     return quantized_dim, encodings_dim
+
+
+def byte2bytearr(byte):
+    bitstrlist = list(BitArray(hex=hex(byte)).bin)
+    res = np.array([0 if i == '0' else 1 for i in bitstrlist], dtype=bool)
+    if len(res) != 8:
+        return np.hstack((np.zeros([4], dtype=bool), res))
+    else:
+        return res
+
+def bytearr2uint8(bitarray):
+    return np.uint8(int(''.join([str(int(i)) for i in list(bitarray)]), 2))
+
+
+def binarr2bytearr(array):
+    if (len(array) % 8) != 0:
+        padding = 8 - (len(array) % 8)
+        return np.hstack((array, np.zeros([padding], dtype=bool))).reshape([-1, 8])
+    return array.reshape([-1, 8])
+
+
+def binarr2bytes(sample):
+    sample_as_bytearr = binarr2bytearr(sample)
+    sample_as_bytes = np.array([], dtype=np.uint8)
+
+    for byte in sample_as_bytearr:
+        sample_as_bytes = np.hstack((sample_as_bytes, bytearr2uint8(byte)))
+
+    return sample_as_bytes.tobytes()
+
+
+def bytes2binarr(bytes_):
+    res = np.array([], dtype=bool)
+    for byte in bytes_:
+        res = np.hstack((res, byte2bytearr(byte)))
+    return res
 

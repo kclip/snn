@@ -2,12 +2,11 @@ import numpy as np
 import tables
 import torch
 import argparse
-import os
 import binary_snn.utils_binary.misc as misc_snn
 from multivalued_snn.utils_multivalued.misc import str2bool
 import wispike.utils.misc as misc_wispike
 from wispike.utils import training_utils
-from wispike.utils import testing_utils
+from wispike.test import testing_utils
 from binary_snn.models.SNN import SNNetwork
 import pickle
 from misc import mksavedir
@@ -131,6 +130,8 @@ results_path = home + r'/results/'
 if args.save_path is None:
     args.save_path = mksavedir(pre=results_path, exp_dir=name)
 
+with open(args.save_path + 'commandline_args.pkl', 'wb') as f:
+    pickle.dump(args.__dict__, f, pickle.HIGHEST_PROTOCOL)
 
 args.ite_test = np.arange(0, args.num_samples_train, args.test_period)
 args.test_accs = {i: [] for i in args.ite_test}
