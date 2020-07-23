@@ -74,6 +74,8 @@ def lzma_test(args):
 
             predictions_final[i], predictions_pf[i] = testing_utils.classify(network, received_example, args, 'both')
 
+            print(i, predictions_final[i])
+
         true_classes = torch.max(torch.sum(torch.FloatTensor(args.dataset.root.test.label[:][test_indices]), dim=-1), dim=-1).indices
 
         accs_final = float(torch.sum(predictions_final == true_classes, dtype=torch.float) / len(predictions_final))
@@ -87,9 +89,9 @@ def lzma_test(args):
         res_final[snr].append(accs_final)
         res_pf[snr].append(accs_pf)
 
-        with open(weights + r'/acc_per_snr_final.pkl', 'wb') as f:
+        with open(weights + r'/acc_per_snr_final_lzma.pkl', 'wb') as f:
             pickle.dump(res_final, f, pickle.HIGHEST_PROTOCOL)
 
-        with open(weights + r'/acc_per_snr_per_frame.pkl', 'wb') as f:
+        with open(weights + r'/acc_per_snr_per_frame_lzma.pkl', 'wb') as f:
             pickle.dump(res_pf, f, pickle.HIGHEST_PROTOCOL)
 

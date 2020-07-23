@@ -57,8 +57,8 @@ def ook_test(args):
             res_final[snr].append(accs_final)
             res_pf[snr].append(accs_per_frame)
 
-    with open(weights + r'/acc_per_snr_final.pkl', 'wb') as f:
+    with open(weights + r'/acc_per_snr_final_ook.pkl', 'wb') as f:
         pickle.dump(res_final, f, pickle.HIGHEST_PROTOCOL)
 
-    with open(weights + r'/acc_per_snr_per_frame.pkl', 'wb') as f:
+    with open(weights + r'/acc_per_snr_per_frame_ook.pkl', 'wb') as f:
         pickle.dump(res_pf, f, pickle.HIGHEST_PROTOCOL)

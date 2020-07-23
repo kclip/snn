@@ -185,6 +185,10 @@ def train(rank, num_nodes, args):
                 global_update(all_nodes, rank, network, weights_list)
                 dist.barrier(all_nodes)
 
+        # Final global update
+        dist.barrier(all_nodes)
+        global_update(all_nodes, rank, network, weights_list)
+        dist.barrier(all_nodes)
 
         if rank == 0:
             global_acc, _ = get_acc_and_loss(network, args.dataset, test_indices)
