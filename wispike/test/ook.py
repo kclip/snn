@@ -5,9 +5,12 @@ import numpy as np
 import pickle
 from binary_snn.utils_binary.misc import refractory_period
 from wispike.utils.misc import channel
+from wispike.test.testing_utils import classify
 
 
 def ook_test(args):
+    args.residual = 0 #todo
+
     network = SNNetwork(**misc_snn.make_network_parameters(args.n_input_neurons,
                                                            args.n_output_neurons,
                                                            args.n_h),
@@ -26,36 +29,25 @@ def ook_test(args):
         for _ in range(3):
             test_indices = np.random.choice(misc_snn.find_test_indices_for_labels(args.dataset, args.labels), [args.num_samples_test], replace=False)
 
-            network.set_mode('test')
-            network.reset_internal_state()
+            predictions_final = torch.zeros([args.num_samples_test], dtype=torch.long)
+            predictions_pf = torch.zeros([args.num_samples_test, args.n_frames], dtype=torch.long)
 
-            T = args.dataset.root.test.label[:].shape[-1]
-
-            outputs = torch.zeros([len(test_indices), network.n_output_neurons, T])
-
-            for j, sample_idx in enumerate(test_indices):
-                refractory_period(network)
-
-                sample = channel(torch.FloatTensor(args.dataset.root.test.data[sample_idx]).to(network.device), network.device, snr)
-
-                for t in range(T):
-                    log_proba = network(sample[:, t])
-                    outputs[j, :, t] = network.spiking_history[network.output_neurons, -1]
+            for i, idx in enumerate(test_indices):
+                sample = channel(torch.FloatTensor(args.dataset.root.test.data[idx]).to(network.device), network.device, snr)
+                predictions_final[i], predictions_pf[i] = classify(network, sample, args, 'both')
 
             true_classes = torch.max(torch.sum(torch.FloatTensor(args.dataset.root.test.label[:][test_indices]), dim=-1), dim=-1).indices
 
-            predictions_final = torch.max(torch.sum(outputs, dim=-1), dim=-1).indices
             accs_final = float(torch.sum(predictions_final == true_classes, dtype=torch.float) / len(predictions_final))
+            accs_pf = torch.zeros([args.n_frames], dtype=torch.float)
 
-            accs_per_frame = torch.zeros([T], dtype=torch.float)
-            for t in range(1, T):
-                predictions_pf = torch.sum(outputs[:, :, :t], dim=-1).argmax(-1)
-                acc = float(torch.sum(predictions_pf == true_classes, dtype=torch.float) / len(predictions_pf))
-                accs_per_frame[t] = acc
+            for i in range(args.n_frames):
+                acc = float(torch.sum(predictions_pf[:, i] == true_classes, dtype=torch.float) / len(predictions_pf))
+                accs_pf[i] = acc
 
             print('snr %d, acc %f' % (snr, accs_final))
             res_final[snr].append(accs_final)
-            res_pf[snr].append(accs_per_frame)
+            res_pf[snr].append(accs_pf)
 
     with open(weights + r'/acc_per_snr_final_ook.pkl', 'wb') as f:
         pickle.dump(res_final, f, pickle.HIGHEST_PROTOCOL)

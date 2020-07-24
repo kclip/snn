@@ -58,16 +58,17 @@ def train_vqvae(model, optimizer, args, train_res_recon_error, train_res_perplex
     return train_res_recon_error, train_res_perplexity
 
 
-def init_ldpc(encodings_dim):
-    ldpc_codewords_length = 2 * np.prod(encodings_dim)
+def init_ldpc(message_dim):
+    ldpc_codewords_length = int(1.5 * np.prod(message_dim))
+    ldpc_codewords_length += ldpc_codewords_length % 3
     d_v = 2
-    d_c = 4
+    d_c = 6
 
     # Make LDPC
     H, G = pyldpc.make_ldpc(ldpc_codewords_length, d_v, d_c, systematic=True, sparse=True)
     n, k = G.shape
 
-    assert k >= np.prod(encodings_dim)
+    assert k >= np.prod(message_dim)
 
     return H, G, k
 

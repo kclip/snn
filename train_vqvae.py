@@ -147,7 +147,7 @@ for i, idx in enumerate(indices):
 
     if (i + 1) % args.test_period == 0:
         print('Testing at step %d...' % (i + 1))
-        acc = testing_utils.get_acc_classifier(classifier, vqvae, args, test_indices)
+        acc, _ = testing_utils.get_acc_classifier(classifier, vqvae, args, test_indices)
         print('test accuracy: %f' % acc)
         print('recon_error: %.3f' % np.mean(train_res_recon_error[-args.test_period:]))
         print('perplexity: %.3f' % np.mean(train_res_perplexity[-args.test_period:]))

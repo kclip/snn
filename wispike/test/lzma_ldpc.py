@@ -22,7 +22,6 @@ def lzma_test(args):
                             device=args.device)
         # network_weights = weights + r'/snn_weights.hdf5'
         network_weights = weights + r'/network_weights.hdf5'
-
         network.import_weights(network_weights)
         network.set_mode('test')
 
@@ -37,7 +36,7 @@ def lzma_test(args):
     predictions_final = torch.zeros([args.num_samples_test], dtype=torch.long)
     predictions_pf = torch.zeros([args.num_samples_test, args.n_frames], dtype=torch.long)
 
-    snr_list = [0]#, -2, -4, -6, -8, -10]
+    snr_list = [5]#, -2, -4, -6, -8, -10]
 
     res_final = {snr: [] for snr in snr_list}
     res_pf = {snr: [] for snr in snr_list}
@@ -45,53 +44,70 @@ def lzma_test(args):
     for snr in snr_list:
         args.snr = snr
 
-    for _ in range(args.num_ite):
-        test_indices = np.random.choice(misc_snn.find_test_indices_for_labels(args.dataset, args.labels), [args.num_samples_test], replace=False)
+        for _ in range(args.num_ite):
+            test_indices = np.random.choice(misc_snn.find_test_indices_for_labels(args.dataset, args.labels), [args.num_samples_test], replace=False)
 
-        for i, idx in enumerate(test_indices):
-            example = args.dataset.root.test.data[idx, :, :]
-            frames = example_to_framed(example, args).numpy().reshape([args.n_frames, -1])
-            compressed_frames = []
+            for i, idx in enumerate(test_indices):
+                example = args.dataset.root.test.data[idx]
+                frames = example_to_framed(example, args).numpy().reshape([args.n_frames, -1])
+                compressed_frames = []
 
-            for frame in frames:
-                frame_as_bytes = binarr2bytes(frame)
-                compressed_frame = lzma.compress(frame_as_bytes)
-                compressed_frame_bin = bytes2binarr(compressed_frame)
-                compressed_frames.append(compressed_frame_bin)
+                for frame in frames:
+                    frame_as_bytes = binarr2bytes(frame)
+                    compressed_frame = lzma.compress(frame_as_bytes)
+                    print(compressed_frame[:27])
+                    compressed_frame_bin = bytes2binarr(compressed_frame)
+                    compressed_frames.append(compressed_frame_bin)
 
-            compressed_frames_shapes = [len(i) for i in compressed_frames]
+                compressed_frames_shapes = [len(i) for i in compressed_frames]
 
-            args.H, args.G, args.k = training_utils.init_ldpc(max(compressed_frames_shapes))
+                args.H, args.G, args.k = training_utils.init_ldpc(max(compressed_frames_shapes))
 
-            received_example = torch.zeros(example.shape)
-            for j, compressed_frame in enumerate(compressed_frames):
-                frame_received = channel_coding_decoding(args, compressed_frame)
-                try:
-                    frame_received_decompressed = lzma.decompress(binarr2bytes(frame_received))
-                except lzma.LZMAError:
-                    continue
-                received_example[j] = frame_received_decompressed
+                received_frames = torch.zeros(frames.shape)
+                for j, compressed_frame in enumerate(compressed_frames):
+                    frame_received = channel_coding_decoding(args, compressed_frame)
 
-            predictions_final[i], predictions_pf[i] = testing_utils.classify(network, received_example, args, 'both')
+                    # print(float(np.sum(frame_received == compressed_frame)) / np.prod(frame_received.shape))
+                    # Recover the (known, never changing) header/footer of lzma compression
+                    # frame_received[:27] = compressed_frame_bin[:27]
+                    # frame_received[-12:] = compressed_frame_bin[-12:]
 
-            print(i, predictions_final[i])
+                    frame_received = binarr2bytes(frame_received.astype(bool))
+                    # print(frame_received[:27])
+                    # print(compressed_frames[j][:27])
 
-        true_classes = torch.max(torch.sum(torch.FloatTensor(args.dataset.root.test.label[:][test_indices]), dim=-1), dim=-1).indices
+                    # print(frame_received[-12:])
+                    try:
+                        frame_received_decompressed = lzma.decompress(frame_received)
+                        frame_received_decompressed_bin = torch.tensor(bytes2binarr(frame_received_decompressed))
+                        received_frames[j] = frame_received_decompressed_bin
+                        print('Decoding successful, example %d frame %d' % (i, j))
+                    except lzma.LZMAError:
+                        print('Decoding failed, example %d frame %d' % (i, j))
+                        continue
 
-        accs_final = float(torch.sum(predictions_final == true_classes, dtype=torch.float) / len(predictions_final))
-        accs_pf = torch.zeros([args.n_frames], dtype=torch.float)
+                received_example = framed_to_example(received_frames, args)
+                # print(float(torch.sum(received_example == torch.FloatTensor(example))) / received_example.numel())
 
-        for i in range(args.n_frames):
-            acc = float(torch.sum(predictions_pf[:, i] == true_classes, dtype=torch.float) / len(predictions_pf))
-            accs_pf[i] = acc
+                predictions_final[i], predictions_pf = testing_utils.classify(network, received_example, args, 'both')
+                print(predictions_final[i], torch.max(torch.sum(torch.FloatTensor(args.dataset.root.test.label[:][idx]), dim=-1), dim=-1).indices)
 
-        print('snr %d, acc %f' % (snr, accs_final))
-        res_final[snr].append(accs_final)
-        res_pf[snr].append(accs_pf)
+            true_classes = torch.max(torch.sum(torch.FloatTensor(args.dataset.root.test.label[:][test_indices]), dim=-1), dim=-1).indices
 
-        with open(weights + r'/acc_per_snr_final_lzma.pkl', 'wb') as f:
-            pickle.dump(res_final, f, pickle.HIGHEST_PROTOCOL)
+            accs_final = float(torch.sum(predictions_final == true_classes, dtype=torch.float) / len(predictions_final))
+            accs_pf = torch.zeros([args.n_frames], dtype=torch.float)
 
-        with open(weights + r'/acc_per_snr_per_frame_lzma.pkl', 'wb') as f:
-            pickle.dump(res_pf, f, pickle.HIGHEST_PROTOCOL)
+            for i in range(args.n_frames):
+                acc = float(torch.sum(predictions_pf[:, i] == true_classes, dtype=torch.float) / len(predictions_pf))
+                accs_pf[i] = acc
+
+            print('snr %d, acc %f' % (snr, accs_final))
+            res_final[snr].append(accs_final)
+            res_pf[snr].append(accs_pf)
+
+            with open(weights + r'/acc_per_snr_final_lzma.pkl', 'wb') as f:
+                pickle.dump(res_final, f, pickle.HIGHEST_PROTOCOL)
+
+            with open(weights + r'/acc_per_snr_per_frame_lzma.pkl', 'wb') as f:
+                pickle.dump(res_pf, f, pickle.HIGHEST_PROTOCOL)
 

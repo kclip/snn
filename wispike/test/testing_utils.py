@@ -8,7 +8,8 @@ import numpy as np
 
 def classify(classifier, example, args, howto='final'):
     if isinstance(classifier, SNNetwork):
-        example = framed_to_example(example, args)
+        if example.shape != torch.Size([676, 80]):
+            example = framed_to_example(example, args)
         # SNNs only accept binary inputs
         example = binarize(example)
 
@@ -36,16 +37,19 @@ def classify_snn(network, example, args, howto='final'):
         return predictions_final, 0
 
     elif howto == 'per_frame':
-        predictions_pf = torch.zeros([T])
-        for t in range(1, T):
-            predictions_pf[t] = torch.max(torch.sum(outputs[:, :t], dim=-1), dim=-1).indices
+        predictions_pf = torch.zeros([args.n_frames])
+
+        for i, t in enumerate(range(int(T / args.n_frames), T + int(T / args.n_frames), int(T / args.n_frames))):
+            predictions_pf[i] = torch.max(torch.sum(outputs[:, :t], dim=-1), dim=-1).indices
+
         return 0, predictions_pf
 
     elif howto == 'both':
         predictions_final = torch.max(torch.sum(outputs, dim=-1), dim=-1).indices
-        predictions_pf = torch.zeros([T])
-        for t in range(1, T):
-            predictions_pf[t] = torch.max(torch.sum(outputs[:, :t], dim=-1), dim=-1).indices
+        predictions_pf = torch.zeros([args.n_frames])
+
+        for i, t in enumerate(range(int(T / args.n_frames), T + int(T / args.n_frames), int(T / args.n_frames))):
+            predictions_pf[i] = torch.max(torch.sum(outputs[:, :t], dim=-1), dim=-1).indices
         return predictions_final, predictions_pf
 
     else:
@@ -60,8 +64,8 @@ def classify_mlp(network, example, args, howto='final'):
         return predictions_final, 0
 
     elif howto == 'per_frame':
-        predictions_pf = torch.zeros([example.shape[0]])
         example_padded = torch.zeros(example.shape)
+        predictions_pf = torch.zeros([args.n_frames])
 
         for i in range(example.shape[0]):
             example_padded[i] = example[i]
@@ -75,8 +79,8 @@ def classify_mlp(network, example, args, howto='final'):
         output = network(inputs)
         predictions_final = torch.argmax(output)
         example_padded = torch.zeros(example.shape)
+        predictions_pf = torch.zeros([args.n_frames])
 
-        predictions_pf = torch.zeros([example.shape[0]])
         for i in range(example.shape[0]):
             example_padded[i] = example[i]
             inputs = framed_to_example(example_padded, args).flatten()
@@ -84,8 +88,6 @@ def classify_mlp(network, example, args, howto='final'):
             predictions_pf[i] = torch.argmax(output)
 
         return predictions_final, predictions_pf
-
-
 
     else:
         raise NotImplementedError
