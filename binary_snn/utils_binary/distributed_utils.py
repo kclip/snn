@@ -59,7 +59,6 @@ def init_training(rank, num_nodes, nodes_group, args):
         local_labels = args.labels[(rank - 1) * n_labels_per_node: rank * n_labels_per_node]
 
         indices_local = misc.find_train_indices_for_labels(args.dataset, local_labels)
-        print(rank, indices_local)
 
     dist.barrier(nodes_group)
 

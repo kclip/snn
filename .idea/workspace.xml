@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="dfa62879-5cdc-4603-a43e-18a18161e0c9" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/local_train.sh" beforeDir="false" afterPath="$PROJECT_DIR$/local_train.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mnist_online_distributed.py" beforeDir="false" afterPath="$PROJECT_DIR$/mnist_online_distributed.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/binary_snn/utils_binary/distributed_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/binary_snn/utils_binary/distributed_utils.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -55,18 +54,6 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/wispike/utils/training_utils.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="595">
-              <caret line="35" column="4" selection-start-line="35" selection-start-column="4" selection-end-line="35" selection-end-column="4" />
-              <folding>
-                <element signature="e#0#98#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/launch_job.sh">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="153">
@@ -75,13 +62,22 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mnist_online_distributed.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="137">
-              <caret line="145" column="45" selection-start-line="145" selection-start-column="45" selection-end-line="145" selection-end-column="45" />
+            <state relative-caret-position="153">
+              <caret line="9" column="62" selection-start-line="9" selection-start-column="62" selection-end-line="9" selection-end-column="62" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/binary_snn/utils_binary/distributed_utils.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-1054">
+              <caret line="61" lean-forward="true" selection-start-line="61" selection-end-line="61" />
               <folding>
-                <element signature="e#0#37#0" expanded="true" />
+                <element signature="e#0#18#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -205,7 +201,6 @@
         <option value="$PROJECT_DIR$/binary_snn/models/SNN.py" />
         <option value="$PROJECT_DIR$/launch_fl_snn.sh" />
         <option value="$PROJECT_DIR$/binary_snn/mnist_online_distributed.py" />
-        <option value="$PROJECT_DIR$/binary_snn/utils_binary/distributed_utils.py" />
         <option value="$PROJECT_DIR$/binary_snn/utils_binary/training_utils.py" />
         <option value="$PROJECT_DIR$/launch_experiment.py" />
         <option value="$PROJECT_DIR$/wispike/snn_jscc.py" />
@@ -227,6 +222,7 @@
         <option value="$PROJECT_DIR$/launch_vqvae.sh" />
         <option value="$PROJECT_DIR$/local_train.sh" />
         <option value="$PROJECT_DIR$/mnist_online_distributed.py" />
+        <option value="$PROJECT_DIR$/binary_snn/utils_binary/distributed_utils.py" />
       </list>
     </option>
   </component>
@@ -388,12 +384,12 @@
       <workItem from="1594027154773" duration="26398000" />
       <workItem from="1594292839649" duration="3787000" />
       <workItem from="1594630216142" duration="107631000" />
-      <workItem from="1596445185297" duration="13274000" />
+      <workItem from="1596445185297" duration="13309000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="575233000" />
+    <option name="totallyTimeSpent" value="575268000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
@@ -555,16 +551,6 @@
           <caret line="165" column="8" selection-start-line="165" selection-start-column="8" selection-end-line="165" selection-end-column="8" />
           <folding>
             <element signature="e#0#37#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/binary_snn/utils_binary/distributed_utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="239">
-          <caret line="36" column="63" selection-start-line="36" selection-start-column="63" selection-end-line="36" selection-end-column="63" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -824,10 +810,17 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/mnist_online_distributed.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="137">
-          <caret line="145" column="45" selection-start-line="145" selection-start-column="45" selection-end-line="145" selection-end-column="45" />
+        <state relative-caret-position="153">
+          <caret line="9" column="62" selection-start-line="9" selection-start-column="62" selection-end-line="9" selection-end-column="62" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/binary_snn/utils_binary/distributed_utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1054">
+          <caret line="61" lean-forward="true" selection-start-line="61" selection-end-line="61" />
           <folding>
-            <element signature="e#0#37#0" expanded="true" />
+            <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
