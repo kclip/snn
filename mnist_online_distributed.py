@@ -143,7 +143,7 @@ def train(rank, num_nodes, args):
         network, indices_local, weights_list, eligibility_trace, et_temp, learning_signal, ls_temp = init_training(rank, num_nodes, all_nodes, args)
 
         dist.barrier(all_nodes)
-
+        print('Node %d' % rank, indices_local)
 
         # Test loss at beginning + selection of training indices
         if rank != 0:
