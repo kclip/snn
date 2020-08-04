@@ -79,7 +79,7 @@ elif args.where == 'jade':
 elif args.where == 'gcloud':
     home = r'/home/k1804053'
 
-dataset = home + r'/datasets/mnist-dvs/mnist_dvs_binary_25ms_26pxl_10_digits.hdf5'
+dataset = tables.open_file(home + r'/datasets/mnist-dvs/mnist_dvs_binary_25ms_26pxl_10_digits.hdf5')
 
 args.disable_cuda = str2bool(args.disable_cuda)
 args.device = None
@@ -88,7 +88,22 @@ if not args.disable_cuda and torch.cuda.is_available():
 else:
     args.device = torch.device('cpu')
 
-args.dataset = tables.open_file(dataset)
+if not args.num_samples_train:
+    args.num_samples_train = dataset.root.stats.train_data[0]
+if not args.num_samples_test:
+    args.num_samples_test = dataset.root.stats.test_data[0]
+
+name = 'vqvae_' + args.classifier + r'_%d_epochs_nh_%d_ny_%d_nframes_%d' % (args.num_samples_train, args.n_h, args.num_embeddings, args.n_frames) + args.suffix
+results_path = home + r'/results/'
+if args.save_path is None:
+    args.save_path = mksavedir(pre=results_path, exp_dir=name)
+
+print(args.__dict__)
+with open(args.save_path + 'commandline_args.pkl', 'wb') as f:
+    pickle.dump(args.__dict__, f, pickle.HIGHEST_PROTOCOL)
+
+
+args.dataset = dataset
 
 if args.classifier == 'snn':
     assert args.n_frames == 80
@@ -110,11 +125,6 @@ if isinstance(classifier, SNNetwork):
 args.H, args.G, args.k = training_utils.init_ldpc(args.encodings_dim)
 
 
-if not args.num_samples_train:
-    args.num_samples_train = args.dataset.root.stats.train_data[0]
-if not args.num_samples_test:
-    args.num_samples_test = args.dataset.root.stats.test_data[0]
-
 if args.labels is not None:
     print(args.labels)
     indices = np.random.choice(misc_snn.find_train_indices_for_labels(args.dataset, args.labels), [args.num_samples_train], replace=True)
@@ -124,14 +134,6 @@ else:
     indices = np.random.choice(np.arange(args.dataset.root.stats.train_data[0]), [args.num_samples_train], replace=True)
     test_indices = np.random.choice(np.arange(args.dataset.root.stats.test_data[0]), [args.num_samples_test], replace=False)
 
-
-name = 'vqvae_' + args.classifier + r'_%d_epochs_nh_%d_ny_%d_nframes_%d' % (args.num_samples_train, args.n_h, np.prod(args.encodings_dim), args.n_frames) + args.suffix
-results_path = home + r'/results/'
-if args.save_path is None:
-    args.save_path = mksavedir(pre=results_path, exp_dir=name)
-
-with open(args.save_path + 'commandline_args.pkl', 'wb') as f:
-    pickle.dump(args.__dict__, f, pickle.HIGHEST_PROTOCOL)
 
 args.ite_test = np.arange(0, args.num_samples_train, args.test_period)
 args.test_accs = {i: [] for i in args.ite_test}
