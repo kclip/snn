@@ -7,6 +7,7 @@ from wispike.test.lzma_ldpc import lzma_test
 from wispike.test.ook import ook_test
 from wispike.test.vqvae_ldpc import vqvae_test
 from wispike.test.wispike_test import wispike_test
+import pickle
 
 if __name__ == "__main__":
     # setting the hyper parameters
@@ -15,22 +16,14 @@ if __name__ == "__main__":
     # Training arguments
     parser.add_argument('--where', default='local')
     parser.add_argument('--model', choices=['wispike', 'ook', 'vqvae', 'lzma'])
-    parser.add_argument('--dataset', default='mnist_dvs_10_binary')
     parser.add_argument('--weights', type=str, default=None, help='Path to weights to load')
     parser.add_argument('--disable-cuda', type=str, default='true', help='Disable CUDA')
     parser.add_argument('--num_ite', default=1, type=int)
 
     parser.add_argument('--classifier', type=str, default='snn', choices=['snn', 'mlp'])
+    parser.add_argument('--classifier_weights', type=str, default=None, help='Path to weights to load')
     parser.add_argument('--maxiter', default=100, type=int, help='Max number of iteration for BP decoding of LDPC code')
-    parser.add_argument('--n_frames', default=80, type=int)
 
-    # Arguments common to all models
-    parser.add_argument('--n_h', default=256, type=int, help='Number of hidden neurons')
-
-    # Arguments for Wispike
-    parser.add_argument('--systematic', type=str, default='false', help='Systematic communication')
-    parser.add_argument('--snr', type=float, default=None, help='SNR')
-    parser.add_argument('--n_output_enc', default=128, type=int, help='')
 
     args = parser.parse_args()
 
@@ -45,9 +38,18 @@ elif args.where == 'jade':
 elif args.where == 'gcloud':
     args.home = r'/home/k1804053'
 
+exp_args_path = args.home + '/results/results_wispike/' + args.weights + '/commandline_args.pkl'
+
+args_dict = vars(args)
+
+with open(exp_args_path, 'rb') as f:
+    exp_args = pickle.load(f)
+new_keys = [k for k in list(exp_args.keys()) if k not in list(args_dict.keys())]
+for key in new_keys:
+    args_dict[key] = exp_args[key]
+
 
 dataset = args.home + r'/datasets/mnist-dvs/mnist_dvs_binary_25ms_26pxl_10_digits.hdf5'
-
 args.dataset = tables.open_file(dataset)
 
 args.disable_cuda = str2bool(args.disable_cuda)
@@ -59,9 +61,10 @@ else:
 
 args.save_path = None
 
+args.snr_list = [5, 0, -2, -4, -6]
+
 ### Learning parameters
 args.num_samples_test = args.dataset.root.stats.test_data[0]
-args.labels = [1, 7]
 args.num_samples_test = min(args.num_samples_test, len(misc_snn.find_test_indices_for_labels(args.dataset, args.labels)))
 
 ### Network parameters

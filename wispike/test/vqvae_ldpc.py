@@ -10,14 +10,14 @@ from wispike.models.mlp import MLP
 
 
 def vqvae_test(args):
-    args.n_frames = 80
-
     args.residual = 80 % args.n_frames
     if args.residual:
         args.n_frames += 1
 
+    args.lr_vqvae = 0
+
     ### Encoder & classifier
-    vqvae, _ = init_vqvae(args)
+    vqvae, _ = init_vqvae(args, args.dataset)
 
     weights = args.home + r'/results/results_wispike/' + args.weights
     if args.classifier == 'snn':
@@ -25,7 +25,10 @@ def vqvae_test(args):
                                                                args.n_output_neurons,
                                                                args.n_h),
                             device=args.device)
-        network_weights = weights + r'/snn_weights.hdf5'
+        if args.classifier_weights is not None:
+            network_weights = args.home + r'/results/results_wispike/' + args.classifier_weights + r'/snn_weights.hdf5'
+        else:
+            network_weights = weights + r'/snn_weights.hdf5'
         network.import_weights(network_weights)
         network.set_mode('test')
 
@@ -34,7 +37,12 @@ def vqvae_test(args):
         n_output_neurons = args.dataset.root.stats.train_label[1]
 
         network = MLP(n_input_neurons, args.n_h, n_output_neurons)
-        network_weights = weights + r'/mlp_weights.pt'
+
+        if args.classifier_weights is not None:
+            network_weights = args.home + r'/results/results_wispike/' + args.classifier_weights + r'/mlp_weights.pt'
+        else:
+            network_weights = weights + r'/mlp_weights.pt'
+
         network.load_state_dict(torch.load(network_weights))
 
     vqvae_weights = weights + r'/vqvae_weights.pt'
@@ -43,15 +51,13 @@ def vqvae_test(args):
     vqvae.eval()
 
     ### Channel & coding
-    args.quantized_dim, args.encodings_dim = get_intermediate_dims(vqvae, args)
+    args.quantized_dim, args.encodings_dim = get_intermediate_dims(vqvae, args, args.dataset)
     args.H, args.G, args.k = init_ldpc(args.encodings_dim)
 
-    snr_list = [0, -2, -4, -6, -8, -10]
+    res_final = {snr: [] for snr in args.snr_list}
+    res_pf = {snr: [] for snr in args.snr_list}
 
-    res_final = {snr: [] for snr in snr_list}
-    res_pf = {snr: [] for snr in snr_list}
-
-    for snr in snr_list:
+    for snr in args.snr_list:
         args.snr = snr
 
         for _ in range(args.num_ite):
@@ -62,8 +68,8 @@ def vqvae_test(args):
             res_final[snr].append(accs_final)
             res_pf[snr].append(accs_per_frame)
 
-        with open(weights + r'/acc_per_snr_final_vqvae.pkl', 'wb') as f:
+        with open(weights + r'/acc_per_snr_final_vqvae_' + args.classifier + '.pkl', 'wb') as f:
             pickle.dump(res_final, f, pickle.HIGHEST_PROTOCOL)
 
-        with open(weights + r'/acc_per_snr_per_frame_vqvae.pkl', 'wb') as f:
+        with open(weights + r'/acc_per_snr_per_frame_vqvae_' + args.classifier + '.pkl', 'wb') as f:
             pickle.dump(res_pf, f, pickle.HIGHEST_PROTOCOL)

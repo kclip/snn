@@ -3,7 +3,6 @@ from binary_snn.models.SNN import SNNetwork
 from wispike.models.mlp import MLP
 import binary_snn.utils_binary.misc as misc_snn
 from wispike.utils.misc import channel_coding_decoding, channel, framed_to_example, example_to_framed, binarize
-import numpy as np
 
 
 def classify(classifier, example, args, howto='final'):
@@ -102,6 +101,8 @@ def get_acc_classifier(classifier, vqvae, args, indices, howto='final'):
     predictions_pf = torch.zeros([len(indices), args.n_frames], dtype=torch.long)
 
     for i, idx in enumerate(indices):
+        if (i + 1) % 20 == 0:
+            print(i)
         data = example_to_framed(args.dataset.root.test.data[idx, :, :], args)
         data_reconstructed = torch.zeros(data.shape)
 
@@ -111,7 +112,8 @@ def get_acc_classifier(classifier, vqvae, args, indices, howto='final'):
             with torch.autograd.no_grad():
                 _, encodings = vqvae.encode(frame)
 
-                encodings_decoded = channel_coding_decoding(args, encodings)
+                encodings_decoded = torch.FloatTensor(channel_coding_decoding(args, encodings))
+
                 data_reconstructed[j] = vqvae.decode(encodings_decoded, args.quantized_dim)
 
         predictions_final[i], predictions_pf[i] = classify(classifier, data_reconstructed, args, howto)
@@ -183,10 +185,10 @@ def get_acc_wispike(encoder, decoder, args, test_indices, n_outputs_enc, howto='
     elif howto == 'per_frame':
         accs = torch.zeros([T], dtype=torch.float)
 
-        for s in range(1, T):
-            predictions = torch.sum(outputs[:, :, :s], dim=-1).argmax(-1)
+        for t in range(1, T):
+            predictions = torch.sum(outputs[:, :, :t], dim=-1).argmax(-1)
             acc = float(torch.sum(predictions == true_classes, dtype=torch.float) / len(predictions))
-            accs[s] = acc
+            accs[t] = acc
     else:
         raise NotImplementedError
 
