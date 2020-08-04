@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="dfa62879-5cdc-4603-a43e-18a18161e0c9" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/binary_snn/utils_binary/distributed_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/binary_snn/utils_binary/distributed_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mnist_online_distributed.py" beforeDir="false" afterPath="$PROJECT_DIR$/mnist_online_distributed.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -56,11 +56,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/mnist_online_distributed.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="391">
-              <caret line="59" column="109" lean-forward="true" selection-start-line="59" selection-start-column="109" selection-end-line="59" selection-end-column="109" />
+            <state relative-caret-position="1190">
+              <caret line="181" column="27" lean-forward="true" selection-start-line="181" selection-start-column="27" selection-end-line="181" selection-end-column="27" />
               <folding>
                 <element signature="e#0#37#0" expanded="true" />
               </folding>
@@ -68,11 +68,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/binary_snn/utils_binary/distributed_utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="170">
-              <caret line="91" column="141" selection-start-line="91" selection-start-column="141" selection-end-line="91" selection-end-column="141" />
+            <state relative-caret-position="-51">
+              <caret line="72" lean-forward="true" selection-start-line="72" selection-end-line="72" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -211,13 +211,13 @@
         <option value="$PROJECT_DIR$/launch_gpu_job.sh" />
         <option value="$PROJECT_DIR$/launch_job.sh" />
         <option value="$PROJECT_DIR$/launch_vqvae.sh" />
-        <option value="$PROJECT_DIR$/mnist_online_distributed.py" />
         <option value="$PROJECT_DIR$/wispike/utils/training_utils.py" />
         <option value="$PROJECT_DIR$/wispike/utils/misc.py" />
         <option value="$PROJECT_DIR$/train_vqvae.py" />
         <option value="$PROJECT_DIR$/binary_snn/models/SNN.py" />
         <option value="$PROJECT_DIR$/local_train.sh" />
         <option value="$PROJECT_DIR$/binary_snn/utils_binary/distributed_utils.py" />
+        <option value="$PROJECT_DIR$/mnist_online_distributed.py" />
       </list>
     </option>
   </component>
@@ -373,12 +373,12 @@
       <workItem from="1594027154773" duration="26398000" />
       <workItem from="1594292839649" duration="3787000" />
       <workItem from="1594630216142" duration="107631000" />
-      <workItem from="1596445185297" duration="20147000" />
+      <workItem from="1596445185297" duration="20632000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="582106000" />
+    <option name="totallyTimeSpent" value="582591000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
@@ -780,16 +780,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mnist_online_distributed.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="391">
-          <caret line="59" column="109" lean-forward="true" selection-start-line="59" selection-start-column="109" selection-end-line="59" selection-end-column="109" />
-          <folding>
-            <element signature="e#0#37#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/wispike/models/vqvae.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="115">
@@ -809,10 +799,20 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/binary_snn/utils_binary/distributed_utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="91" column="141" selection-start-line="91" selection-start-column="141" selection-end-line="91" selection-end-column="141" />
+        <state relative-caret-position="-51">
+          <caret line="72" lean-forward="true" selection-start-line="72" selection-end-line="72" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mnist_online_distributed.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1190">
+          <caret line="181" column="27" lean-forward="true" selection-start-line="181" selection-start-column="27" selection-end-line="181" selection-end-column="27" />
+          <folding>
+            <element signature="e#0#37#0" expanded="true" />
           </folding>
         </state>
       </provider>

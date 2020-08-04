@@ -152,8 +152,6 @@ def train(rank, num_nodes, args):
             test_loss[0].append(loss)
             network.set_mode('train')
 
-            samples_indices_train = np.random.choice(indices_local, [args.num_samples_train], replace=True)
-
         dist.barrier(all_nodes)
 
 
@@ -168,8 +166,8 @@ def train(rank, num_nodes, args):
                         network.set_mode('train')
 
                     refractory_period(network)
-                    sample = torch.cat((torch.FloatTensor(args.dataset.root.train.data[samples_indices_train[s // S_prime]]),
-                                        torch.FloatTensor(args.dataset.root.train.label[samples_indices_train[s // S_prime]])), dim=0).to(network.device)
+                    sample = torch.cat((torch.FloatTensor(args.dataset.root.train.data[indices_local[s // S_prime]]),
+                                        torch.FloatTensor(args.dataset.root.train.label[indices_local[s // S_prime]])), dim=0).to(network.device)
 
                 # lr decay
                 if s % S / 4 == 0:
