@@ -125,7 +125,7 @@ else:
     test_indices = np.random.choice(np.arange(args.dataset.root.stats.test_data[0]), [args.num_samples_test], replace=False)
 
 
-name = 'vqvae_' + args.classifier + r'_%d_epochs_nh_%d_nout_%d' % (args.num_samples_train, args.n_h, np.prod(args.encodings_dim)) + args.suffix
+name = 'vqvae_' + args.classifier + r'_%d_epochs_nh_%d_ny_%d_nframes_%d' % (args.num_samples_train, args.n_h, np.prod(args.encodings_dim), args.n_frames) + args.suffix
 results_path = home + r'/results/'
 if args.save_path is None:
     args.save_path = mksavedir(pre=results_path, exp_dir=name)
@@ -143,21 +143,21 @@ train_res_perplexity = []
 for i, idx in enumerate(indices):
     train_res_recon_error, train_res_perplexity = \
         training_utils.train_vqvae(vqvae, vqvae_optimizer, args, train_res_recon_error, train_res_perplexity, idx)
-    training_utils.train_classifier(classifier, args, idx)
+    # training_utils.train_classifier(classifier, args, idx)
 
     if (i + 1) % args.test_period == 0:
         print('Testing at step %d...' % (i + 1))
-        acc, _ = testing_utils.get_acc_classifier(classifier, vqvae, args, test_indices)
-        print('test accuracy: %f' % acc)
+        # acc, _ = testing_utils.get_acc_classifier(classifier, vqvae, args, test_indices)
+        # print('test accuracy: %f' % acc)
         print('recon_error: %.3f' % np.mean(train_res_recon_error[-args.test_period:]))
         print('perplexity: %.3f' % np.mean(train_res_perplexity[-args.test_period:]))
 
-        args.test_accs[int(i + 1)].append(acc)
+        # args.test_accs[int(i + 1)].append(acc)
         with open(args.save_path + r'/test_accs.pkl', 'wb') as f:
             pickle.dump(args.test_accs, f, pickle.HIGHEST_PROTOCOL)
-        if isinstance(classifier, SNNetwork):
-            classifier.save(args.save_path + r'/snn_weights.hdf5')
-        else:
-            torch.save(classifier.state_dict(), args.save_path + r'mlp_weights.pt')
+        # if isinstance(classifier, SNNetwork):
+        #     classifier.save(args.save_path + r'/snn_weights.hdf5')
+        # else:
+        #     torch.save(classifier.state_dict(), args.save_path + r'mlp_weights.pt')
         torch.save(vqvae.state_dict(), args.save_path + r'vqvae_weights.pt')
 
