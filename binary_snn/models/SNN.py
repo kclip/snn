@@ -293,9 +293,9 @@ class SNNetwork(torch.nn.Module):
             raise FileNotFoundError
 
         hdf5_file = tables.open_file(save_path, mode='w')
-        weights_ff = hdf5_file.create_array(hdf5_file.root, 'ff_weights', self.feedforward_weights.data.numpy())
-        weights_fb = hdf5_file.create_array(hdf5_file.root, 'fb_weights', self.feedback_weights.data.numpy())
-        bias = hdf5_file.create_array(hdf5_file.root, 'bias', self.bias.data.numpy())
+        weights_ff = hdf5_file.create_array(hdf5_file.root, 'ff_weights', self.feedforward_weights.data.cpu().numpy())
+        weights_fb = hdf5_file.create_array(hdf5_file.root, 'fb_weights', self.feedback_weights.data.cpu().numpy())
+        bias = hdf5_file.create_array(hdf5_file.root, 'bias', self.bias.data.cpu().numpy())
         hdf5_file.close()
         return
 
