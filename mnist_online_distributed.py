@@ -123,9 +123,9 @@ def train(rank, num_nodes, args):
 
     if rank == 0:
         if args.save_path is None:
-            test_acc_save_path = os.getcwd() + r'/test_acc_master_tau_%d.pkl' % args.tau
+            test_acc_save_path = os.getcwd() + r'/test_acc_master_%d_labels_tau_%d.pkl' % (len(args.labels), args.tau)
         else:
-            test_acc_save_path = args.save_path + r'/test_acc_master_tau_%d.pkl' % args.tau
+            test_acc_save_path = args.save_path + r'/test_acc_master_%d_labels_tau_%d.pkl' % (len(args.labels), args.tau)
         test_accs = []
     else:
         if args.save_path is None:
