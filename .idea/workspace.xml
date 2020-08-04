@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="dfa62879-5cdc-4603-a43e-18a18161e0c9" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/binary_snn/utils_binary/distributed_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/binary_snn/utils_binary/distributed_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_train.sh" beforeDir="false" afterPath="$PROJECT_DIR$/local_train.sh" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -69,11 +68,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/binary_snn/utils_binary/distributed_utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="170">
-              <caret line="85" column="46" lean-forward="true" selection-start-line="85" selection-start-column="46" selection-end-line="85" selection-end-column="46" />
+            <state relative-caret-position="238">
+              <caret line="89" column="85" selection-start-line="89" selection-start-column="85" selection-end-line="89" selection-end-column="85" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -117,7 +116,7 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/local_train.sh">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="51">
@@ -217,8 +216,8 @@
         <option value="$PROJECT_DIR$/wispike/utils/misc.py" />
         <option value="$PROJECT_DIR$/train_vqvae.py" />
         <option value="$PROJECT_DIR$/binary_snn/models/SNN.py" />
-        <option value="$PROJECT_DIR$/binary_snn/utils_binary/distributed_utils.py" />
         <option value="$PROJECT_DIR$/local_train.sh" />
+        <option value="$PROJECT_DIR$/binary_snn/utils_binary/distributed_utils.py" />
       </list>
     </option>
   </component>
@@ -374,12 +373,12 @@
       <workItem from="1594027154773" duration="26398000" />
       <workItem from="1594292839649" duration="3787000" />
       <workItem from="1594630216142" duration="107631000" />
-      <workItem from="1596445185297" duration="19766000" />
+      <workItem from="1596445185297" duration="19971000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="581725000" />
+    <option name="totallyTimeSpent" value="581930000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
@@ -801,20 +800,20 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/binary_snn/utils_binary/distributed_utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="85" column="46" lean-forward="true" selection-start-line="85" selection-start-column="46" selection-end-line="85" selection-end-column="46" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/local_train.sh">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="51">
           <caret line="3" column="82" selection-start-line="3" selection-start-column="82" selection-end-line="3" selection-end-column="82" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/binary_snn/utils_binary/distributed_utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="238">
+          <caret line="89" column="85" selection-start-line="89" selection-start-column="85" selection-end-line="89" selection-end-column="85" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
