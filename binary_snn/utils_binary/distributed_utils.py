@@ -83,7 +83,7 @@ def distribute_samples(nodes, rank, args):
         indices_worker_0 = np.zeros([args.num_samples_train])
         indices_worker_1 = np.zeros([args.num_samples_train])
 
-        num_samples_per_class = int(args.num_samples_train / len(args.labels))
+        num_samples_per_class = int(args.num_samples_train / (len(args.labels)/2))
 
         for i in args.labels[:int(len(args.labels)/2)]:
             indices_i = np.asarray(torch.max(torch.sum(torch.FloatTensor(args.dataset.root.train.label[:]), dim=-1), dim=-1).indices == i).nonzero()[0]
