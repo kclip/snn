@@ -143,15 +143,17 @@ def train(rank, num_nodes, args):
         network, indices_local, weights_list, eligibility_trace, et_temp, learning_signal, ls_temp = init_training(rank, num_nodes, all_nodes, args)
 
         dist.barrier(all_nodes)
-        print('Node %d' % rank, indices_local)
 
         # Test loss at beginning + selection of training indices
         if rank != 0:
+            print('Node %d' % rank, indices_local)
+
             _, loss = get_acc_and_loss(network, args.dataset, test_indices)
             test_loss[0].append(loss)
             network.set_mode('train')
 
             samples_indices_train = np.random.choice(indices_local, [args.num_samples_train], replace=True)
+
         dist.barrier(all_nodes)
 
 

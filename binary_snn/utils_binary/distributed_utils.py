@@ -50,16 +50,10 @@ def init_training(rank, num_nodes, nodes_group, args):
                         [torch.zeros(network.feedback_weights.shape, dtype=torch.float) for _ in range(num_nodes)],
                         [torch.zeros(network.bias.shape, dtype=torch.float) for _ in range(num_nodes)],
                         [torch.zeros(1, dtype=torch.float) for _ in range(num_nodes)]]
-        indices_local = [i for i in range(args.dataset.root.train.label[:].shape[0])]
     else:
         weights_list = []
 
-        # distribute training samples among nodes
-        n_labels_per_node = int(len(args.labels) / (num_nodes - 1))
-        local_labels = args.labels[(rank - 1) * n_labels_per_node: rank * n_labels_per_node]
-
-        indices_local = misc.find_train_indices_for_labels(args.dataset, local_labels)
-
+    indices_local = distribute_samples(nodes_group, rank, args)
     dist.barrier(nodes_group)
 
     # Master node sends its weights
