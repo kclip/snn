@@ -61,8 +61,8 @@ def framed_to_example(frames, args):
     return data_reconstructed
 
 
-def get_intermediate_dims(vqvae, args):
-    example_frame = example_to_framed(args.dataset.root.train.data[0], args)[0].unsqueeze(0)
+def get_intermediate_dims(vqvae, args, dataset):
+    example_frame = example_to_framed(dataset.root.train.data[0], args)[0].unsqueeze(0)
     args.frame_shape = example_frame.shape
 
     example_quantized, example_encodings = vqvae.encode(example_frame)

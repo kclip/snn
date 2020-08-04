@@ -93,18 +93,6 @@ if not args.num_samples_train:
 if not args.num_samples_test:
     args.num_samples_test = dataset.root.stats.test_data[0]
 
-name = 'vqvae_' + args.classifier + r'_%d_epochs_nh_%d_ny_%d_nframes_%d' % (args.num_samples_train, args.n_h, args.num_embeddings, args.n_frames) + args.suffix
-results_path = home + r'/results/'
-if args.save_path is None:
-    args.save_path = mksavedir(pre=results_path, exp_dir=name)
-
-print(args.__dict__)
-with open(args.save_path + 'commandline_args.pkl', 'wb') as f:
-    pickle.dump(args.__dict__, f, pickle.HIGHEST_PROTOCOL)
-
-
-args.dataset = dataset
-
 if args.classifier == 'snn':
     assert args.n_frames == 80
 
@@ -113,8 +101,18 @@ if args.residual:
     args.n_frames += 1
 
 # Make VAE
-vqvae, vqvae_optimizer = training_utils.init_vqvae(args)
-args.quantized_dim, args.encodings_dim = misc_wispike.get_intermediate_dims(vqvae, args)
+vqvae, vqvae_optimizer = training_utils.init_vqvae(args, dataset)
+args.quantized_dim, args.encodings_dim = misc_wispike.get_intermediate_dims(vqvae, args, dataset)
+
+name = 'vqvae_' + args.classifier + r'_%d_epochs_nh_%d_ny_%d_nframes_%d' % (args.num_samples_train, args.n_h, 2 * np.prod(args.encodings_dim), args.n_frames) + args.suffix
+results_path = home + r'/results/'
+if args.save_path is None:
+    args.save_path = mksavedir(pre=results_path, exp_dir=name)
+
+with open(args.save_path + 'commandline_args.pkl', 'wb') as f:
+    pickle.dump(args.__dict__, f, pickle.HIGHEST_PROTOCOL)
+
+args.dataset = dataset
 
 # Make classifier
 classifier = training_utils.init_classifier(args)

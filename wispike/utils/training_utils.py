@@ -16,8 +16,8 @@ from wispike.utils.misc import binarize
 
 
 ### VQ-VAE & LDPC
-def init_vqvae(args):
-    num_input_channels = args.dataset.root.stats.train_data[-1] // args.n_frames
+def init_vqvae(args, dataset):
+    num_input_channels = dataset.root.stats.train_data[-1] // args.n_frames
 
     num_hiddens = 128
     num_residual_hiddens = 32
@@ -50,10 +50,6 @@ def train_vqvae(model, optimizer, args, train_res_recon_error, train_res_perplex
 
     train_res_recon_error.append(recon_error.item())
     train_res_perplexity.append(perplexity.item())
-
-    with torch.no_grad():
-        print(float(torch.sum(framed == binarize(data_recon))) / data_recon.numel())
-
 
     return train_res_recon_error, train_res_perplexity
 
