@@ -2,10 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="dfa62879-5cdc-4603-a43e-18a18161e0c9" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/launch_job.sh" beforeDir="false" afterPath="$PROJECT_DIR$/launch_job.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_train.sh" beforeDir="false" afterPath="$PROJECT_DIR$/local_train.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test_performance.sh" beforeDir="false" afterPath="$PROJECT_DIR$/test_performance.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mnist_online_distributed.py" beforeDir="false" afterPath="$PROJECT_DIR$/mnist_online_distributed.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -68,11 +65,35 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/launch_job.sh">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="170">
-              <caret line="10" lean-forward="true" selection-start-line="10" selection-end-line="10" />
+            <state relative-caret-position="119">
+              <caret line="7" column="41" selection-start-line="7" selection-start-column="41" selection-end-line="7" selection-end-column="41" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/mnist_online_distributed.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="129">
+              <caret line="162" column="38" selection-start-line="162" selection-start-column="38" selection-end-line="162" selection-end-column="38" />
+              <folding>
+                <element signature="e#0#37#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/binary_snn/utils_binary/misc.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="134">
+              <caret line="96" column="4" selection-start-line="96" selection-start-column="4" selection-end-line="96" selection-end-column="4" />
+              <folding>
+                <element signature="e#0#12#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -195,7 +216,6 @@
         <option value="$PROJECT_DIR$/wispike/utils/misc.py" />
         <option value="$PROJECT_DIR$/binary_snn/models/SNN.py" />
         <option value="$PROJECT_DIR$/binary_snn/utils_binary/distributed_utils.py" />
-        <option value="$PROJECT_DIR$/mnist_online_distributed.py" />
         <option value="$PROJECT_DIR$/train_vqvae.py" />
         <option value="$PROJECT_DIR$/wispike/test/vqvae_ldpc.py" />
         <option value="$PROJECT_DIR$/comparison_performance.py" />
@@ -203,14 +223,15 @@
         <option value="$PROJECT_DIR$/test_performance.sh" />
         <option value="$PROJECT_DIR$/local_train.sh" />
         <option value="$PROJECT_DIR$/launch_job.sh" />
+        <option value="$PROJECT_DIR$/mnist_online_distributed.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-12" />
-    <option name="y" value="-12" />
-    <option name="width" value="1944" />
-    <option name="height" value="1104" />
+    <option name="x" value="1912" />
+    <option name="y" value="-8" />
+    <option name="width" value="1936" />
+    <option name="height" value="1056" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -364,18 +385,18 @@
       <workItem from="1594027154773" duration="26398000" />
       <workItem from="1594292839649" duration="3787000" />
       <workItem from="1594630216142" duration="107631000" />
-      <workItem from="1596445185297" duration="38278000" />
+      <workItem from="1596445185297" duration="39750000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="600237000" />
+    <option name="totallyTimeSpent" value="601709000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
+    <frame x="1912" y="-8" width="1936" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49608356" visible="true" weight="0.17813765" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49608356" visible="true" weight="0.11727079" />
       <window_info id="Structure" order="1" sideWeight="0.50391644" side_tool="true" weight="0.21052632" />
       <window_info id="Favorites" order="2" sideWeight="0.5013405" side_tool="true" weight="0.19676113" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -389,7 +410,7 @@
       <window_info anchor="bottom" id="Version Control" order="8" weight="0.32936078" />
       <window_info anchor="bottom" id="File Transfer" order="9" weight="0.22024867" />
       <window_info anchor="bottom" id="Database Changes" order="10" />
-      <window_info anchor="bottom" id="Terminal" order="11" visible="true" weight="0.3339254" />
+      <window_info anchor="bottom" id="Terminal" order="11" visible="true" weight="0.20368364" />
       <window_info anchor="bottom" id="Python Console" order="12" weight="0.3285968" />
       <window_info anchor="bottom" id="Event Log" order="13" side_tool="true" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -555,16 +576,6 @@
           <caret line="162" column="112" lean-forward="true" selection-start-line="162" selection-end-line="163" />
           <folding>
             <element signature="e#0#43#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/binary_snn/utils_binary/misc.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1583">
-          <caret line="59" selection-start-line="59" selection-end-line="60" />
-          <folding>
-            <element signature="e#0#12#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -744,16 +755,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mnist_online_distributed.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="350">
-          <caret line="181" column="27" lean-forward="true" selection-start-line="181" selection-start-column="27" selection-end-line="181" selection-end-column="27" />
-          <folding>
-            <element signature="e#0#37#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/comparison_performance.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="567">
@@ -791,6 +792,13 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/launch_job.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="7" column="41" selection-start-line="7" selection-start-column="41" selection-end-line="7" selection-end-column="41" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/local_train.sh">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="102">
@@ -798,10 +806,23 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/launch_job.sh">
+    <entry file="file://$PROJECT_DIR$/binary_snn/utils_binary/misc.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="10" lean-forward="true" selection-start-line="10" selection-end-line="10" />
+        <state relative-caret-position="134">
+          <caret line="96" column="4" selection-start-line="96" selection-start-column="4" selection-end-line="96" selection-end-column="4" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mnist_online_distributed.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="129">
+          <caret line="162" column="38" selection-start-line="162" selection-start-column="38" selection-end-line="162" selection-end-column="38" />
+          <folding>
+            <element signature="e#0#37#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

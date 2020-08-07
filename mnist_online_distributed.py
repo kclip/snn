@@ -156,14 +156,23 @@ def train(rank, num_nodes, args):
 
 
         for s in range(S):
+            if rank == 0:
+                if (1 + (s // S_prime)) % args.test_interval == 0:
+                    acc, _ = get_acc_and_loss(network, args.dataset, test_indices)
+                    network.set_mode('train')
+                    print('Acc at step %d : %f' % (s, acc))
+
+
+            dist.barrier(all_nodes)
+
             if rank != 0:
                 if s % S_prime == 0:  # at each example
                     ## Every test_interval samples, record test losses
-                    if (1 + s // S_prime) % args.test_interval == 0:
-                        _, loss = get_acc_and_loss(network, args.dataset, test_indices)
-                        test_loss[1 + s // S_prime].append(loss)
-                        save_results(test_loss, test_loss_save_path)
-                        network.set_mode('train')
+                    # if (1 + s // S_prime) % args.test_interval == 0:
+                    #     _, loss = get_acc_and_loss(network, args.dataset, test_indices)
+                    #     test_loss[1 + s // S_prime].append(loss)
+                    #     save_results(test_loss, test_loss_save_path)
+                    #     network.set_mode('train')
 
                     refractory_period(network)
                     sample = torch.cat((torch.FloatTensor(args.dataset.root.train.data[indices_local[s // S_prime]]),
