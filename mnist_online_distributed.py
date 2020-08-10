@@ -157,10 +157,11 @@ def train(rank, num_nodes, args):
 
         for s in range(S):
             if rank == 0:
-                if (1 + (s // S_prime)) % args.test_interval == 0:
-                    acc, _ = get_acc_and_loss(network, args.dataset, test_indices)
-                    network.set_mode('train')
-                    print('Acc at step %d : %f' % (s, acc))
+                if s % S_prime == 0:
+                    if (1 + (s // S_prime)) % args.test_interval == 0:
+                        acc, _ = get_acc_and_loss(network, args.dataset, test_indices)
+                        network.set_mode('train')
+                        print('Acc at step %d : %f' % (s, acc))
 
 
             dist.barrier(all_nodes)

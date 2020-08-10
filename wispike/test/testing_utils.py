@@ -101,8 +101,6 @@ def get_acc_classifier(classifier, vqvae, args, indices, howto='final'):
     predictions_pf = torch.zeros([len(indices), args.n_frames], dtype=torch.long)
 
     for i, idx in enumerate(indices):
-        if (i + 1) % 20 == 0:
-            print(i)
         data = example_to_framed(args.dataset.root.test.data[idx, :, :], args)
         data_reconstructed = torch.zeros(data.shape)
 
