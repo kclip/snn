@@ -56,6 +56,8 @@ try:
         args_dict[key] = exp_args[key]
 except FileNotFoundError:
     pass
+except TypeError:
+    pass
 
 dataset = args.home + r'/datasets/mnist-dvs/mnist_dvs_binary_25ms_26pxl_10_digits.hdf5'
 args.dataset = tables.open_file(dataset)
