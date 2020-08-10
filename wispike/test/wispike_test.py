@@ -4,7 +4,7 @@ from binary_snn.models.SNN import SNNetwork
 from binary_snn.utils_binary import misc as misc_snn
 from wispike.test.testing_utils import get_acc_wispike
 import numpy as np
-
+import pickle
 
 def wispike_test(args):
     n_hidden_enc = args.n_h
@@ -35,9 +35,22 @@ def wispike_test(args):
     encoder.import_weights(encoder_weights)
     decoder.import_weights(decoder_weights)
 
-    acc_per_frame = torch.Tensor()
+    res_final = {snr: [] for snr in args.snr_list}
+    res_pf = {snr: [] for snr in args.snr_list}
+
     for _ in range(args.num_ite):
-        test_indices = np.random.choice(misc_snn.find_test_indices_for_labels(args.dataset, args.labels), [args.num_samples_test], replace=False)
-        acc_per_frame = torch.cat((acc_per_frame,
-                                   get_acc_wispike(encoder, decoder, args, test_indices, args.n_output_neurons, howto='per_frame').unsqueeze(1)), dim=1)
-    np.save(weights + r'/acc_per_frame.npy', acc_per_frame.numpy())
+        for snr in args.snr_list:
+            args.snr = snr
+
+            test_indices = np.random.choice(misc_snn.find_test_indices_for_labels(args.dataset, args.labels), [args.num_samples_test], replace=False)
+            accs_final, accs_pf = get_acc_wispike(encoder, decoder, args, test_indices, args.n_output_neurons, howto='both')
+
+            print('snr %d, acc %f' % (snr, accs_final))
+            res_final[snr].append(accs_final)
+            res_pf[snr].append(accs_pf)
+
+    with open(weights + r'/acc_per_snr_final.pkl', 'wb') as f:
+        pickle.dump(res_final, f, pickle.HIGHEST_PROTOCOL)
+
+    with open(weights + r'/acc_per_snr_per_frame.pkl', 'wb') as f:
+        pickle.dump(res_pf, f, pickle.HIGHEST_PROTOCOL)

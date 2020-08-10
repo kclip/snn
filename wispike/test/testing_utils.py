@@ -178,19 +178,31 @@ def get_acc_wispike(encoder, decoder, args, test_indices, n_outputs_enc, howto='
 
     if howto == 'final':
         predictions = torch.max(torch.sum(outputs, dim=-1), dim=-1).indices
-        accs = float(torch.sum(predictions == true_classes, dtype=torch.float) / len(predictions))
+        accs_final = float(torch.sum(predictions == true_classes, dtype=torch.float) / len(predictions))
+
+        return accs_final, None
 
     elif howto == 'per_frame':
-        accs = torch.zeros([T], dtype=torch.float)
+        accs_pf = torch.zeros([T], dtype=torch.float)
 
         for t in range(1, T):
             predictions = torch.sum(outputs[:, :, :t], dim=-1).argmax(-1)
             acc = float(torch.sum(predictions == true_classes, dtype=torch.float) / len(predictions))
-            accs[t] = acc
-    else:
-        raise NotImplementedError
+            accs_pf[t] = acc
 
-    return accs
+        return None, accs_pf
+
+    elif howto == 'both':
+        predictions = torch.max(torch.sum(outputs, dim=-1), dim=-1).indices
+        accs_final = float(torch.sum(predictions == true_classes, dtype=torch.float) / len(predictions))
+
+        accs_pf = torch.zeros([T], dtype=torch.float)
+        for t in range(1, T):
+            predictions = torch.sum(outputs[:, :, :t], dim=-1).argmax(-1)
+            acc = float(torch.sum(predictions == true_classes, dtype=torch.float) / len(predictions))
+            accs_pf[t] = acc
+
+        return accs_final, accs_pf
 
 
 def get_acc_jscc(encoder, decoder, args, test_indices, n_outputs_enc):
