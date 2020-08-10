@@ -2,9 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="dfa62879-5cdc-4603-a43e-18a18161e0c9" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/local_train.sh" beforeDir="false" afterPath="$PROJECT_DIR$/local_train.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/test_performance.sh" beforeDir="false" afterPath="$PROJECT_DIR$/test_performance.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/wispike/test/testing_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/wispike/test/testing_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/wispike/test/wispike_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/wispike/test/wispike_test.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -85,8 +84,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/local_train.sh">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="51">
-              <caret line="3" column="63" selection-start-line="3" selection-start-column="63" selection-end-line="3" selection-end-column="63" />
+            <state relative-caret-position="68">
+              <caret line="4" column="24" selection-start-line="4" selection-start-column="24" selection-end-line="4" selection-end-column="24" />
             </state>
           </provider>
         </entry>
@@ -115,7 +114,7 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wispike/test/wispike_test.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="398">
@@ -136,11 +135,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/test_performance.sh">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="136">
-              <caret line="8" column="33" selection-start-line="8" selection-start-column="33" selection-end-line="8" selection-end-column="33" />
+            <state relative-caret-position="170">
+              <caret line="10" column="9" lean-forward="true" selection-start-line="10" selection-start-column="9" selection-end-line="10" selection-end-column="9" />
             </state>
           </provider>
         </entry>
@@ -232,12 +231,12 @@
         <option value="$PROJECT_DIR$/wispike/test/ook.py" />
         <option value="$PROJECT_DIR$/mnist_online_distributed.py" />
         <option value="$PROJECT_DIR$/binary_snn/utils_binary/distributed_utils.py" />
-        <option value="$PROJECT_DIR$/local_train.sh" />
         <option value="$PROJECT_DIR$/launch_vqvae.sh" />
         <option value="$PROJECT_DIR$/comparison_performance.py" />
-        <option value="$PROJECT_DIR$/test_performance.sh" />
         <option value="$PROJECT_DIR$/wispike/test/testing_utils.py" />
         <option value="$PROJECT_DIR$/wispike/test/wispike_test.py" />
+        <option value="$PROJECT_DIR$/local_train.sh" />
+        <option value="$PROJECT_DIR$/test_performance.sh" />
       </list>
     </option>
   </component>
@@ -393,12 +392,12 @@
       <workItem from="1594027154773" duration="26398000" />
       <workItem from="1594292839649" duration="3787000" />
       <workItem from="1594630216142" duration="107631000" />
-      <workItem from="1596445185297" duration="58588000" />
+      <workItem from="1596445185297" duration="58913000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="620547000" />
+    <option name="totallyTimeSpent" value="620872000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1912" y="-8" width="1936" height="1056" extended-state="6" />
@@ -756,13 +755,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/local_train.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="51">
-          <caret line="3" column="63" selection-start-line="3" selection-start-column="63" selection-end-line="3" selection-end-column="63" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/launch_experiment.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="255">
@@ -783,13 +775,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test_performance.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="8" column="33" selection-start-line="8" selection-start-column="33" selection-end-line="8" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/launch_vqvae.sh">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="85">
@@ -801,16 +786,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="602">
           <caret line="204" column="34" selection-start-line="204" selection-start-column="34" selection-end-line="204" selection-end-column="34" />
-          <folding>
-            <element signature="e#0#12#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/comparison_performance.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="823">
-          <caret line="91" column="9" lean-forward="true" selection-start-line="91" selection-start-column="9" selection-end-line="91" selection-end-column="9" />
           <folding>
             <element signature="e#0#12#0" expanded="true" />
           </folding>
@@ -834,6 +809,30 @@
           <folding>
             <element signature="e#0#12#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/local_train.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="4" column="24" selection-start-line="4" selection-start-column="24" selection-end-line="4" selection-end-column="24" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/comparison_performance.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="823">
+          <caret line="91" column="9" lean-forward="true" selection-start-line="91" selection-start-column="9" selection-end-line="91" selection-end-column="9" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test_performance.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="170">
+          <caret line="10" column="9" lean-forward="true" selection-start-line="10" selection-start-column="9" selection-end-line="10" selection-end-column="9" />
         </state>
       </provider>
     </entry>
