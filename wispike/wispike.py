@@ -88,7 +88,7 @@ def wispike(args):
 
             if args.test_accs:
                 if (j + 1) in args.test_accs:
-                    acc = get_acc_wispike(encoder, decoder, args, test_indices, args.n_output_enc)
+                    acc, _ = get_acc_wispike(encoder, decoder, args, test_indices, args.n_output_enc)
                     print('test accuracy at ite %d: %f' % (int(j + 1), acc))
                     args.test_accs[int(j + 1)].append(acc)
 

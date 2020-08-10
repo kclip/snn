@@ -27,6 +27,13 @@ if __name__ == "__main__":
     parser.add_argument('--maxiter', default=100, type=int, help='Max number of iteration for BP decoding of LDPC code')
     parser.add_argument('--ldpc_rate', default=2, type=float)
 
+    #todo remove
+    parser.add_argument('--systematic', type=str, default='false', help='Systematic communication')
+    parser.add_argument('--n_output_enc', default=128, type=int, help='')
+    parser.add_argument('--n_h', default=256, type=int, help='Number of hidden neurons')
+
+
+
     args = parser.parse_args()
 
 print(args)

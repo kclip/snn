@@ -6,6 +6,7 @@ from wispike.test.testing_utils import get_acc_wispike
 import numpy as np
 import pickle
 
+
 def wispike_test(args):
     n_hidden_enc = args.n_h
 
