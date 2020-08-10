@@ -18,16 +18,14 @@ def ook_test(args):
                                                            args.n_h),
                         device=args.device)
 
-    weights = args.home + r'/results/results_wispike/' + args.classifier_weights
-    # network.import_weights(weights + r'/mlp_weights.hdf5')
-    snr_list = [0]
+    weights = args.results + args.classifier_weights
+
     network.import_weights(weights + r'/network_weights.hdf5')
-    # snr_list = [0, -2, -4, -6, -8, -10]
 
-    res_final = {snr: [] for snr in snr_list}
-    res_pf = {snr: [] for snr in snr_list}
+    res_final = {snr: [] for snr in args.snr_list}
+    res_pf = {snr: [] for snr in args.snr_list}
 
-    for snr in snr_list:
+    for snr in args.snr_list:
         for _ in range(3):
             test_indices = np.random.choice(misc_snn.find_test_indices_for_labels(args.dataset, args.labels), [args.num_samples_test], replace=False)
 
@@ -67,7 +65,7 @@ def ook_ldpc_test(args):
                                                            args.n_h),
                         device=args.device)
 
-    weights = args.home + r'/results/results_wispike/' + args.classifier_weights
+    weights = args.resultssq + args.classifier_weights
     network.import_weights(weights + r'/network_weights.hdf5')
 
     example_frame = example_to_framed(args.dataset.root.train.data[0], args)[0].unsqueeze(0)
