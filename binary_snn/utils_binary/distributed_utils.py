@@ -122,6 +122,8 @@ def global_update(nodes, rank, network, weights_list):
             network.get_parameters()[parameter].data = torch.mean(torch.stack(weights_list[j][1:]), dim=0)
         dist.broadcast(network.get_parameters()[parameter], 0, group=nodes)
 
+        print(rank, network.get_parameters()['bias'])
+
 
 def global_update_subset(nodes, rank, network, weights_list, gradients_accum, n_weights_to_send):
     """"
