@@ -41,6 +41,7 @@ elif args.where == 'jade':
     args.home = r'/jmain01/home/JAD014/mxm09/nxs94-mxm09'
 elif args.where == 'gcloud':
     args.home = r'/home/k1804053'
+    args.results = args.home + '/results/'
 
 
 try:
