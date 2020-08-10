@@ -86,7 +86,6 @@ def train(network, indices, test_indices, args):
                 acc, loss = get_acc_and_loss(network, args.dataset, test_indices)
                 args.test_accs[int(j + 1)].append(acc)
                 print('test accuracy at ite %d: %f' % (int(j + 1), acc))
-                print(loss)
 
                 # acc_train, _ = get_train_acc_and_loss(network, dataset, args.labels)
                 # print('train accuracy at ite %d: %f' % (int(j + 1), acc_train))
