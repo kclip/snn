@@ -104,7 +104,6 @@ def distribute_samples(nodes, rank, args):
     else:
         indices_local = torch.zeros([args.num_samples_train], dtype=torch.int)
         dist.scatter(tensor=indices_local, src=0, scatter_list=[], group=nodes)
-        assert torch.sum(indices_local) != 0
 
     return indices_local
 
