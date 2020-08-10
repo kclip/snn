@@ -19,6 +19,7 @@ if __name__ == "__main__":
     parser.add_argument('--weights', type=str, default=None, help='Path to weights to load')
     parser.add_argument('--disable-cuda', type=str, default='true', help='Disable CUDA')
     parser.add_argument('--num_ite', default=1, type=int)
+    parser.add_argument('--snr_list', nargs='+', default=None, type=int, help='')
 
     parser.add_argument('--classifier', type=str, default='snn', choices=['snn', 'mlp'])
     parser.add_argument('--classifier_weights', type=str, default=None, help='Path to weights to load')
@@ -31,8 +32,10 @@ print(args)
 
 if args.where == 'local':
     args.home = r'C:/Users/K1804053/PycharmProjects'
+    args.results = args.home + '/results/results_wispike/'
 elif args.where == 'rosalind':
     args.home = r'/users/k1804053'
+    args.results = args.home + '/results/'
 elif args.where == 'jade':
     args.home = r'/jmain01/home/JAD014/mxm09/nxs94-mxm09'
 elif args.where == 'gcloud':
@@ -40,7 +43,7 @@ elif args.where == 'gcloud':
 
 
 try:
-    exp_args_path = args.home + '/results/results_wispike/' + args.weights + '/commandline_args.pkl'
+    exp_args_path = args.results + args.weights + '/commandline_args.pkl'
     args_dict = vars(args)
 
     with open(exp_args_path, 'rb') as f:
@@ -65,7 +68,6 @@ else:
 
 args.save_path = None
 
-args.snr_list = [-1, -2, -3, -4, -5, -6]
 args.labels = [1, 7]
 
 ### Learning parameters
@@ -75,6 +77,7 @@ args.num_samples_test = min(args.num_samples_test, len(misc_snn.find_test_indice
 ### Network parameters
 args.n_input_neurons = args.dataset.root.stats.train_data[1]
 args.n_output_neurons = args.dataset.root.stats.train_label[1]
+
 if 'n_h' not in vars(args):
     args.n_h = 256
 args.n_hidden_neurons = args.n_h

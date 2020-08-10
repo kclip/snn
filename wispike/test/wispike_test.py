@@ -28,7 +28,7 @@ def wispike_test(args):
                                                            n_hidden_dec),
                         device=args.device)
 
-    weights = args.home + r'/results/results_wispike/' + args.weights
+    weights = args.results + args.weights
     encoder_weights = weights + r'/encoder_weights_final.hdf5'
     decoder_weights = weights + r'/decoder_weights_final.hdf5'
 
