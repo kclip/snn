@@ -20,6 +20,7 @@ if __name__ == "__main__":
     parser.add_argument('--disable-cuda', type=str, default='true', help='Disable CUDA')
     parser.add_argument('--num_ite', default=1, type=int)
     parser.add_argument('--snr_list', nargs='+', default=None, type=int, help='')
+    parser.add_argument('--n_frames', default=80, type=int, help='')
 
     parser.add_argument('--classifier', type=str, default='snn', choices=['snn', 'mlp'])
     parser.add_argument('--classifier_weights', type=str, default=None, help='Path to weights to load')
@@ -52,9 +53,8 @@ try:
     new_keys = [k for k in list(exp_args.keys()) if k not in list(args_dict.keys())]
     for key in new_keys:
         args_dict[key] = exp_args[key]
-except TypeError:
+except FileNotFoundError:
     pass
-
 
 dataset = args.home + r'/datasets/mnist-dvs/mnist_dvs_binary_25ms_26pxl_10_digits.hdf5'
 args.dataset = tables.open_file(dataset)
