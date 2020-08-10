@@ -65,7 +65,7 @@ def ook_ldpc_test(args):
                                                            args.n_h),
                         device=args.device)
 
-    weights = args.resultssq + args.classifier_weights
+    weights = args.results + args.classifier_weights
     network.import_weights(weights + r'/network_weights.hdf5')
 
     example_frame = example_to_framed(args.dataset.root.train.data[0], args)[0].unsqueeze(0)
