@@ -134,11 +134,11 @@ def wispike(args):
                 # Local feedback and update
                 eligibility_trace_hidden_dec, eligibility_trace_output_dec, learning_signal, baseline_num_dec, baseline_den_dec \
                     = local_feedback_and_update(decoder, ls, eligibility_trace_hidden_dec, eligibility_trace_output_dec,
-                                                learning_signal, baseline_num_dec, baseline_den_dec, args)
+                                                learning_signal, baseline_num_dec, baseline_den_dec, args.lr, args)
 
                 eligibility_trace_hidden_enc, _, _, baseline_num_enc, baseline_den_enc \
                     = local_feedback_and_update(encoder, 0, eligibility_trace_hidden_enc, None,
-                                                learning_signal, baseline_num_enc, baseline_den_enc, args)
+                                                learning_signal, baseline_num_enc, baseline_den_enc, args.lr, args)
 
             if j % max(1, int(len(indices) / 5)) == 0:
                 print('Step %d out of %d' % (j, len(indices)))
