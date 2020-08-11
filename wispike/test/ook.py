@@ -26,7 +26,7 @@ def ook_test(args):
     res_pf = {snr: [] for snr in args.snr_list}
 
     for snr in args.snr_list:
-        for _ in range(3):
+        for _ in range(args.num_ite):
             test_indices = np.random.choice(misc_snn.find_test_indices_for_labels(args.dataset, args.labels), [args.num_samples_test], replace=False)
 
             predictions_final = torch.zeros([args.num_samples_test], dtype=torch.long)
@@ -101,7 +101,7 @@ def ook_ldpc_test(args):
 
     for snr in args.snr_list:
         args.snr = snr
-        for _ in range(3):
+        for _ in range(args.num_ite):
             test_indices = np.random.choice(misc_snn.find_test_indices_for_labels(args.dataset, args.labels), [args.num_samples_test], replace=False)
 
             predictions_final = torch.zeros([args.num_samples_test], dtype=torch.long)
