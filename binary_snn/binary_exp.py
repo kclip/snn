@@ -42,6 +42,4 @@ def launch_binary_exp(args):
             network.import_weights(args.save_path + r'/network_weights.hdf5')
 
         # Start training
-        test_accs = train(network, indices, test_indices, args)
-
-    return test_accs
+        train(network, indices, test_indices, args)

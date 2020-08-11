@@ -23,7 +23,7 @@ def feedforward_sampling(network, example, args):
 
 
 def local_feedback_and_update(network, ls_tmp, eligibility_trace_hidden, eligibility_trace_output,
-                              learning_signal, baseline_num, baseline_den, args):
+                              learning_signal, baseline_num, baseline_den, lr, args):
     """"
     Runs the local feedback and update steps:
     - computes the learning signal
@@ -43,11 +43,11 @@ def local_feedback_and_update(network, ls_tmp, eligibility_trace_hidden, eligibi
         baseline = (baseline_num[parameter]) / (baseline_den[parameter] + 1e-07)
 
         network.get_parameters()[parameter][network.hidden_neurons - network.n_input_neurons] \
-            += args.lr * (learning_signal - baseline) * eligibility_trace_hidden[parameter]
+            += lr * (learning_signal - baseline) * eligibility_trace_hidden[parameter]
 
         if eligibility_trace_output is not None:
             eligibility_trace_output[parameter].mul_(args.kappa).add_(1 - args.kappa, network.gradients[parameter][network.output_neurons - network.n_input_neurons])
-            network.get_parameters()[parameter][network.output_neurons - network.n_input_neurons] += args.lr * eligibility_trace_output[parameter]
+            network.get_parameters()[parameter][network.output_neurons - network.n_input_neurons] += lr * eligibility_trace_output[parameter]
 
     return eligibility_trace_hidden, eligibility_trace_output, learning_signal, baseline_num, baseline_den
 
@@ -74,11 +74,12 @@ def train(network, indices, test_indices, args):
     """
 
     eligibility_trace_output, eligibility_trace_hidden, learning_signal, baseline_num, baseline_den, S_prime = init_training(network, args)
+    lr = args.lr
 
     for j, idx in enumerate(indices[args.start_idx:]):
         j += args.start_idx
         if (j + 1) % 5 * (args.dataset.root.train.data[:].shape[0]) == 0:
-            args.lr /= 2
+            lr /= 2
 
         # Regularly test the accuracy
         if args.test_accs:
@@ -108,7 +109,7 @@ def train(network, indices, test_indices, args):
             # Local feedback and update
             eligibility_trace_hidden, eligibility_trace_output, learning_signal, baseline_num, baseline_den \
                 = local_feedback_and_update(network, ls_tmp, eligibility_trace_hidden, eligibility_trace_output,
-                                            learning_signal, baseline_num, baseline_den, args)
+                                            learning_signal, baseline_num, baseline_den, lr, args)
 
         if j % max(1, int(len(indices) / 5)) == 0:
             print('Step %d out of %d' % (j, len(indices)))
