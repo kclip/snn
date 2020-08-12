@@ -19,14 +19,14 @@ def vqvae_test(args):
     ### Encoder & classifier
     vqvae, _ = init_vqvae(args, args.dataset)
 
-    weights = args.home + r'/results/results_wispike/' + args.weights
+    weights = args.results + args.weights
     if args.classifier == 'snn':
         network = SNNetwork(**misc_snn.make_network_parameters(args.n_input_neurons,
                                                                args.n_output_neurons,
                                                                args.n_h),
                             device=args.device)
         if args.classifier_weights is not None:
-            network_weights = args.home + r'/results/results_wispike/' + args.classifier_weights + r'/snn_weights.hdf5'
+            network_weights = args.results + args.classifier_weights + r'/snn_weights.hdf5'
         else:
             network_weights = weights + r'/snn_weights.hdf5'
         network.import_weights(network_weights)
@@ -39,7 +39,7 @@ def vqvae_test(args):
         network = MLP(n_input_neurons, args.n_h, n_output_neurons)
 
         if args.classifier_weights is not None:
-            network_weights = args.home + r'/results/results_wispike/' + args.classifier_weights + r'/mlp_weights.pt'
+            network_weights = args.results + args.classifier_weights + r'/mlp_weights.pt'
         else:
             network_weights = weights + r'/mlp_weights.pt'
 
