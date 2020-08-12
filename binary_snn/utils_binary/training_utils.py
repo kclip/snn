@@ -78,7 +78,7 @@ def train(network, indices, test_indices, args):
 
     for j, idx in enumerate(indices[args.start_idx:]):
         j += args.start_idx
-        if (j + 1) % 5 * (args.dataset.root.train.data[:].shape[0]) == 0:
+        if (j + 1) % (5 * (args.dataset.root.train.data[:].shape[0])) == 0:
             lr /= 2
 
         # Regularly test the accuracy

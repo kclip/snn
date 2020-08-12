@@ -12,7 +12,7 @@
 python /users/k1804053/snn_private/launch_experiment.py --where=rosalind --dataset=mnist_dvs_10_binary \
 --n_h=64 --num_samples_train=50000 \
 --test_period=100 --num_ite=3  \
---r=0.3 --labels 1 7 --disable-cuda=false
+--r=0.3 --labels 1 7
 
 
 #python /users/k1804053/snn/launch_experiment.py --where=rosalind --dataset=mnist_dvs_10 --n_h=128 --num_samples_train=100000 --test_period=5000 --num_ite=1 --suffix=_teacher_forcing \
