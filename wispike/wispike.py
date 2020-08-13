@@ -108,6 +108,9 @@ def wispike(args):
             sample_enc = torch.FloatTensor(args.dataset.root.train.data[sample_idx]).to(encoder.device)
             output_dec = torch.FloatTensor(args.dataset.root.train.label[sample_idx]).to(decoder.device)
 
+            if args.rand_snr:
+                args.snr = np.random.choice(np.arange(0, -9, -1))
+
             for s in range(S_prime):
                 # Feedforward sampling encoder
                 log_proba_enc = encoder(sample_enc[:, s])

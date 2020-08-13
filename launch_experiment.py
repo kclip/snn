@@ -68,6 +68,7 @@ if __name__ == "__main__":
 
     # Arguments for Wispike
     parser.add_argument('--systematic', type=str, default='true', help='Systematic communication')
+    parser.add_argument('--rand_snr', type=str, default='false', help='Systematic communication')
     parser.add_argument('--snr', type=float, default=None, help='SNR')
     parser.add_argument('--n_output_enc', default=128, type=int, help='')
 
@@ -185,6 +186,7 @@ elif args.model == 'binary':
     binary_exp.launch_binary_exp(args)
 elif args.model == 'wispike':
     args.systematic = str2bool(args.systematic)
+    args.rand_snr = str2bool(args.rand_snr)
     wispike(args)
 elif args.model == 'jscc':
     args.systematic = str2bool(args.systematic)
