@@ -56,7 +56,7 @@ def framed_to_example(frames, args):
             = frames[:-1].reshape([(args.n_frames - 1) * (80 // (args.n_frames - 1)), -1]).transpose(1, 0)
         data_reconstructed[:, -args.residual:] = frames[-1, :args.residual].reshape([args.residual, -1]).transpose(1, 0)
     else:
-        data_reconstructed = frames.reshape([80, -1]).transpose(1, 0)
+        data_reconstructed = frames.reshape([-1, 676]).transpose(1, 0)
 
     return data_reconstructed
 
