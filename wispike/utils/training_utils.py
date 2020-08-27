@@ -119,7 +119,7 @@ def train_snn(network, args, sample):
         log_proba, ls_tmp = feedforward_sampling(network, sample[:, t], args)
         # Local feedback and update
         local_feedback_and_update(network, ls_tmp, args.eligibility_trace_hidden, args.eligibility_trace_output,
-                                  args.learning_signal, args.baseline_num, args.baseline_den, args)
+                                  args.learning_signal, args.baseline_num, args.baseline_den, args.lr, args)
 
 
 def train_mlp(model, example, label, optimizer, criterion):
