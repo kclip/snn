@@ -215,10 +215,6 @@ class SNNetwork(torch.nn.Module):
         return
 
 
-
-
-
-
     def set_mode(self, mode):
         if mode == 'train':
             self.visible_neurons = torch.cat((self.input_neurons, self.output_neurons))
