@@ -93,9 +93,6 @@ if not args.num_samples_train:
 if not args.num_samples_test:
     args.num_samples_test = dataset.root.stats.test_data[0]
 
-if args.classifier == 'snn':
-    assert args.n_frames == 80
-
 args.residual = 80 % args.n_frames
 if args.residual:
     args.n_frames += 1
@@ -116,8 +113,6 @@ args.dataset = dataset
 
 # Make classifier
 classifier = training_utils.init_classifier(args)
-if isinstance(classifier, SNNetwork):
-    assert args.n_frames == 80
 
 # LDPC coding
 args.H, args.G, args.k = training_utils.init_ldpc(args.encodings_dim)

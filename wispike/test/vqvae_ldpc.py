@@ -26,10 +26,24 @@ def vqvae_test(args):
                                                                args.n_h),
                             device=args.device)
         if args.classifier_weights is not None:
-            network_weights = args.results + args.classifier_weights + r'/snn_weights.hdf5'
+            try:
+                network_weights = args.results + args.classifier_weights + r'/snn_weights.hdf5'
+                network.import_weights(network_weights)
+
+            except OSError:
+                network_weights = args.results + args.classifier_weights + r'/network_weights.hdf5'
+                network.import_weights(network_weights)
+
+
         else:
-            network_weights = weights + r'/snn_weights.hdf5'
-        network.import_weights(network_weights)
+            try:
+                network_weights = weights + r'/snn_weights.hdf5'
+                network.import_weights(network_weights)
+
+            except OSError:
+                network_weights = weights + r'/network_weights.hdf5'
+                network.import_weights(network_weights)
+
         network.set_mode('test')
 
     elif args.classifier == 'mlp':
