@@ -5,5 +5,5 @@
 #SBATCH --partition=nms_research
 
 python comparison_performance.py --where=rosalind \
- --weights=063__12-08-2020_vqvae_mlp_1000_epochs_nh_256_ny_720_nframes_20 \
-  --model=vqvae --n_frames=5 --snr_list 0 -1 -2 -3 -4 -5 -6 -7 -8
+ --weights=067__27-08-2020_vqvae_mlp_1000_epochs_nh_256_ny_720_nframes_5 \
+  --model=vqvae --n_frames=5 --snr_list 0 -6
