@@ -11,12 +11,11 @@
 import struct
 import numpy as np
 import scipy.misc
-import h5py
+import tables
 import glob
 from misc import *
 import os
 
-dcll_folder = os.path.dirname(__file__)
 
 mapping = {0: 'Hand Clapping',
            1: 'Right Hand Wave',
@@ -91,34 +90,41 @@ def aedat_to_events(filename):
     events = np.column_stack(events)
     events = events.astype('uint32')
     clipped_events = np.zeros([4, 0], 'uint32')
+
     for l in labels:
         start = np.searchsorted(events[0, :], l[1])
         end = np.searchsorted(events[0, :], l[2])
         clipped_events = np.column_stack([clipped_events, events[:, start:end]])
+
     return clipped_events.T, labels
 
 
-def create_events_hdf5(hdf5_filename):
-    fns_train = gather_aedat(os.path.join(dcll_folder, '../data/DvsGesture'), 1, 24)
-    fns_test = gather_aedat(os.path.join(dcll_folder, '../data/DvsGesture'), 24, 30)
+def create_events_hdf5(path_to_hdf5, path_to_data):
+    fns_train = gather_aedat(path_to_data, 1, 24)
+    fns_test = gather_aedat(path_to_data, 24, 30)
 
-    with h5py.File(hdf5_filename, 'w') as f:
-        f.clear()
+    hdf5_file = tables.open_file(path_to_hdf5, 'w')
 
-        print("processing training data...")
-        key = 0
-        train_grp = f.create_group('train')
-        for file_d in fns_train:
-            print(key)
-            events, labels = aedat_to_events(file_d)
-            subgrp = train_grp.create_group(str(key))
-            dset_dt = subgrp.create_dataset('time', events[:, 0].shape, dtype=np.uint32)
-            dset_da = subgrp.create_dataset('data', events[:, 1:].shape, dtype=np.uint8)
-            dset_dt[...] = events[:, 0]
-            dset_da[...] = events[:, 1:]
-            dset_l = subgrp.create_dataset('labels', labels.shape, dtype=np.uint32)
-            dset_l[...] = labels
-            key += 1
+    hdf5_file.create_group(where=hdf5_file.root, name='train')
+    train_times_array = hdf5_file.create_earray(where=hdf5_file.root.train, name='time', atom=tables.Atom.from_dtype(np.dtype('int64')), shape=(0,))
+    train_data_array = hdf5_file.create_earray(where=hdf5_file.root.train, name='data', atom=tables.Atom.from_dtype(np.dtype('int64')), shape=(0, 3))
+    train_labels_array = hdf5_file.create_earray(where=hdf5_file.root.train, name='labels', atom=tables.Atom.from_dtype(np.dtype('int64')), shape=(0, 3))
+
+
+    print("processing training data...")
+    key = 0
+
+    for file_d in fns_train:
+        print(key)
+        events, labels = aedat_to_events(file_d)
+        subgrp = train_grp.create_group(str(key))
+        dset_dt = subgrp.create_dataset('time', events[:, 0].shape, dtype=np.uint32)
+        dset_da = subgrp.create_dataset('data', events[:, 1:].shape, dtype=np.uint8)
+        dset_dt[...] = events[:, 0]
+        dset_da[...] = events[:, 1:]
+        dset_l = subgrp.create_dataset('labels', labels.shape, dtype=np.uint32)
+        dset_l[...] = labels
+        key += 1
 
         print("processing testing data...")
         key = 0
@@ -138,6 +144,18 @@ def create_events_hdf5(hdf5_filename):
         stats = gather_gestures_stats(train_grp)
         f.create_dataset('stats', stats.shape, dtype=stats.dtype)
         f['stats'][:] = stats
+
+        stats_train_data = np.array([9000, (1 + max_pxl_value - min_pxl_value)])
+        stats_train_label = np.array([9000, 10])
+
+        stats_test_data = np.array([1000, (1 + max_pxl_value - min_pxl_value)])
+        stats_test_label = np.array([1000, 10])
+
+        hdf5_file.create_group(where=hdf5_file.root, name='stats')
+        hdf5_file.create_array(where=hdf5_file.root.stats, name='train_data', atom=tables.Atom.from_dtype(stats_train_data.dtype), obj=stats_train_data)
+        hdf5_file.create_array(where=hdf5_file.root.stats, name='train_label', atom=tables.Atom.from_dtype(stats_train_label.dtype), obj=stats_train_label)
+        hdf5_file.create_array(where=hdf5_file.root.stats, name='test_data', atom=tables.Atom.from_dtype(stats_test_data.dtype), obj=stats_test_data)
+        hdf5_file.create_array(where=hdf5_file.root.stats, name='test_label', atom=tables.Atom.from_dtype(stats_test_label.dtype), obj=stats_test_label)
 
 
 def create_data(filename=os.path.join(dcll_folder, '../data/dvs_gestures_events.hdf5')):

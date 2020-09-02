@@ -2,16 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="dfa62879-5cdc-4603-a43e-18a18161e0c9" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/binary_snn/binary_exp.py" beforeDir="false" afterPath="$PROJECT_DIR$/binary_snn/binary_exp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/binary_snn/utils_binary/misc.py" beforeDir="false" afterPath="$PROJECT_DIR$/binary_snn/utils_binary/misc.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/binary_snn/utils_binary/training_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/binary_snn/utils_binary/training_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data_preprocessing/misc.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_preprocessing/misc.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data_preprocessing/process_dvs_gesture.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_preprocessing/process_dvs_gesture_old.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data_preprocessing/process_heidelberg.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_preprocessing/process_heidelberg_old.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data_preprocessing/process_mnist_dvs.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_preprocessing/process_mnist_dvs_old.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/launch_experiment.py" beforeDir="false" afterPath="$PROJECT_DIR$/launch_experiment.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/wispike/test/testing_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/wispike/test/testing_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_preprocessing/process_dvsgestures.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_preprocessing/process_dvsgestures.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_preprocessing/process_mnistdvs.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_preprocessing/process_mnistdvs.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -44,8 +36,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/data_preprocessing/load_data.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="251">
-              <caret line="34" column="35" selection-start-line="34" selection-start-column="35" selection-end-line="34" selection-end-column="35" />
+            <state relative-caret-position="121">
+              <caret line="50" column="30" lean-forward="true" selection-start-line="50" selection-start-column="30" selection-end-line="50" selection-end-column="30" />
               <folding>
                 <element signature="e#367#385#0" expanded="true" />
               </folding>
@@ -68,8 +60,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/launch_experiment.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="245">
-              <caret line="171" column="69" selection-start-line="171" selection-start-column="69" selection-end-line="171" selection-end-column="69" />
+            <state relative-caret-position="92">
+              <caret line="30" column="36" selection-start-line="30" selection-start-column="36" selection-end-line="30" selection-end-column="36" />
               <folding>
                 <element signature="e#0#37#0" expanded="true" />
               </folding>
@@ -78,46 +70,22 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/data_preprocessing/misc.py">
+        <entry file="file://$PROJECT_DIR$/data_preprocessing/process_dvsgestures.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="149">
-              <caret line="35" column="16" selection-start-line="35" selection-start-column="16" selection-end-line="35" selection-end-column="16" />
+            <state relative-caret-position="-238">
+              <caret line="97" selection-start-line="97" selection-end-line="97" />
               <folding>
-                <element signature="e#0#18#0" expanded="true" />
+                <element signature="e#366#379#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/data_preprocessing/process_dvsgestures.py">
+        <entry file="file://$PROJECT_DIR$/data_preprocessing/process_mnistdvs.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1275">
-              <caret line="15" column="9" selection-start-line="15" selection-start-column="9" selection-end-line="15" selection-end-column="9" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/binary_snn/utils_binary/training_utils.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-335">
-              <caret line="84" column="47" selection-start-line="84" selection-start-column="47" selection-end-line="84" selection-end-column="47" />
-              <folding>
-                <element signature="e#0#12#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/binary_snn/utils_binary/misc.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="119">
-              <caret line="88" column="20" lean-forward="true" selection-start-line="88" selection-start-column="20" selection-end-line="88" selection-end-column="96" />
-              <folding>
-                <element signature="e#0#12#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="481">
+              <caret line="89" selection-start-line="83" selection-end-line="89" />
             </state>
           </provider>
         </entry>
@@ -209,11 +177,11 @@
         <option value="$PROJECT_DIR$/wispike/test/testing_utils.py" />
         <option value="$PROJECT_DIR$/binary_snn/binary_exp.py" />
         <option value="$PROJECT_DIR$/data_preprocessing/misc.py" />
-        <option value="$PROJECT_DIR$/data_preprocessing/process_mnistdvs.py" />
         <option value="$PROJECT_DIR$/data_preprocessing/load_data.py" />
         <option value="$PROJECT_DIR$/launch_experiment.py" />
         <option value="$PROJECT_DIR$/binary_snn/utils_binary/misc.py" />
         <option value="$PROJECT_DIR$/binary_snn/utils_binary/training_utils.py" />
+        <option value="$PROJECT_DIR$/data_preprocessing/process_mnistdvs.py" />
         <option value="$PROJECT_DIR$/data_preprocessing/process_dvsgestures.py" />
       </list>
     </option>
@@ -368,18 +336,18 @@
       <workItem from="1598437138518" duration="46000" />
       <workItem from="1598437269353" duration="576000" />
       <workItem from="1598519715018" duration="13647000" />
-      <workItem from="1598966287725" duration="27079000" />
+      <workItem from="1598966287725" duration="28831000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="703077000" />
+    <option name="totallyTimeSpent" value="704829000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="0" width="1296" height="696" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49608356" visible="true" weight="0.20711975" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49608356" visible="true" weight="0.20711975" />
       <window_info id="Structure" order="1" sideWeight="0.50391644" side_tool="true" weight="0.21052632" />
       <window_info id="Favorites" order="2" sideWeight="0.5013405" side_tool="true" weight="0.19676113" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -393,7 +361,7 @@
       <window_info anchor="bottom" id="Version Control" order="8" weight="0.32936078" />
       <window_info anchor="bottom" id="File Transfer" order="9" weight="0.22024867" />
       <window_info anchor="bottom" id="Database Changes" order="10" />
-      <window_info anchor="bottom" id="Terminal" order="11" visible="true" weight="0.24822696" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="11" visible="true" weight="0.24822696" />
       <window_info anchor="bottom" id="Python Console" order="12" weight="0.3285968" />
       <window_info anchor="bottom" id="Event Log" order="13" side_tool="true" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -798,33 +766,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/data_preprocessing/process_mnistdvs.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="163">
-          <caret line="126" column="74" lean-forward="true" selection-start-line="126" selection-start-column="74" selection-end-line="126" selection-end-column="74" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/data_preprocessing/load_data.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="251">
-          <caret line="34" column="35" selection-start-line="34" selection-start-column="35" selection-end-line="34" selection-end-column="35" />
-          <folding>
-            <element signature="e#367#385#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/launch_experiment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="245">
-          <caret line="171" column="69" selection-start-line="171" selection-start-column="69" selection-end-line="171" selection-end-column="69" />
-          <folding>
-            <element signature="e#0#37#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/binary_snn/utils_binary/misc.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="119">
@@ -845,10 +786,40 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/data_preprocessing/load_data.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="121">
+          <caret line="50" column="30" lean-forward="true" selection-start-line="50" selection-start-column="30" selection-end-line="50" selection-end-column="30" />
+          <folding>
+            <element signature="e#367#385#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/launch_experiment.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="92">
+          <caret line="30" column="36" selection-start-line="30" selection-start-column="36" selection-end-line="30" selection-end-column="36" />
+          <folding>
+            <element signature="e#0#37#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/data_preprocessing/process_dvsgestures.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1275">
-          <caret line="15" column="9" selection-start-line="15" selection-start-column="9" selection-end-line="15" selection-end-column="9" />
+        <state relative-caret-position="-238">
+          <caret line="97" selection-start-line="97" selection-end-line="97" />
+          <folding>
+            <element signature="e#366#379#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data_preprocessing/process_mnistdvs.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="481">
+          <caret line="89" selection-start-line="83" selection-end-line="89" />
         </state>
       </provider>
     </entry>
