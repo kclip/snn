@@ -2,7 +2,16 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="dfa62879-5cdc-4603-a43e-18a18161e0c9" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/wispike/utils/training_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/wispike/utils/training_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/binary_snn/binary_exp.py" beforeDir="false" afterPath="$PROJECT_DIR$/binary_snn/binary_exp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/binary_snn/utils_binary/misc.py" beforeDir="false" afterPath="$PROJECT_DIR$/binary_snn/utils_binary/misc.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/binary_snn/utils_binary/training_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/binary_snn/utils_binary/training_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_preprocessing/misc.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_preprocessing/misc.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_preprocessing/process_dvs_gesture.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_preprocessing/process_dvs_gesture_old.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_preprocessing/process_heidelberg.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_preprocessing/process_heidelberg_old.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_preprocessing/process_mnist_dvs.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_preprocessing/process_mnist_dvs_old.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/launch_experiment.py" beforeDir="false" afterPath="$PROJECT_DIR$/launch_experiment.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wispike/test/testing_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/wispike/test/testing_utils.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -33,19 +42,46 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/launch_vqvae.sh">
+        <entry file="file://$PROJECT_DIR$/data_preprocessing/load_data.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="136">
-              <caret line="8" column="13" lean-forward="true" selection-start-line="8" selection-start-column="13" selection-end-line="8" selection-end-column="13" />
+            <state relative-caret-position="251">
+              <caret line="34" column="35" selection-start-line="34" selection-start-column="35" selection-end-line="34" selection-end-column="35" />
+              <folding>
+                <element signature="e#367#385#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/train_vqvae.py">
+        <entry file="file://$PROJECT_DIR$/binary_snn/binary_exp.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="213">
-              <caret line="140" column="24" lean-forward="true" selection-start-line="140" selection-start-column="24" selection-end-line="140" selection-end-column="24" />
+            <state relative-caret-position="160">
+              <caret line="34" column="44" lean-forward="true" selection-start-line="34" selection-start-column="44" selection-end-line="34" selection-end-column="44" />
+              <folding>
+                <element signature="e#0#43#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/launch_experiment.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="245">
+              <caret line="171" column="69" selection-start-line="171" selection-start-column="69" selection-end-line="171" selection-end-column="69" />
+              <folding>
+                <element signature="e#0#37#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/data_preprocessing/misc.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="149">
+              <caret line="35" column="16" selection-start-line="35" selection-start-column="16" selection-end-line="35" selection-end-column="16" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -54,46 +90,10 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/wispike/utils/training_utils.py">
+        <entry file="file://$PROJECT_DIR$/data_preprocessing/process_dvsgestures.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="256">
-              <caret line="121" column="102" selection-start-line="121" selection-start-column="102" selection-end-line="121" selection-end-column="102" />
-              <folding>
-                <element signature="e#0#98#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/wispike/utils/misc.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="246">
-              <caret line="58" column="52" selection-start-line="58" selection-start-column="52" selection-end-line="58" selection-end-column="52" />
-              <folding>
-                <element signature="e#0#12#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/test_performance.sh">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="119">
-              <caret line="7" column="11" lean-forward="true" selection-start-line="7" selection-start-column="11" selection-end-line="7" selection-end-column="72" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/comparison_performance.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="190">
-              <caret line="104" column="6" lean-forward="true" selection-start-line="104" selection-start-column="6" selection-end-line="104" selection-end-column="6" />
-              <folding>
-                <element signature="e#0#12#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="-1275">
+              <caret line="15" column="9" selection-start-line="15" selection-start-column="9" selection-end-line="15" selection-end-column="9" />
             </state>
           </provider>
         </entry>
@@ -101,8 +101,20 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/binary_snn/utils_binary/training_utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="127">
-              <caret line="24" column="4" selection-start-line="24" selection-start-column="4" selection-end-line="24" selection-end-column="4" />
+            <state relative-caret-position="-335">
+              <caret line="84" column="47" selection-start-line="84" selection-start-column="47" selection-end-line="84" selection-end-column="47" />
+              <folding>
+                <element signature="e#0#12#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/binary_snn/utils_binary/misc.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="119">
+              <caret line="88" column="20" lean-forward="true" selection-start-line="88" selection-start-column="20" selection-end-line="88" selection-end-column="96" />
               <folding>
                 <element signature="e#0#12#0" expanded="true" />
               </folding>
@@ -152,14 +164,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/multivalued_snn/utils_multivalued/misc.py" />
-        <option value="$PROJECT_DIR$/wispike/vqvae_zalando.py" />
-        <option value="$PROJECT_DIR$/wispike/benchmark/vqvae_zalando.py" />
-        <option value="$PROJECT_DIR$/wispike/benchmark/vqvae_zalando_vanilla.py" />
-        <option value="$PROJECT_DIR$/wispike/utils/utils_wispike.py" />
-        <option value="$PROJECT_DIR$/comparative_exp.py" />
-        <option value="$PROJECT_DIR$/binary_snn/utils_binary/testing_utils.py" />
-        <option value="$PROJECT_DIR$/multivalued_snn/multivalued_exp.py" />
         <option value="$PROJECT_DIR$/multivalued_snn/utils_multivalued/training_ml_online.py" />
         <option value="$PROJECT_DIR$/CSNN/utils.py" />
         <option value="$PROJECT_DIR$/CSNN/models/CNN.py" />
@@ -184,31 +188,38 @@
         <option value="$PROJECT_DIR$/mnist_online_distributed.py" />
         <option value="$PROJECT_DIR$/binary_snn/utils_binary/distributed_utils.py" />
         <option value="$PROJECT_DIR$/wispike/test/wispike_test.py" />
-        <option value="$PROJECT_DIR$/binary_snn/utils_binary/misc.py" />
         <option value="$PROJECT_DIR$/comparison_performance.py" />
-        <option value="$PROJECT_DIR$/binary_snn/binary_exp.py" />
         <option value="$PROJECT_DIR$/local_train.sh" />
         <option value="$PROJECT_DIR$/launch_job.sh" />
         <option value="$PROJECT_DIR$/wispike/test/ook.py" />
-        <option value="$PROJECT_DIR$/binary_snn/utils_binary/training_utils.py" />
         <option value="$PROJECT_DIR$/wispike/wispike.py" />
-        <option value="$PROJECT_DIR$/launch_experiment.py" />
         <option value="$PROJECT_DIR$/launch_gpu_job.sh" />
         <option value="$PROJECT_DIR$/wispike/models/mlp.py" />
         <option value="$PROJECT_DIR$/binary_snn/models/SNN.py" />
         <option value="$PROJECT_DIR$/wispike/utils/misc.py" />
-        <option value="$PROJECT_DIR$/wispike/test/testing_utils.py" />
         <option value="$PROJECT_DIR$/launch_vqvae.sh" />
         <option value="$PROJECT_DIR$/test_performance.sh" />
-        <option value="$PROJECT_DIR$/wispike/test/vqvae_ldpc.py" />
         <option value="$PROJECT_DIR$/train_vqvae.py" />
         <option value="$PROJECT_DIR$/wispike/utils/training_utils.py" />
+        <option value="$PROJECT_DIR$/wispike/test/vqvae_ldpc.py" />
+        <option value="$PROJECT_DIR$/data_preprocessing/load_dvsgestures.py" />
+        <option value="$PROJECT_DIR$/data_preprocessing/load_mnistdvs_flat.py" />
+        <option value="$PROJECT_DIR$/data_preprocessing/events_timeslices.py" />
+        <option value="$PROJECT_DIR$/data_preprocessing/load_mnistdvs.py" />
+        <option value="$PROJECT_DIR$/wispike/test/testing_utils.py" />
+        <option value="$PROJECT_DIR$/binary_snn/binary_exp.py" />
+        <option value="$PROJECT_DIR$/data_preprocessing/misc.py" />
+        <option value="$PROJECT_DIR$/data_preprocessing/process_mnistdvs.py" />
+        <option value="$PROJECT_DIR$/data_preprocessing/load_data.py" />
+        <option value="$PROJECT_DIR$/launch_experiment.py" />
+        <option value="$PROJECT_DIR$/binary_snn/utils_binary/misc.py" />
+        <option value="$PROJECT_DIR$/binary_snn/utils_binary/training_utils.py" />
+        <option value="$PROJECT_DIR$/data_preprocessing/process_dvsgestures.py" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="-12" />
-    <option name="y" value="-12" />
+  <component name="ProjectFrameBounds">
+    <option name="x" value="-11" />
     <option name="width" value="1944" />
     <option name="height" value="1044" />
   </component>
@@ -239,6 +250,11 @@
             <path>
               <item name="snn" type="b2602c69:ProjectViewProjectNode" />
               <item name="snn" type="462c0819:PsiDirectoryNode" />
+              <item name="data_preprocessing" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="snn" type="b2602c69:ProjectViewProjectNode" />
+              <item name="snn" type="462c0819:PsiDirectoryNode" />
               <item name="multivalued_snn" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -246,6 +262,11 @@
               <item name="snn" type="462c0819:PsiDirectoryNode" />
               <item name="multivalued_snn" type="462c0819:PsiDirectoryNode" />
               <item name="utils_multivalued" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="snn" type="b2602c69:ProjectViewProjectNode" />
+              <item name="snn" type="462c0819:PsiDirectoryNode" />
+              <item name="wispike" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -261,18 +282,19 @@
     <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\K1804053\PycharmProjects\snn\data_preprocessing" />
+      <recent name="C:\Users\K1804053\PycharmProjects\snn" />
+      <recent name="C:\Users\K1804053\PycharmProjects\snn\wispike\test" />
+      <recent name="C:\Users\K1804053\PycharmProjects\snn\wispike" />
+      <recent name="C:\Users\K1804053\PycharmProjects\snn\wispike\benchmark" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\K1804053\PycharmProjects\snn\wispike\test" />
       <recent name="C:\Users\K1804053\PycharmProjects\snn" />
       <recent name="C:\Users\K1804053\PycharmProjects\snn\wispike\benchmark" />
       <recent name="C:\Users\K1804053\PycharmProjects\snn\wispike" />
       <recent name="C:\Users\K1804053\PycharmProjects\snn\local\wispike" />
-    </key>
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\K1804053\PycharmProjects\snn" />
-      <recent name="C:\Users\K1804053\PycharmProjects\snn\wispike\test" />
-      <recent name="C:\Users\K1804053\PycharmProjects\snn\wispike" />
-      <recent name="C:\Users\K1804053\PycharmProjects\snn\wispike\benchmark" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -345,22 +367,23 @@
       <workItem from="1598435380125" duration="792000" />
       <workItem from="1598437138518" duration="46000" />
       <workItem from="1598437269353" duration="576000" />
-      <workItem from="1598519715018" duration="7352000" />
+      <workItem from="1598519715018" duration="13647000" />
+      <workItem from="1598966287725" duration="27079000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="669703000" />
+    <option name="totallyTimeSpent" value="703077000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
+    <frame x="-7" y="0" width="1296" height="696" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49608356" visible="true" weight="0.20404859" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49608356" visible="true" weight="0.20711975" />
       <window_info id="Structure" order="1" sideWeight="0.50391644" side_tool="true" weight="0.21052632" />
       <window_info id="Favorites" order="2" sideWeight="0.5013405" side_tool="true" weight="0.19676113" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.32978722" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.26465365" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.94671404" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
@@ -370,7 +393,7 @@
       <window_info anchor="bottom" id="Version Control" order="8" weight="0.32936078" />
       <window_info anchor="bottom" id="File Transfer" order="9" weight="0.22024867" />
       <window_info anchor="bottom" id="Database Changes" order="10" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="11" visible="true" weight="0.27531084" />
+      <window_info anchor="bottom" id="Terminal" order="11" visible="true" weight="0.24822696" />
       <window_info anchor="bottom" id="Python Console" order="12" weight="0.3285968" />
       <window_info anchor="bottom" id="Event Log" order="13" side_tool="true" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -386,53 +409,6 @@
     <option name="version" value="1" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/wispike/models/vqvae_zalando.py" />
-    <entry file="file://$PROJECT_DIR$/binary_snn/utils_binary/testing_utils.py" />
-    <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/_pydev_imps/_pydev_execfile.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-6">
-          <caret line="17" selection-start-line="17" selection-end-line="17" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/pydevd.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-6">
-          <caret line="1740" selection-start-line="1740" selection-end-line="1740" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/comparative_exp.py" />
-    <entry file="file://$PROJECT_DIR$/CSNN/models/CNN.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="66" column="45" lean-forward="true" selection-start-line="66" selection-start-column="45" selection-end-line="66" selection-end-column="45" />
-          <folding>
-            <element signature="e#0#12#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/CSNN/models/base.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="16" selection-start-line="16" selection-end-line="16" />
-          <folding>
-            <element signature="e#0#12#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/CSNN/utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="4" selection-start-column="4" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/comparison_performance_wispike.py" />
-    <entry file="file://$PROJECT_DIR$/comparison_performance_bpsk.py" />
-    <entry file="file://$PROJECT_DIR$/comparison_performance_vqvae.py" />
     <entry file="file://$PROJECT_DIR$/wispike/snn_jscc.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="114">
@@ -554,16 +530,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/binary_snn/binary_exp.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="568">
-          <caret line="44" column="9" lean-forward="true" selection-start-line="44" selection-start-column="9" selection-end-line="44" selection-end-column="9" />
-          <folding>
-            <element signature="e#0#43#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/wispike/test/wispike_test.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="160">
@@ -578,16 +544,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="134">
           <caret line="286" column="4" selection-start-line="286" selection-start-column="4" selection-end-line="286" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/binary_snn/utils_binary/misc.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="68">
-          <caret line="4" column="40" lean-forward="true" selection-start-line="4" selection-start-column="40" selection-end-line="4" selection-end-column="40" />
-          <folding>
-            <element signature="e#0#12#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -652,16 +608,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/binary_snn/models/SNN.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="327">
-          <caret line="184" selection-start-line="184" selection-end-line="184" />
-          <folding>
-            <element signature="e#0#37#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/multivalued_snn/utils_multivalued/misc.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="85">
@@ -682,67 +628,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/launch_experiment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="349">
-          <caret line="70" column="62" selection-start-line="70" selection-start-column="62" selection-end-line="70" selection-end-column="62" />
-          <folding>
-            <element signature="e#0#37#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wispike/utils/misc.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="246">
-          <caret line="58" column="52" selection-start-line="58" selection-start-column="52" selection-end-line="58" selection-end-column="52" />
-          <folding>
-            <element signature="e#0#12#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/wispike/models/mlp.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="153">
           <caret line="9" selection-start-line="9" selection-end-line="9" />
-          <folding>
-            <element signature="e#0#12#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test_performance.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="7" column="11" lean-forward="true" selection-start-line="7" selection-start-column="11" selection-end-line="7" selection-end-column="72" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/comparison_performance.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="190">
-          <caret line="104" column="6" lean-forward="true" selection-start-line="104" selection-start-column="6" selection-end-line="104" selection-end-column="6" />
-          <folding>
-            <element signature="e#0#12#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wispike/test/testing_utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-340">
-          <caret line="7" column="4" selection-start-line="7" selection-start-column="4" selection-end-line="7" selection-end-column="4" />
-          <folding>
-            <element signature="e#0#12#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wispike/test/vqvae_ldpc.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="326">
-          <caret line="45" selection-start-line="45" selection-end-line="45" />
           <folding>
             <element signature="e#0#12#0" expanded="true" />
           </folding>
@@ -756,26 +645,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/train_vqvae.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="213">
-          <caret line="140" column="24" lean-forward="true" selection-start-line="140" selection-start-column="24" selection-end-line="140" selection-end-column="24" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/binary_snn/utils_binary/training_utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="127">
-          <caret line="24" column="4" selection-start-line="24" selection-start-column="4" selection-end-line="24" selection-end-column="4" />
-          <folding>
-            <element signature="e#0#12#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/wispike/utils/training_utils.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="256">
@@ -783,6 +652,203 @@
           <folding>
             <element signature="e#0#98#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wispike/utils/misc.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="935">
+          <caret line="58" column="52" selection-start-line="58" selection-start-column="52" selection-end-line="58" selection-end-column="52" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/comparison_performance.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="190">
+          <caret line="104" column="12" selection-start-line="104" selection-start-column="12" selection-end-line="104" selection-end-column="12" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test_performance.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="6" column="32" selection-start-line="6" selection-start-column="32" selection-end-line="6" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/train_vqvae.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="230">
+          <caret line="144" column="43" selection-start-line="144" selection-start-column="43" selection-end-line="144" selection-end-column="43" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data_preprocessing/load_mnistdvs_2d.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-3774">
+          <caret line="3" column="6" lean-forward="true" selection-start-line="3" selection-start-column="6" selection-end-line="3" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data_preprocessing/load_dvsgestures.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="680">
+          <caret line="79" selection-start-line="79" selection-end-line="79" />
+          <folding>
+            <element signature="e#366#379#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data_preprocessing/load_dvsgestures_flat.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-918" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data_preprocessing/load_data.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="6" selection-start-line="6" selection-end-line="6" />
+          <folding>
+            <element signature="e#0#13#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data_preprocessing/events_timeslices.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" column="13" selection-start-line="1" selection-start-column="7" selection-end-line="1" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wispike/test/vqvae_ldpc.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="157">
+          <caret line="78" column="47" lean-forward="true" selection-start-line="78" selection-start-column="47" selection-end-line="78" selection-end-column="47" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wispike/test/testing_utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="340">
+          <caret line="149" selection-start-line="149" selection-end-line="149" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data_preprocessing/process_dvs_gesture_old.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="147" column="4" lean-forward="true" selection-start-line="147" selection-start-column="4" selection-end-line="147" selection-end-column="31" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/binary_snn/models/SNN.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1037">
+          <caret line="184" selection-start-line="184" selection-end-line="184" />
+          <folding>
+            <element signature="e#0#37#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/AppData/Local/Continuum/miniconda3/Lib/site-packages/numpy/lib/shape_base.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-285">
+          <caret line="612" column="4" selection-start-line="612" selection-start-column="4" selection-end-line="612" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/binary_snn/binary_exp.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="160">
+          <caret line="34" column="44" lean-forward="true" selection-start-line="34" selection-start-column="44" selection-end-line="34" selection-end-column="44" />
+          <folding>
+            <element signature="e#0#43#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data_preprocessing/misc.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="149">
+          <caret line="35" column="16" selection-start-line="35" selection-start-column="16" selection-end-line="35" selection-end-column="16" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data_preprocessing/process_mnistdvs.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="163">
+          <caret line="126" column="74" lean-forward="true" selection-start-line="126" selection-start-column="74" selection-end-line="126" selection-end-column="74" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data_preprocessing/load_data.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="251">
+          <caret line="34" column="35" selection-start-line="34" selection-start-column="35" selection-end-line="34" selection-end-column="35" />
+          <folding>
+            <element signature="e#367#385#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/launch_experiment.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="245">
+          <caret line="171" column="69" selection-start-line="171" selection-start-column="69" selection-end-line="171" selection-end-column="69" />
+          <folding>
+            <element signature="e#0#37#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/binary_snn/utils_binary/misc.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="88" column="20" lean-forward="true" selection-start-line="88" selection-start-column="20" selection-end-line="88" selection-end-column="96" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/binary_snn/utils_binary/training_utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-335">
+          <caret line="84" column="47" selection-start-line="84" selection-start-column="47" selection-end-line="84" selection-end-column="47" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data_preprocessing/process_dvsgestures.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1275">
+          <caret line="15" column="9" selection-start-line="15" selection-start-column="9" selection-end-line="15" selection-end-column="9" />
         </state>
       </provider>
     </entry>

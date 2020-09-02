@@ -30,14 +30,14 @@ def launch_binary_exp(args):
         # Select training and test examples from subset of labels if specified
         if args.labels is not None:
             print(args.labels)
-            indices = np.random.choice(misc.find_train_indices_for_labels(args.dataset, args.labels), [args.num_samples_train], replace=True)
-            num_samples_test = min(args.num_samples_test, len(misc.find_test_indices_for_labels(args.dataset, args.labels)))
-            test_indices = np.random.choice(misc.find_test_indices_for_labels(args.dataset, args.labels), [num_samples_test], replace=False)
+            indices = np.random.choice(misc.find_indices_for_labels(args.dataset.root.train, args.labels), [args.num_samples_train], replace=True)
+            args.num_samples_test = min(args.num_samples_test, len(misc.find_indices_for_labels(args.dataset.root.test, args.labels)))
+            test_indices = np.random.choice(misc.find_indices_for_labels(args.dataset.root.test, args.labels), [args.num_samples_test], replace=False)
         else:
-            indices = np.random.choice(np.arange(args.dataset.root.stats.train_data[0]), [args.num_samples_train], replace=True)
+            indices = np.random.choice(np.arange(args.dataset.root.stats.train_data[0]), [args.num_samples_train], replace=True) # todo
             test_indices = np.random.choice(np.arange(args.dataset.root.stats.test_data[0]), [args.num_samples_test], replace=False)
 
-        # Import weights if specified
+        # Import weights if resuming training
         if args.start_idx > 0:
             network.import_weights(args.save_path + r'/network_weights.hdf5')
 

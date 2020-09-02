@@ -2,20 +2,13 @@ import torch
 import numpy as np
 import utils.filters as filters
 import pickle
-from binary_snn.utils_binary import misc
+from data_preprocessing.load_data import *
 
 
-def find_train_indices_for_labels(dataset, labels):
+def find_indices_for_labels(hdf5_group, labels):
     res = []
     for label in labels:
-        res.append(np.where(np.argmax(np.sum(dataset.root.train.label[:], axis=-1), axis=-1) == label)[0])
-    return np.hstack(res)
-
-
-def find_test_indices_for_labels(dataset, labels):
-    res = []
-    for label in labels:
-        res.append(np.where(np.argmax(np.sum(dataset.root.test.label[:], axis=-1), axis=-1) == label)[0])
+        res.append(np.where(np.argmax(np.sum(hdf5_group.label[:], axis=-1), axis=-1) == label)[0])
     return np.hstack(res)
 
 
@@ -88,76 +81,41 @@ def refractory_period(network):
     """"
     Neural refractory period between two samples
     """
-
     length = network.memory_length + 1
     for s in range(length):
         network(torch.zeros([len(network.visible_neurons)], dtype=torch.float).to(network.device))
 
 
-def get_acc_and_loss(network, dataset, test_indices):
+def get_acc_and_loss(network, hdf5_group, test_indices, T, n_classes, input_shape, dt, polarity):
     """"
     Compute loss and accuracy on the indices from the dataset precised as arguments
     """
     network.set_mode('test')
     network.reset_internal_state()
 
-    S_prime = dataset.root.test.label[:].shape[-1]
-
-    outputs = torch.zeros([len(test_indices), network.n_output_neurons, S_prime])
+    outputs = torch.zeros([len(test_indices), network.n_output_neurons, T])
     loss = 0
 
-    rec = torch.zeros([network.n_learnable_neurons, S_prime])
+    rec = torch.zeros([network.n_learnable_neurons, T])
+    labels = torch.zeros([len(test_indices), n_classes, T])
 
-    for j, sample_idx in enumerate(test_indices):
+    for j, idx in enumerate(test_indices):
         refractory_period(network)
 
-        sample = torch.FloatTensor(dataset.root.test.data[sample_idx]).to(network.device)
+        inputs, lbl = get_example(hdf5_group, idx, T, n_classes, input_shape, dt, polarity)
+        labels[j] = lbl
 
-        for s in range(S_prime):
-            log_proba = network(sample[:, s])
+        for t in range(T):
+            log_proba = network(inputs[:, t])
             loss += torch.sum(log_proba).cpu().numpy()
-            outputs[j, :, s] = network.spiking_history[network.output_neurons, -1]
-            rec[:, s] = network.spiking_history[network.learnable_neurons, -1]
+            outputs[j, :, t] = network.spiking_history[network.output_neurons, -1]
+            rec[:, t] = network.spiking_history[network.learnable_neurons, -1]
 
     predictions = torch.max(torch.sum(outputs, dim=-1), dim=-1).indices
-    true_classes = torch.max(torch.sum(torch.FloatTensor(dataset.root.test.label[:][test_indices]), dim=-1), dim=-1).indices
+    true_classes = torch.max(torch.sum(labels, dim=-1), dim=-1).indices
     acc = float(torch.sum(predictions == true_classes, dtype=torch.float) / len(predictions))
 
     return acc, loss
-
-
-def get_train_acc_and_loss(network, dataset, labels):
-    """"
-    Compute loss and accuracy on the indices from the dataset precised as arguments
-    """
-    network.set_mode('test')
-    network.reset_internal_state()
-
-    S_prime = dataset.root.test.label[:].shape[-1]
-
-    indices = misc.find_train_indices_for_labels(dataset, labels)
-    outputs = torch.zeros([len(indices), network.n_output_neurons, S_prime])
-    loss = 0
-
-    rec = torch.zeros([network.n_learnable_neurons, S_prime])
-
-    for j, sample_idx in enumerate(indices):
-        refractory_period(network)
-
-        sample = torch.FloatTensor(dataset.root.train.data[sample_idx])
-
-        for s in range(S_prime):
-            log_proba = network(sample[:, s])
-            loss += torch.sum(log_proba).numpy()
-            outputs[j, :, s] = network.spiking_history[network.output_neurons, -1]
-            rec[:, s] = network.spiking_history[network.learnable_neurons, -1]
-
-    predictions = torch.max(torch.sum(outputs, dim=-1), dim=-1).indices
-    true_classes = torch.max(torch.sum(torch.FloatTensor(dataset.root.train.label[:][indices]), dim=-1), dim=-1).indices
-    acc = float(torch.sum(predictions == true_classes, dtype=torch.float) / len(predictions))
-
-    return acc, loss
-
 
 
 def save_results(results, save_path):

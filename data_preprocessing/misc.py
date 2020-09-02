@@ -1,5 +1,6 @@
 import numpy as np
 import tables
+import bisect
 
 
 def make_output(label, pattern, num_labels, alphabet_size, S_prime):
@@ -22,6 +23,22 @@ def one_hot(alphabet_size, idx):
     if idx > 0:
         out[idx - 1] = 1
     return out
+
+
+def expand_targets(targets, T=500, burnin=0):
+    y = np.tile(targets.copy(), [T, 1, 1])
+    y[:burnin] = 0
+    return y
+
+
+def make_output_from_label(label, T, num_classes):
+    out = np.zeros([num_classes, T])
+    out[label, :] = 1
+    return out
+
+
+def find_first(a, tgt):
+    return bisect.bisect_left(a, tgt)
 
 
 def make_stats_group(hdf5_file):

@@ -36,19 +36,19 @@ def classify_snn(network, example, args, howto='final'):
         return predictions_final, 0
 
     elif howto == 'per_frame':
-        predictions_pf = torch.zeros([args.n_frames])
+        predictions_pf = torch.zeros([T])
 
-        for i, t in enumerate(range(int(T / args.n_frames), T + int(T / args.n_frames), int(T / args.n_frames))):
-            predictions_pf[i] = torch.max(torch.sum(outputs[:, :t], dim=-1), dim=-1).indices
+        for t in range(T):
+            predictions_pf[t] = torch.max(torch.sum(outputs[:, :t], dim=-1), dim=-1).indices
 
         return 0, predictions_pf
 
     elif howto == 'both':
         predictions_final = torch.max(torch.sum(outputs, dim=-1), dim=-1).indices
-        predictions_pf = torch.zeros([args.n_frames])
+        predictions_pf = torch.zeros([T])
 
-        for i, t in enumerate(range(int(T / args.n_frames), T + int(T / args.n_frames), int(T / args.n_frames))):
-            predictions_pf[i] = torch.max(torch.sum(outputs[:, :t], dim=-1), dim=-1).indices
+        for t in range(T):
+            predictions_pf[t] = torch.max(torch.sum(outputs[:, :t], dim=-1), dim=-1).indices
         return predictions_final, predictions_pf
 
     else:
@@ -98,7 +98,10 @@ def get_acc_classifier(classifier, vqvae, args, indices, howto='final'):
     vqvae.eval()
 
     predictions_final = torch.zeros([len(indices)], dtype=torch.long)
-    predictions_pf = torch.zeros([len(indices), args.n_frames], dtype=torch.long)
+    if args.classifier == 'snn':
+        predictions_pf = torch.zeros([len(indices), 80], dtype=torch.long)
+    else:
+        predictions_pf = torch.zeros([len(indices), args.n_frames], dtype=torch.long)
 
     for i, idx in enumerate(indices):
         data = example_to_framed(args.dataset.root.test.data[idx, :, :], args)
@@ -125,7 +128,6 @@ def get_acc_classifier(classifier, vqvae, args, indices, howto='final'):
 
     elif howto == 'per_frame':
         accs_pf = torch.zeros([args.n_frames], dtype=torch.float)
-
         for i in range(args.n_frames):
             acc = float(torch.sum(predictions_pf[:, i] == true_classes, dtype=torch.float) / len(predictions_pf))
             accs_pf[i] = acc
@@ -134,9 +136,14 @@ def get_acc_classifier(classifier, vqvae, args, indices, howto='final'):
 
     elif howto == 'both':
         accs_final = float(torch.sum(predictions_final == true_classes, dtype=torch.float) / len(predictions_final))
-        accs_pf = torch.zeros([args.n_frames], dtype=torch.float)
+        accs_pf = torch.zeros(predictions_pf.shape, dtype=torch.float)
 
-        for i in range(args.n_frames):
+        if args.classifier == 'snn':
+            T = 80
+        else:
+            T = args.n_frames
+
+        for i in range(T):
             acc = float(torch.sum(predictions_pf[:, i] == true_classes, dtype=torch.float) / len(predictions_pf))
             accs_pf[i] = acc
 
