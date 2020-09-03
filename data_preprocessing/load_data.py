@@ -38,6 +38,7 @@ def get_example(hdf5_group, idx, T=80, n_classes=10, size=[1, 26, 26], dt=1000, 
 def get_event_slice(times, addrs, start_time, end_time, T, size=[128, 128], dt=1000, polarity=True):
     idx_beg = find_first(times, start_time)
     idx_end = find_first(times[idx_beg:], min(end_time, start_time + T * dt)) + idx_beg
+
     return chunk_evs_pol(times[idx_beg:idx_end], addrs[idx_beg:idx_end], deltat=dt, size=size, polarity=polarity)
 
 
@@ -60,15 +61,15 @@ def chunk_evs_pol(times, addrs, deltat=1000, size=[2, 304, 240], polarity=True):
                 if len(size) == 3:
                     np.add.at(chunks, (i, pol, x, y), 1)
                 elif len(size) == 2:
-                    np.add.at(chunks, (i, pol, (x * 26 + y).astype(int)), 1)
+                    np.add.at(chunks, (i, pol, (x * 32 + y).astype(int)), 1)
                 elif len(size) == 1:
                     if polarity:
-                        chunks[i, (pol + 2 * (x * 26 + y)).astype(int)] = 1
+                        chunks[i, (pol + 2 * (x * 32 + y)).astype(int)] = 1
                     else:
-                        chunks[i, (x * 26 + y).astype(int)] = 1
+                        chunks[i, (x * 32 + y).astype(int)] = 1
             except:
-                print(i, t, addrs.shape, idx_start, idx_end)
-                print(i, pol, x, y)
+                i_max = np.max((pol + 2 * (x * 32 + y)))
+                print(x[i_max], y[i_max], pol[i_max])
                 raise IndexError
         idx_start = idx_end
     return chunks

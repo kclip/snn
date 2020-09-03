@@ -92,8 +92,6 @@ def create_events_hdf5(path_to_hdf5, path_to_data=r'/users/k1804053/processed_po
 
     last_ts = 0
 
-    labels_count = {i: 0 for i in range(10)}
-
     for i, digit in enumerate(fns_train):
 
         for file in digit:
@@ -103,7 +101,6 @@ def create_events_hdf5(path_to_hdf5, path_to_data=r'/users/k1804053/processed_po
             train_times_array.append(events[0, :])
             train_data_array.append(events[1:, :].T)
 
-            labels_count[i] += 1
             last_ts = events[0, -1]
 
     hdf5_file.create_group(where=hdf5_file.root, name='test')
@@ -139,7 +136,7 @@ def create_events_hdf5(path_to_hdf5, path_to_data=r'/users/k1804053/processed_po
     hdf5_file.close()
 
 
-def create_data(path_to_hdf5=os.path.join('../data/mnist_dvs_events.hdf5'), path_to_data=None):
+def create_data(path_to_hdf5='../data/mnist_dvs_events.hdf5', path_to_data=None):
     if os.path.exists(path_to_hdf5):
         print("File {} exists: not re-converting data".format(path_to_hdf5))
     elif (not os.path.exists(path_to_hdf5)) & (path_to_data is not None):

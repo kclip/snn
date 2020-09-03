@@ -2,8 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="dfa62879-5cdc-4603-a43e-18a18161e0c9" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/binary_snn/utils_binary/training_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/binary_snn/utils_binary/training_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data_preprocessing/load_data.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_preprocessing/load_data.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data_preprocessing/process_dvsgestures.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_preprocessing/process_dvsgestures.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data_preprocessing/process_mnistdvs.py" beforeDir="false" afterPath="$PROJECT_DIR$/data_preprocessing/process_mnistdvs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/launch_gpu_job.sh" beforeDir="false" afterPath="$PROJECT_DIR$/launch_gpu_job.sh" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -33,11 +37,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/data_preprocessing/load_data.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="121">
-              <caret line="50" column="30" lean-forward="true" selection-start-line="50" selection-start-column="30" selection-end-line="50" selection-end-column="30" />
+            <state relative-caret-position="272">
+              <caret line="27" selection-start-line="27" selection-end-line="27" />
               <folding>
                 <element signature="e#367#385#0" expanded="true" />
               </folding>
@@ -48,8 +52,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/binary_snn/binary_exp.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="160">
-              <caret line="34" column="44" lean-forward="true" selection-start-line="34" selection-start-column="44" selection-end-line="34" selection-end-column="44" />
+            <state relative-caret-position="510">
+              <caret line="34" column="44" selection-start-line="34" selection-start-column="44" selection-end-line="34" selection-end-column="44" />
               <folding>
                 <element signature="e#0#43#0" expanded="true" />
               </folding>
@@ -60,8 +64,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/launch_experiment.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="92">
-              <caret line="30" column="36" selection-start-line="30" selection-start-column="36" selection-end-line="30" selection-end-column="36" />
+            <state relative-caret-position="272">
+              <caret line="29" column="40" selection-start-line="29" selection-start-column="40" selection-end-line="29" selection-end-column="40" />
               <folding>
                 <element signature="e#0#37#0" expanded="true" />
               </folding>
@@ -70,22 +74,25 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/data_preprocessing/process_dvsgestures.py">
+        <entry file="file://$PROJECT_DIR$/wispike/wispike.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-238">
-              <caret line="97" selection-start-line="97" selection-end-line="97" />
+            <state relative-caret-position="522">
+              <caret line="156" selection-start-line="148" selection-end-line="156" />
               <folding>
-                <element signature="e#366#379#0" expanded="true" />
+                <element signature="e#0#46#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/data_preprocessing/process_mnistdvs.py">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/binary_snn/utils_binary/training_utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="481">
-              <caret line="89" selection-start-line="83" selection-end-line="89" />
+            <state relative-caret-position="102">
+              <caret line="6" selection-start-line="6" selection-end-line="6" />
+              <folding>
+                <element signature="e#0#12#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -117,6 +124,7 @@
       <find>maxit</find>
       <find>snr</find>
       <find>frames</find>
+      <find>labels_count</find>
     </findStrings>
     <replaceStrings>
       <replace>quantized</replace>
@@ -161,7 +169,6 @@
         <option value="$PROJECT_DIR$/launch_job.sh" />
         <option value="$PROJECT_DIR$/wispike/test/ook.py" />
         <option value="$PROJECT_DIR$/wispike/wispike.py" />
-        <option value="$PROJECT_DIR$/launch_gpu_job.sh" />
         <option value="$PROJECT_DIR$/wispike/models/mlp.py" />
         <option value="$PROJECT_DIR$/binary_snn/models/SNN.py" />
         <option value="$PROJECT_DIR$/wispike/utils/misc.py" />
@@ -177,19 +184,21 @@
         <option value="$PROJECT_DIR$/wispike/test/testing_utils.py" />
         <option value="$PROJECT_DIR$/binary_snn/binary_exp.py" />
         <option value="$PROJECT_DIR$/data_preprocessing/misc.py" />
-        <option value="$PROJECT_DIR$/data_preprocessing/load_data.py" />
         <option value="$PROJECT_DIR$/launch_experiment.py" />
         <option value="$PROJECT_DIR$/binary_snn/utils_binary/misc.py" />
-        <option value="$PROJECT_DIR$/binary_snn/utils_binary/training_utils.py" />
         <option value="$PROJECT_DIR$/data_preprocessing/process_mnistdvs.py" />
+        <option value="$PROJECT_DIR$/launch_gpu_job.sh" />
+        <option value="$PROJECT_DIR$/binary_snn/utils_binary/training_utils.py" />
         <option value="$PROJECT_DIR$/data_preprocessing/process_dvsgestures.py" />
+        <option value="$PROJECT_DIR$/data_preprocessing/load_data.py" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds">
-    <option name="x" value="-11" />
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="1787" />
+    <option name="y" value="-27" />
     <option name="width" value="1944" />
-    <option name="height" value="1044" />
+    <option name="height" value="647" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
@@ -214,6 +223,12 @@
               <item name="snn" type="462c0819:PsiDirectoryNode" />
               <item name="binary_snn" type="462c0819:PsiDirectoryNode" />
               <item name="models" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="snn" type="b2602c69:ProjectViewProjectNode" />
+              <item name="snn" type="462c0819:PsiDirectoryNode" />
+              <item name="binary_snn" type="462c0819:PsiDirectoryNode" />
+              <item name="utils_binary" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="snn" type="b2602c69:ProjectViewProjectNode" />
@@ -336,18 +351,19 @@
       <workItem from="1598437138518" duration="46000" />
       <workItem from="1598437269353" duration="576000" />
       <workItem from="1598519715018" duration="13647000" />
-      <workItem from="1598966287725" duration="28831000" />
+      <workItem from="1598966287725" duration="34797000" />
+      <workItem from="1599121495790" duration="4590000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="704829000" />
+    <option name="totallyTimeSpent" value="715385000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-7" y="0" width="1296" height="696" extended-state="0" />
+    <frame x="1912" y="-8" width="1936" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49608356" visible="true" weight="0.20711975" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49608356" visible="true" weight="0.21002132" />
       <window_info id="Structure" order="1" sideWeight="0.50391644" side_tool="true" weight="0.21052632" />
       <window_info id="Favorites" order="2" sideWeight="0.5013405" side_tool="true" weight="0.19676113" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -361,7 +377,7 @@
       <window_info anchor="bottom" id="Version Control" order="8" weight="0.32936078" />
       <window_info anchor="bottom" id="File Transfer" order="9" weight="0.22024867" />
       <window_info anchor="bottom" id="Database Changes" order="10" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="11" visible="true" weight="0.24822696" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="11" visible="true" weight="0.2535211" />
       <window_info anchor="bottom" id="Python Console" order="12" weight="0.3285968" />
       <window_info anchor="bottom" id="Event Log" order="13" side_tool="true" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -539,23 +555,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/launch_gpu_job.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="10" column="100" selection-start-line="10" selection-start-column="100" selection-end-line="10" selection-end-column="100" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wispike/wispike.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="833">
-          <caret line="59" column="68" selection-start-line="59" selection-start-column="68" selection-end-line="59" selection-end-column="68" />
-          <folding>
-            <element signature="e#0#46#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/misc.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="272">
@@ -660,45 +659,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/data_preprocessing/load_mnistdvs_2d.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-3774">
-          <caret line="3" column="6" lean-forward="true" selection-start-line="3" selection-start-column="6" selection-end-line="3" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/data_preprocessing/load_dvsgestures.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="680">
-          <caret line="79" selection-start-line="79" selection-end-line="79" />
-          <folding>
-            <element signature="e#366#379#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/data_preprocessing/load_dvsgestures_flat.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-918" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/data_preprocessing/load_data.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="6" selection-start-line="6" selection-end-line="6" />
-          <folding>
-            <element signature="e#0#13#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/data_preprocessing/events_timeslices.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="1" column="13" selection-start-line="1" selection-start-column="7" selection-end-line="1" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/data_preprocessing/load_mnistdvs_2d.py" />
+    <entry file="file://$PROJECT_DIR$/data_preprocessing/load_dvsgestures.py" />
+    <entry file="file://$PROJECT_DIR$/data_preprocessing/load_dvsgestures_flat.py" />
+    <entry file="file://$PROJECT_DIR$/data_preprocessing/events_timeslices.py" />
     <entry file="file://$PROJECT_DIR$/wispike/test/vqvae_ldpc.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="157">
@@ -746,16 +710,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/binary_snn/binary_exp.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="160">
-          <caret line="34" column="44" lean-forward="true" selection-start-line="34" selection-start-column="44" selection-end-line="34" selection-end-column="44" />
-          <folding>
-            <element signature="e#0#43#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/data_preprocessing/misc.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="149">
@@ -776,50 +730,77 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/launch_gpu_job.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="9" column="32" selection-start-line="9" selection-start-column="32" selection-end-line="9" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data_preprocessing/process_mnistdvs.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="164">
+          <caret line="75" lean-forward="true" selection-start-line="75" selection-end-line="75" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/binary_snn/binary_exp.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="510">
+          <caret line="34" column="44" selection-start-line="34" selection-start-column="44" selection-end-line="34" selection-end-column="44" />
+          <folding>
+            <element signature="e#0#43#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wispike/wispike.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="522">
+          <caret line="156" selection-start-line="148" selection-end-line="156" />
+          <folding>
+            <element signature="e#0#46#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/binary_snn/utils_binary/training_utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-335">
-          <caret line="84" column="47" selection-start-line="84" selection-start-column="47" selection-end-line="84" selection-end-column="47" />
+        <state relative-caret-position="102">
+          <caret line="6" selection-start-line="6" selection-end-line="6" />
           <folding>
             <element signature="e#0#12#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/data_preprocessing/load_data.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="121">
-          <caret line="50" column="30" lean-forward="true" selection-start-line="50" selection-start-column="30" selection-end-line="50" selection-end-column="30" />
-          <folding>
-            <element signature="e#367#385#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/launch_experiment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="92">
-          <caret line="30" column="36" selection-start-line="30" selection-start-column="36" selection-end-line="30" selection-end-column="36" />
-          <folding>
-            <element signature="e#0#37#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/data_preprocessing/process_dvsgestures.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-238">
-          <caret line="97" selection-start-line="97" selection-end-line="97" />
+        <state relative-caret-position="935">
+          <caret line="104" selection-start-line="104" selection-end-line="104" />
           <folding>
             <element signature="e#366#379#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/data_preprocessing/process_mnistdvs.py">
+    <entry file="file://$PROJECT_DIR$/launch_experiment.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="481">
-          <caret line="89" selection-start-line="83" selection-end-line="89" />
+        <state relative-caret-position="272">
+          <caret line="29" column="40" selection-start-line="29" selection-start-column="40" selection-end-line="29" selection-end-column="40" />
+          <folding>
+            <element signature="e#0#37#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data_preprocessing/load_data.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="272">
+          <caret line="27" selection-start-line="27" selection-end-line="27" />
+          <folding>
+            <element signature="e#367#385#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

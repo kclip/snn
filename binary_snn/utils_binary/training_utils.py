@@ -2,6 +2,7 @@ import torch
 import pickle
 from binary_snn.utils_binary.misc import refractory_period, get_acc_and_loss
 from data_preprocessing.load_data import get_example
+import os
 
 
 def feedforward_sampling(network, example, gamma, r):
@@ -115,5 +116,12 @@ def train(network, indices, test_indices, args):
 
         if j % max(1, int(len(indices) / 5)) == 0:
             print('Step %d out of %d' % (j, len(indices)))
+
+    # At the end of training, save final weights if none exist or if this ite was better than all the others
+    if not os.path.exists(args.save_path + '/network_weights_final.hdf5'):
+        network.save(args.save_path + '/network_weights_final.hdf5')
+    else:
+        if args.test_accs[list(args.test_accs.keys())[-1]][-1] >= max(args.test_accs[list(args.test_accs.keys())[-1]][:-1]):
+            network.save(args.save_path + '/network_weights_final.hdf5')
 
     return args.test_accs
