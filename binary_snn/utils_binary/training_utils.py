@@ -80,6 +80,7 @@ def train(network, indices, test_indices, args):
     train_data = args.dataset.root.train
     test_data = args.dataset.root.test
     T = int(args.sample_length * 1000 / args.dt)
+    print(T)
 
     for j, idx in enumerate(indices[args.start_idx:]):
         j += args.start_idx
@@ -105,6 +106,7 @@ def train(network, indices, test_indices, args):
 
         inputs, label = get_example(train_data, idx, T, args.n_classes, args.input_shape, args.dt, args.polarity)
         sample = torch.cat((inputs, label), dim=0).to(network.device)
+        print(sample.shape)
 
         for t in range(T):
             # Feedforward sampling
