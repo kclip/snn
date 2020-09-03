@@ -90,7 +90,7 @@ def train(network, indices, test_indices, args):
         # Regularly test the accuracy
         if args.test_accs:
             if (j + 1) in args.test_accs:
-                acc, loss = get_acc_and_loss(network, test_data, test_indices, T, args.n_classes, args.input_shape, args.dt, args.polarity)
+                acc, loss = get_acc_and_loss(network, test_data, test_indices, T, args.n_classes, args.input_shape, args.dt, args.dataset.root.stats.train_data[1], args.polarity)
                 args.test_accs[int(j + 1)].append(acc)
                 print('test accuracy at ite %d: %f' % (int(j + 1), acc))
 
@@ -104,7 +104,7 @@ def train(network, indices, test_indices, args):
 
         refractory_period(network)
 
-        inputs, label = get_example(train_data, idx, T, args.n_classes, args.input_shape, args.dt, args.polarity)
+        inputs, label = get_example(train_data, idx, T, args.n_classes, args.input_shape, args.dt, args.dataset.root.stats.train_data[1], args.polarity)
         sample = torch.cat((inputs, label), dim=0).to(network.device)
         print(sample.shape)
 
