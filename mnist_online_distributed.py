@@ -7,8 +7,8 @@ import torch.distributed as dist
 import torch.multiprocessing as mp
 import os
 from binary_snn.utils_binary.training_fl_snn import feedforward_sampling, local_feedback_and_update
-from binary_snn.utils_binary.distributed_utils import init_processes, init_training, global_update, global_update_subset
-from binary_snn.utils_binary.misc import refractory_period, get_acc_and_loss, save_results, find_test_indices_for_labels
+from binary_snn.utils_binary.distributed_utils import init_processes, init_training, global_update, global_update_subset, get_acc_and_loss
+from binary_snn.utils_binary.misc import refractory_period, save_results, find_indices_for_labels
 import tables
 
 """"
@@ -19,6 +19,7 @@ Runs FL-SNN using two devices.
 
 
 def train_fixed_rate(rank, num_nodes, net_params, train_params):
+    # todo update
     # Setup training parameters
     # Setup training parameters
     dataset = tables.open_file(train_params['dataset'])
@@ -115,8 +116,8 @@ def train(rank, num_nodes, args):
     args.num_samples_test = args.dataset.root.stats.test_data[0]
     if args.labels is not None:
         print(args.labels)
-        num_samples_test = min(args.num_samples_test, len(find_test_indices_for_labels(args.dataset, args.labels)))
-        test_indices = np.random.choice(find_test_indices_for_labels(args.dataset, args.labels), [num_samples_test], replace=False)
+        num_samples_test = min(args.num_samples_test, len(find_indices_for_labels(args.dataset.root.train, args.labels)))
+        test_indices = np.random.choice(find_indices_for_labels(args.dataset.root.test, args.labels), [num_samples_test], replace=False)
     else:
         test_indices = np.random.choice(np.arange(args.dataset.root.stats.test_data[0]), [args.num_samples_test], replace=False)
         args.labels = [i for i in range(10)]
@@ -245,8 +246,7 @@ if __name__ == "__main__":
     parser.add_argument('--topology_type', default='fully_connected', choices=['fully_connected', 'sparse', 'feedforward'], type=str)
     parser.add_argument('--tau_ff', default=10, type=int, help='Feedforward filter length')
     parser.add_argument('--tau_fb', default=10, type=int, help='Feedback filter length')
-    parser.add_argument('--ff_filter', default='raised_cosine_pillow_08', help='Feedforward filter type')
-    parser.add_argument('--fb_filter', default='raised_cosine_pillow_08', help='Feedback filter type')
+    parser.add_argument('--filter', default='raised_cosine_pillow_08', help='Feedforward filter type')
     parser.add_argument('--mu', default=1.5, type=float, help='Filters width')
     parser.add_argument('--lr', default=0.05, type=float, help='Learning rate')
     parser.add_argument('--tau', default=1, type=int, help='Global update period.')
@@ -284,8 +284,8 @@ if __name__ == "__main__":
         assert args.rate is not None, 'rate and tau_list must be specified together'
         tau = None
 
-    args.fb_filter = filters_dict[args.ff_filter]
-    args.ff_filter = filters_dict[args.ff_filter]
+    args.fb_filter = filters_dict[args.filter]
+    args.ff_filter = filters_dict[args.filter]
     args.n_basis_fb = 1
 
     processes = []

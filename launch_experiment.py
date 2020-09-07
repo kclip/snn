@@ -4,7 +4,6 @@ from multivalued_snn.utils_multivalued.misc import str2bool
 from multivalued_snn import multivalued_exp
 from binary_snn import binary_exp
 from wispike.wispike import wispike
-from wispike.snn_jscc import jscc
 from misc import mksavedir
 import numpy as np
 import tables
@@ -12,7 +11,6 @@ import pickle
 import argparse
 
 ''''
-Train a WTA-SNN with VOWEL.
 '''
 
 if __name__ == "__main__":
