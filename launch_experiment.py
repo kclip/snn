@@ -167,9 +167,9 @@ args.n_classes = args.dataset.root.stats.test_label[1]
 
 ### Network parameters
 if args.polarity:
-    args.n_input_neurons = 2 * (args.dataset.root.stats.train_data[1] ** 2)
+    args.n_input_neurons = int(2 * (args.dataset.root.stats.train_data[1] ** 2))
 else:
-    args.n_input_neurons = args.dataset.root.stats.train_data[1] ** 2
+    args.n_input_neurons = int(args.dataset.root.stats.train_data[1] ** 2)
 args.n_output_neurons = args.dataset.root.stats.train_label[1]
 args.n_hidden_neurons = args.n_h
 
