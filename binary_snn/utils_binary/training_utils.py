@@ -106,7 +106,6 @@ def train(network, indices, test_indices, args):
 
         inputs, label = get_example(train_data, idx, T, args.n_classes, args.input_shape, args.dt, args.dataset.root.stats.train_data[1], args.polarity)
         sample = torch.cat((inputs, label), dim=0).to(network.device)
-        print(sample.shape)
 
         for t in range(T):
             # Feedforward sampling

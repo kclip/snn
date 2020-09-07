@@ -164,18 +164,10 @@ def train(rank, num_nodes, args):
                         network.set_mode('train')
                         print('Acc at step %d : %f' % (s, acc))
 
-
             dist.barrier(all_nodes)
 
             if rank != 0:
                 if s % S_prime == 0:  # at each example
-                    ## Every test_interval samples, record test losses
-                    # if (1 + s // S_prime) % args.test_interval == 0:
-                    #     _, loss = get_acc_and_loss(network, args.dataset, test_indices)
-                    #     test_loss[1 + s // S_prime].append(loss)
-                    #     save_results(test_loss, test_loss_save_path)
-                    #     network.set_mode('train')
-
                     refractory_period(network)
                     sample = torch.cat((torch.FloatTensor(args.dataset.root.train.data[indices_local[s // S_prime]]),
                                         torch.FloatTensor(args.dataset.root.train.label[indices_local[s // S_prime]])), dim=0).to(network.device)
@@ -189,6 +181,7 @@ def train(rank, num_nodes, args):
 
                 # Local feedback and update
                 eligibility_trace, et_temp, learning_signal, ls_temp = local_feedback_and_update(network, eligibility_trace, et_temp, learning_signal, ls_temp, s, args)
+
 
             # Global update
             if (s + 1) % (args.tau * args.deltas) == 0:
