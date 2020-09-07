@@ -116,7 +116,7 @@ def train(rank, num_nodes, args):
     args.num_samples_test = args.dataset.root.stats.test_data[0]
     if args.labels is not None:
         print(args.labels)
-        num_samples_test = min(args.num_samples_test, len(find_indices_for_labels(args.dataset.root.train, args.labels)))
+        num_samples_test = min(args.num_samples_test, len(find_indices_for_labels(args.dataset.root.test, args.labels)))
         test_indices = np.random.choice(find_indices_for_labels(args.dataset.root.test, args.labels), [num_samples_test], replace=False)
     else:
         test_indices = np.random.choice(np.arange(args.dataset.root.stats.test_data[0]), [args.num_samples_test], replace=False)
