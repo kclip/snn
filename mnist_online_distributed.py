@@ -150,9 +150,9 @@ def train(rank, num_nodes, args):
         # Test loss at beginning + selection of training indices
         if rank != 0:
             print('Node %d' % rank, indices_local)
-
-            _, loss = get_acc_and_loss(network, args.dataset, test_indices)
-            test_loss[0].append(loss)
+        else:
+            acc, _ = get_acc_and_loss(network, args.dataset, test_indices)
+            test_accs[0].append(acc)
             network.set_mode('train')
 
         dist.barrier(all_nodes)
@@ -163,6 +163,7 @@ def train(rank, num_nodes, args):
                 if s % S_prime == 0:
                     if (1 + (s // S_prime)) % args.test_interval == 0:
                         acc, _ = get_acc_and_loss(network, args.dataset, test_indices)
+                        test_accs[1 + (s // S_prime)].append(acc)
                         network.set_mode('train')
                         print('Acc at step %d : %f' % (s, acc))
 
