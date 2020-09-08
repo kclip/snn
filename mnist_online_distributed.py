@@ -127,7 +127,9 @@ def train(rank, num_nodes, args):
             test_acc_save_path = os.getcwd() + r'/test_acc_master_%d_labels_tau_%d.pkl' % (len(args.labels), args.tau)
         else:
             test_acc_save_path = args.save_path + r'/test_acc_master_%d_labels_tau_%d.pkl' % (len(args.labels), args.tau)
-        test_accs = []
+        test_accs = {i: [] for i in range(0, args.num_samples_train, args.test_interval)}
+        test_accs[args.num_samples_train] = []
+
     else:
         if args.save_path is None:
             test_loss_save_path = os.getcwd() + r'/results/test_loss_%d_labels_node_%d_tau_%d.pkl' % (len(args.labels), rank, args.tau)
