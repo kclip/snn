@@ -200,7 +200,7 @@ def train(rank, num_nodes, args):
         if rank == 0:
             global_acc, _ = get_acc_and_loss(network, args.dataset, test_indices)
             print('Iteration: %d, final accuracy: %f' % (i, global_acc))
-            test_accs.append(global_acc)
+            test_accs[args.num_samples_train].append(global_acc)
             save_results(test_accs, test_acc_save_path)
         else:
             _, loss = get_acc_and_loss(network, args.dataset, test_indices)

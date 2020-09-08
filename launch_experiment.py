@@ -141,7 +141,7 @@ if args.test_period is not None:
 if args.model == 'wispike':
     name = args.dataset + r'_' + args.model + r'_%d_epochs_nh_%d_nout_%d' % (args.num_samples_train, args.n_h, args.n_output_enc) + args.suffix
 else:
-    name = args.dataset + r'_' + args.model + r'_%d_epochs_nh_%d' % (args.num_samples_train, args.n_h) + args.suffix
+    name = args.dataset + r'_' + args.model + r'_%d_epochs_nh_%d_dt_%d_' % (args.num_samples_train, args.n_h, args.dt) + r'_pol_' + args.polarity + args.suffix
 
 results_path = home + r'/results/'
 if args.save_path is None:
