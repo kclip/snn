@@ -81,7 +81,7 @@ class BinarySNN(SNNetwork):
         elif howto == 'uniform':
             self.feedforward_weights = (gain * (torch.rand(self.ff_weights_shape) * 2 - 1).to(self.device) * self.feedforward_mask)
 
-        self.ff_grad = torch.zeros(self.ff_weights_shape)
+        self.ff_grad = torch.zeros(self.ff_weights_shape).to(self.device)
 
     def initialize_fb_weights(self, topology, howto='glorot', gain=0.):
         if howto == 'glorot':
@@ -92,7 +92,7 @@ class BinarySNN(SNNetwork):
         elif howto == 'uniform':
             self.feedback_weights = (gain * (torch.rand(self.fb_weights_shape) * 2 - 1)).to(self.device)
 
-        self.fb_grad = torch.zeros(self.fb_weights_shape)
+        self.fb_grad = torch.zeros(self.fb_weights_shape).to(self.device)
 
     def initialize_bias_weights(self, topology, howto='glorot', gain=0.):
         if howto == 'glorot':
@@ -102,7 +102,7 @@ class BinarySNN(SNNetwork):
         elif howto == 'uniform':
             self.bias = (gain * (torch.rand(self.bias_shape) * 2 - 1)).to(self.device)
 
-        self.bias_grad = torch.zeros(self.bias_shape)
+        self.bias_grad = torch.zeros(self.bias_shape).to(self.device)
 
 
 
