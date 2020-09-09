@@ -38,7 +38,7 @@ def init_training(rank, num_nodes, nodes_group, args):
                                                        tau_fb=args.tau_fb,
                                                        mu=args.mu
                                                        ),
-                        device=args.device)
+                        device='cpu')
     network.train()
 
     # At the beginning, the master node:
