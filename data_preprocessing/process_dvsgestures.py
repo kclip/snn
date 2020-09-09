@@ -138,7 +138,7 @@ def create_events_hdf5(path_to_hdf5, path_to_data, ds=1):
     print("processing testing data...")
     last_ts = 0
     for file_d in fns_test:
-        events, labels = aedat_to_events(file_d, last_ts)
+        events, labels = aedat_to_events(file_d, last_ts, ds)
         test_labels_array.append(labels)
         test_times_array.append(events[0, :])
         test_data_array.append(events[1:, :].T)
