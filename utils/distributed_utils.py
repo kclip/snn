@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 import torch.distributed as dist
-from models.SNN import SNNetwork
+from models.SNN import BinarySNN
 import datetime
 from utils import misc, filters, utils_snn
 
@@ -21,7 +21,7 @@ def init_training(rank, num_nodes, nodes_group, args):
     Initializes the different parameters for distributed training
     """
     # Initialize an SNN
-    network = SNNetwork(**misc.make_network_parameters(network_type='snn',
+    network = BinarySNN(**misc.make_network_parameters(network_type='snn',
                                                        n_input_neurons=args.n_input_neurons,
                                                        n_output_neurons=args.n_output_neurons,
                                                        n_hidden_neurons=args.n_hidden_neurons,
