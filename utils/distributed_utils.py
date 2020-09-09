@@ -158,6 +158,13 @@ def global_update_subset(nodes, rank, network, weights_list, gradients_accum, n_
         dist.broadcast(network.get_parameters()[parameter], 0, group=nodes)
 
 
+def find_indices_for_labels(hdf5_group, labels):
+    res = []
+    for label in labels:
+        res.append(np.where(hdf5_group.label[:, 0] == label)[0])
+    return np.hstack(res)
+
+
 def get_acc_and_loss(network, dataset, test_indices):
     """"
     Compute loss and accuracy on the indices from the dataset precised as arguments

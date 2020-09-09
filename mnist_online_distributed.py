@@ -7,9 +7,9 @@ import torch.distributed as dist
 import torch.multiprocessing as mp
 import os
 from training_utils.training_fl_snn import feedforward_sampling, local_feedback_and_update
-from utils.distributed_utils import init_processes, init_training, global_update, global_update_subset, get_acc_and_loss
+from utils.distributed_utils import init_processes, init_training, global_update, global_update_subset, get_acc_and_loss, find_indices_for_labels
 from utils.utils_snn import refractory_period
-from utils.misc import save_results, find_indices_for_labels
+from utils.misc import save_results
 import tables
 
 """"
