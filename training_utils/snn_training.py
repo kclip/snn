@@ -68,8 +68,7 @@ def init_training(network):
     return eligibility_trace_output, eligibility_trace_hidden, learning_signal, baseline_num, baseline_den
 
 
-def \
-        train(network, dataset, sample_length, dt, input_shape, polarity, indices, test_indices, lr, n_classes, r, beta, gamma, kappa, start_idx, test_accs, save_path):
+def train(network, dataset, sample_length, dt, input_shape, polarity, indices, test_indices, lr, n_classes, r, beta, gamma, kappa, start_idx, test_accs, save_path):
     """"
     Train an SNN.
     """

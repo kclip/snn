@@ -59,7 +59,7 @@ def chunk_evs_pol(times, addrs, deltat=1000, size=[2, 304, 240], x_max=1, polari
                     else:
                         chunks[i, (x * x_max + y).astype(int)] = 1
             except:
-                i_max = np.max((pol + 2 * (x * x_max + y)))
+                i_max = np.argmax((pol + 2 * (x * x_max + y)))
                 print(x[i_max], y[i_max], pol[i_max])
                 raise IndexError
         idx_start = idx_end
