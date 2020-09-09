@@ -31,7 +31,7 @@ def init_training(rank, num_nodes, nodes_group, args):
                                                        density=1,
                                                        weights_magnitude=0.05,
                                                        initialization='uniform',
-                                                       synaptic_filter=filters.get_filter(args.synaptic_filter),
+                                                       synaptic_filter=args.synaptic_filter,
                                                        n_basis_ff=args.n_basis_ff,
                                                        n_basis_fb=args.n_basis_fb,
                                                        tau_ff=args.tau_ff,
