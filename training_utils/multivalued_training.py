@@ -1,7 +1,8 @@
 import torch
-import tables
-from multivalued_snn.utils_multivalued.misc import refractory_period, get_acc_and_loss, get_train_acc_and_loss
+from multivalued_snn.utils_multivalued.misc import refractory_period, get_acc_and_loss
 import pickle
+from data_preprocessing.load_data import get_example
+import os
 
 
 def feedforward_sampling_ml(network, training_sequence, r, gamma):
@@ -42,18 +43,11 @@ def ml_update(network, eligibility_trace_hidden, eligibility_trace_output, rewar
     return baseline_num, baseline_den, updates_hidden, eligibility_trace_hidden, eligibility_trace_output
 
 
-def train(network, dataset, indices, test_indices, test_accs, learning_rate, kappa, beta, gamma, r, start_idx=0, save_path=None, save_path_weights=None):
-    # todo update signature
-    """"
-    Train a network on the sequence passed as argument.
-    """
-
+def init_training(network):
     assert torch.sum(network.feedforward_mask[network.hidden_neurons - network.n_input_neurons, :, -network.n_output_neurons:]) == 0,\
         'There must be no backward connection from output to hidden neurons.'
     network.set_mode('train_ml')
 
-    num_samples_train = dataset.root.stats.train[:][0]
-    S_prime = dataset.root.stats.train[:][-1]
 
     eligibility_trace_hidden = {parameter: network.gradients[parameter][network.hidden_neurons - network.n_input_neurons] for parameter in network.gradients}
     eligibility_trace_output = {parameter: network.gradients[parameter][network.output_neurons - network.n_input_neurons] for parameter in network.gradients}
@@ -63,41 +57,56 @@ def train(network, dataset, indices, test_indices, test_accs, learning_rate, kap
     baseline_num = {parameter: eligibility_trace_hidden[parameter].pow(2)*reward for parameter in eligibility_trace_hidden}
     baseline_den = {parameter: eligibility_trace_hidden[parameter].pow(2) for parameter in eligibility_trace_hidden}
 
-    for j, sample_idx in enumerate(indices[start_idx:]):
+
+    return eligibility_trace_output, eligibility_trace_hidden, updates_hidden, baseline_num, baseline_den, reward
+
+
+def train(network, dataset, sample_length, dt, input_shape, polarity, indices, test_indices, lr, n_classes, r, beta, gamma, kappa, start_idx, test_accs, save_path):
+
+    eligibility_trace_output, eligibility_trace_hidden, updates_hidden, baseline_num, baseline_den, reward = init_training(network)
+
+    train_data = dataset.root.train
+    test_data = dataset.root.test
+    T = int(sample_length * 1000 / dt)
+
+
+    for j, idx in enumerate(indices[start_idx:]):
         j += start_idx
+        if (j + 1) % (3 * (dataset.root.stats.train_data[0])) == 0:
+            lr /= 2
+
         if test_accs:
             if (j + 1) in test_accs:
-                acc, _ = get_acc_and_loss(network, dataset, test_indices)
+                acc, loss = get_acc_and_loss(network, test_data, test_indices, T, n_classes, input_shape, dt, dataset.root.stats.train_data[1], polarity)
                 test_accs[int(j + 1)].append(acc)
-
                 print('test accuracy at ite %d: %f' % (int(j + 1), acc))
 
                 if save_path is not None:
-                    with open(save_path, 'wb') as f:
+                    with open(save_path + '/test_accs.pkl', 'wb') as f:
                         pickle.dump(test_accs, f, pickle.HIGHEST_PROTOCOL)
-                if save_path_weights is not None:
-                    network.save(save_path_weights) # todo update
+                    network.save(save_path + '/network_weights.hdf5')
 
                 network.set_mode('train_ml')
+                network.reset_internal_state()
 
         refractory_period(network)
 
-        sample = torch.cat((torch.FloatTensor(dataset.root.train.data[sample_idx]),
-                            torch.FloatTensor(dataset.root.train.label[sample_idx])), dim=0)
+        inputs, label = get_example(train_data, idx, T, n_classes, input_shape, dt, dataset.root.stats.train_data[1], polarity)
+        sample = torch.cat((inputs, label), dim=0).to(network.device)
 
-        for s in range(S_prime):
-            reward = feedforward_sampling_ml(network, sample[:, :, s].to(network.device), r, gamma)
+        for t in range(T):
+            reward = feedforward_sampling_ml(network, sample[:, :, t].to(network.device), r, gamma)
             baseline_num, baseline_den, updates_hidden, eligibility_trace_hidden, eligibility_trace_output = \
-                ml_update(network, eligibility_trace_hidden, eligibility_trace_output, reward, updates_hidden, baseline_num, baseline_den, learning_rate, kappa, beta)
-
-        if (j + 1) % (3 * num_samples_train) == 0:
-            learning_rate /= 2
+                ml_update(network, eligibility_trace_hidden, eligibility_trace_output, reward, updates_hidden, baseline_num, baseline_den, lr, kappa, beta)
 
         if j % max(1, int(len(indices) / 5)) == 0:
             print('Sample %d out of %d' % (j + 1, len(indices)))
 
-    dataset.close()
-    try:
-        return test_accs
-    except:
-        return
+    # At the end of training, save final weights if none exist or if this ite was better than all the others
+    if not os.path.exists(save_path + '/network_weights_final.hdf5'):
+        network.save(save_path + '/network_weights_final.hdf5')
+    else:
+        if test_accs[list(test_accs.keys())[-1]][-1] >= max(test_accs[list(test_accs.keys())[-1]][:-1]):
+            network.save(save_path + '/network_weights_final.hdf5')
+
+    return test_accs

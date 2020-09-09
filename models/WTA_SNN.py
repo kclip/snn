@@ -3,12 +3,13 @@ import torch
 import utils.filters as filters
 import tables
 from torch.distributions.one_hot_categorical import OneHotCategorical
-from multivalued_snn.utils_multivalued.misc import custom_softmax
+from utils.misc import custom_softmax
+
 
 class SNNetwork(torch.nn.Module):
-    def __init__(self, n_input_neurons, n_hidden_neurons, n_output_neurons, topology, alphabet_size, temperature, n_basis_feedforward=1, feedforward_filter=filters.base_feedforward_filter,
-                 n_basis_feedback=1, feedback_filter=filters.base_feedback_filter, tau_ff=1, tau_fb=1, mu=1, weights_magnitude=0., dropout_rate=None,
-                 initialization='glorot', connection_topology='full', mode='train_ml', device='cpu', save_path=None):
+    def __init__(self, n_input_neurons, n_hidden_neurons, n_output_neurons, topology,
+                 synaptic_filter=filters.base_feedforward_filter, n_basis_feedforward=1, n_basis_feedback=1,
+                 tau_ff=1, tau_fb=1, mu=1, weights_magnitude=0., initialization='glorot', connection_topology='full', device='cpu', save_path=None):
 
         super(SNNetwork, self).__init__()
         '''
@@ -44,9 +45,8 @@ class SNNetwork(torch.nn.Module):
         self.learnable_neurons = torch.cat((self.hidden_neurons, self.output_neurons))
 
         # Setting mode and visible neurons
-        self.mode = None
+        self.training = None
         self.visible_neurons = None
-        self.set_mode(mode)
 
         # Sanity checks
         assert self.n_learnable_neurons == topology.shape[0], 'The topology of the network should be of shape [n_learnable_neurons, n_neurons]'
@@ -54,8 +54,8 @@ class SNNetwork(torch.nn.Module):
         topology[[i for i in range(self.n_learnable_neurons)], [i for i in self.learnable_neurons]] = 0
 
         ### Alphabet
-        self.alphabet_size = alphabet_size
-        self.alphabet = [i for i in range(1, alphabet_size + 1)]
+        self.alphabet_size = 2
+        self.alphabet = [i for i in range(1, self.alphabet_size + 1)]
 
 
         ### Feedforward weights
@@ -77,8 +77,10 @@ class SNNetwork(torch.nn.Module):
 
         self.feedforward_weights = None
         self.initialize_ff_weights(topology, howto=initialization, gain=weights_magnitude)
+
         self.tau_ff = tau_ff
-        self.feedforward_filter = feedforward_filter(self.tau_ff, self.n_basis_feedforward, mu).transpose(0, 1).to(self.device)
+        self.feedforward_filter = synaptic_filter(self.tau_ff, self.n_basis_feedforward, mu).transpose(0, 1).to(self.device)
+
 
         ### Feedback weights
         self.n_basis_feedback = n_basis_feedback
@@ -87,10 +89,11 @@ class SNNetwork(torch.nn.Module):
         # for which learnable elements are initialized as ~ Unif[-weights_magnitude, +weights_magnitude],
         self.fb_weights_shape = torch.Size([self.n_learnable_neurons, self.alphabet_size, self.n_basis_feedback])
         self.feedback_weights = None
-
         self.initialize_fb_weights(topology, howto=initialization, gain=weights_magnitude)
+
         self.tau_fb = tau_fb
-        self.feedback_filter = feedback_filter(self.tau_fb, self.n_basis_feedback, 1.).transpose(0, 1).to(self.device)
+        self.feedback_filter = synaptic_filter(self.tau_fb, self.n_basis_feedback, 1.).transpose(0, 1).to(self.device)
+
 
         ### Bias
         self.bias = None
@@ -100,25 +103,23 @@ class SNNetwork(torch.nn.Module):
         # Number of timesteps to keep in memory
         self.memory_length = max(self.tau_ff, self.tau_fb)
 
+
         ### State of the network
         self.spiking_history = torch.zeros([self.n_neurons, self.alphabet_size, 2]).to(self.device)
         self.potential = None
 
+
         ### Gradients
-        self.gradients = {'ff_weights': torch.zeros(self.feedforward_weights.shape).to(self.device),
-                          'fb_weights': torch.zeros(self.feedback_weights.shape).to(self.device),
-                          'bias': torch.zeros(self.bias.shape).to(self.device)}
+        self.ff_grad = torch.zeros(self.feedforward_weights.shape).to(self.device)
+        self.fb_grad = torch.zeros(self.feedback_weights.shape).to(self.device)
+        self.bias_grad = torch.zeros(self.bias.shape).to(self.device)
 
-        self.dropout_rate = dropout_rate
-
-        self.temperature = temperature
 
         # Path to where the weights are saved, if None they will be saved in the current directory
         self.save_path = save_path
 
 
     def forward(self, input_signal):
-
         assert self.n_neurons == (len(self.input_neurons) + len(self.hidden_neurons) + len(self.output_neurons)), "The numbers of neurons don't match"
         assert self.n_neurons == (len(self.learnable_neurons) + len(self.input_neurons)), "The numbers of neurons don't match"
 
@@ -127,9 +128,6 @@ class SNNetwork(torch.nn.Module):
         fb_trace = self.compute_fb_trace(self.spiking_history[:, :, 1:])[self.learnable_neurons, :]
 
         self.potential = self.compute_ff_potential(ff_trace) + self.compute_fb_potential(fb_trace) + self.bias
-
-        if self.mode == 'test':
-            self.potential = self.potential / self.temperature
 
         ### Update spiking history
         self.update_spiking_history(input_signal)
@@ -145,7 +143,7 @@ class SNNetwork(torch.nn.Module):
             'Wrong log_probability shape, got: ' + str(log_proba.shape) + ', expected: ' + str(torch.Size([self.n_learnable_neurons]))
 
         ### Compute gradients
-        if self.mode != 'test':
+        if self.training:
             self.compute_gradients(self.spiking_history[self.learnable_neurons, :, -1], self.potential, ff_trace, fb_trace)
 
         return log_proba
@@ -154,6 +152,9 @@ class SNNetwork(torch.nn.Module):
     ### Getters
     def get_parameters(self):
         return {'ff_weights': self.feedforward_weights, 'fb_weights': self.feedback_weights, 'bias': self.bias}
+
+    def get_gradients(self):
+        return {'ff_weights': self.ff_grad, 'fb_weights': self.fb_grad, 'bias': self.bias_grad}
 
 
     ### Initializers
@@ -187,8 +188,6 @@ class SNNetwork(torch.nn.Module):
         elif howto == 'uniform':
             self.bias = (gain * (torch.rand([self.n_learnable_neurons, self.alphabet_size]) * 2 - 1)).to(self.device)
 
-        # print(self.bias)
-
 
     ### Setters
     def reset_internal_state(self):
@@ -221,20 +220,16 @@ class SNNetwork(torch.nn.Module):
         self.bias = new_bias.to(self.device)
         return
 
-
-    def set_mode(self, mode):
-        if mode == 'train_ml':
+    def train(self, mode: bool = True):
+        if mode:
             self.visible_neurons = torch.cat((self.input_neurons, self.output_neurons))
-
-        elif (mode == 'test') | (mode == 'train_rl'):
-            self.visible_neurons = self.input_neurons
-
         else:
-            print('Mode should be one of "train_ml", "train_rl" or "test"')
-            raise AttributeError
+            self.visible_neurons = self.input_neurons
+        self.training = mode
 
-        self.mode = mode
-        return
+    def eval(self):
+        self.visible_neurons = self.input_neurons
+        self.training = False
 
 
     ### Computations
@@ -246,10 +241,7 @@ class SNNetwork(torch.nn.Module):
 
 
     def compute_ff_potential(self, ff_trace):
-        if (self.dropout_rate is not None) & (self.mode != 'test'):
-            return torch.sum(self.feedforward_weights * ff_trace * torch.bernoulli(self.feedforward_mask * (1 - self.dropout_rate)), dim=(-1, -2, -3))
-        else:
-            return torch.sum(self.feedforward_weights * ff_trace, dim=(-1, -2, -3))
+        return torch.sum(self.feedforward_weights * ff_trace, dim=(-1, -2, -3))
 
 
     def compute_fb_potential(self, fb_trace):
@@ -264,28 +256,26 @@ class SNNetwork(torch.nn.Module):
 
     def update_spiking_history(self, input_signal):
         self.spiking_history = torch.cat((self.spiking_history[:, :, - self.memory_length:],
-                                     torch.zeros([self.n_neurons, self.alphabet_size, 1]).to(self.device)), dim=-1)
+                                          torch.zeros([self.n_neurons, self.alphabet_size, 1]).to(self.device)), dim=-1)
         self.spiking_history[self.visible_neurons, :, -1] = input_signal
 
         if self.n_hidden_neurons > 0:
             self.generate_spikes(self.hidden_neurons)
-        if (self.mode == 'test') | (self.mode == 'train_rl'):
+        if not self.training:
             self.generate_spikes(self.output_neurons)
 
 
     def compute_gradients(self, spikes, potential, feedforward_trace, feedback_trace):
-        bias_gradient = spikes - custom_softmax(potential, 1, -1)
-        assert bias_gradient.shape == self.bias.shape, "Wrong bias gradient shape"
+        self.bias_grad = spikes - custom_softmax(potential, 1, -1)
+        assert self.bias_grad.shape == self.bias.shape, "Wrong bias gradient shape"
 
-        ff_gradient = feedforward_trace.unsqueeze(0).unsqueeze(0).repeat(self.n_learnable_neurons, self.alphabet_size, 1, 1, 1) \
-                           * bias_gradient.unsqueeze(2).unsqueeze(3).unsqueeze(4).repeat(1, 1, self.n_neurons, self.alphabet_size, self.n_basis_feedforward) \
-                           * self.feedforward_mask
-        assert ff_gradient.shape == self.feedforward_weights.shape, "Wrong feedforward weights gradient shape"
+        self.ff_grad = feedforward_trace.unsqueeze(0).unsqueeze(0).repeat(self.n_learnable_neurons, self.alphabet_size, 1, 1, 1) \
+                       * self.bias_grad.unsqueeze(2).unsqueeze(3).unsqueeze(4).repeat(1, 1, self.n_neurons, self.alphabet_size, self.n_basis_feedforward) \
+                       * self.feedforward_mask
+        assert self.ff_grad.shape == self.feedforward_weights.shape, "Wrong feedforward weights gradient shape"
 
-        fb_gradient = feedback_trace * bias_gradient.unsqueeze(2).repeat(1, 1, self.n_basis_feedback)
-        assert fb_gradient.shape == self.feedback_weights.shape, "Wrong feedback weights gradient shape"
-
-        self.gradients = {'ff_weights': ff_gradient, 'fb_weights': fb_gradient, 'bias': bias_gradient}
+        self.fb_grad = feedback_trace * self.bias_grad.unsqueeze(2).repeat(1, 1, self.n_basis_feedback)
+        assert self.fb_grad.shape == self.feedback_weights.shape, "Wrong feedback weights gradient shape"
 
 
     ### Misc

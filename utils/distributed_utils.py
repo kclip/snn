@@ -1,8 +1,7 @@
 import numpy as np
 import torch
 import torch.distributed as dist
-import math
-from binary_snn.models.SNN import SNNetwork
+from models.SNN import SNNetwork
 import datetime
 from binary_snn.utils_binary import misc
 

@@ -68,61 +68,58 @@ def init_training(network):
     return eligibility_trace_output, eligibility_trace_hidden, learning_signal, baseline_num, baseline_den
 
 
-def train(network, indices, test_indices, args):
+def train(network, dataset, sample_length, dt, input_shape, polarity, indices, test_indices, lr, n_classes, r, beta, gamma, kappa, start_idx, test_accs, save_path):
     """"
-    Train a network.
+    Train an SNN.
     """
 
     eligibility_trace_output, eligibility_trace_hidden, \
         learning_signal, baseline_num, baseline_den = init_training(network)
-    lr = args.lr
 
-    train_data = args.dataset.root.train
-    test_data = args.dataset.root.test
-    T = int(args.sample_length * 1000 / args.dt)
-    print(T)
+    train_data = dataset.root.train
+    test_data = dataset.root.test
+    T = int(sample_length * 1000 / dt)
 
-    for j, idx in enumerate(indices[args.start_idx:]):
-        j += args.start_idx
-        if (j + 1) % (5 * (args.dataset.root.stats.train_data[0])) == 0:
+    for j, idx in enumerate(indices[start_idx:]):
+        j += start_idx
+        if (j + 1) % (5 * (dataset.root.stats.train_data[0])) == 0:
             lr /= 2
 
         # Regularly test the accuracy
-        if args.test_accs:
-            if (j + 1) in args.test_accs:
-                acc, loss = get_acc_and_loss(network, test_data, test_indices, T, args.n_classes, args.input_shape, args.dt, args.dataset.root.stats.train_data[1], args.polarity)
-                args.test_accs[int(j + 1)].append(acc)
+        if test_accs:
+            if (j + 1) in test_accs:
+                acc, loss = get_acc_and_loss(network, test_data, test_indices, T, n_classes, input_shape, dt, dataset.root.stats.train_data[1], polarity)
+                test_accs[int(j + 1)].append(acc)
                 print('test accuracy at ite %d: %f' % (int(j + 1), acc))
 
-                if args.save_path is not None:
-                    with open(args.save_path + '/test_accs.pkl', 'wb') as f:
-                        pickle.dump(args.test_accs, f, pickle.HIGHEST_PROTOCOL)
-                    network.save(args.save_path + '/network_weights.hdf5')
+                if save_path is not None:
+                    with open(save_path + '/test_accs.pkl', 'wb') as f:
+                        pickle.dump(test_accs, f, pickle.HIGHEST_PROTOCOL)
+                    network.save(save_path + '/network_weights.hdf5')
 
                 network.set_mode('train')
                 network.reset_internal_state()
 
         refractory_period(network)
 
-        inputs, label = get_example(train_data, idx, T, args.n_classes, args.input_shape, args.dt, args.dataset.root.stats.train_data[1], args.polarity)
+        inputs, label = get_example(train_data, idx, T, n_classes, input_shape, dt, dataset.root.stats.train_data[1], polarity)
         sample = torch.cat((inputs, label), dim=0).to(network.device)
 
         for t in range(T):
             # Feedforward sampling
-            log_proba, ls_tmp = feedforward_sampling(network, sample[:, t], args.gamma, args.r)
+            log_proba, ls_tmp = feedforward_sampling(network, sample[:, t], gamma, r)
             # Local feedback and update
             eligibility_trace_hidden, eligibility_trace_output, learning_signal, baseline_num, baseline_den \
-                = local_feedback_and_update(network, ls_tmp, eligibility_trace_hidden, eligibility_trace_output,
-                                            learning_signal, baseline_num, baseline_den, lr, args.beta, args.kappa)
+                = local_feedback_and_update(network, ls_tmp, eligibility_trace_hidden, eligibility_trace_output, learning_signal, baseline_num, baseline_den, lr, beta, kappa)
 
         if j % max(1, int(len(indices) / 5)) == 0:
             print('Step %d out of %d' % (j, len(indices)))
 
     # At the end of training, save final weights if none exist or if this ite was better than all the others
-    if not os.path.exists(args.save_path + '/network_weights_final.hdf5'):
-        network.save(args.save_path + '/network_weights_final.hdf5')
+    if not os.path.exists(save_path + '/network_weights_final.hdf5'):
+        network.save(save_path + '/network_weights_final.hdf5')
     else:
-        if args.test_accs[list(args.test_accs.keys())[-1]][-1] >= max(args.test_accs[list(args.test_accs.keys())[-1]][:-1]):
-            network.save(args.save_path + '/network_weights_final.hdf5')
+        if test_accs[list(test_accs.keys())[-1]][-1] >= max(test_accs[list(test_accs.keys())[-1]][:-1]):
+            network.save(save_path + '/network_weights_final.hdf5')
 
-    return args.test_accs
+    return test_accs

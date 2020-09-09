@@ -7,9 +7,8 @@ import os
 
 
 class SNNetwork(torch.nn.Module):
-    def __init__(self, n_input_neurons, n_hidden_neurons, n_output_neurons, topology, n_basis_feedforward=1, feedforward_filter=filters.base_feedforward_filter,
-                 n_basis_feedback=1, feedback_filter=filters.base_feedback_filter, tau_ff=1, tau_fb=1, mu=1, initialization='uniform', weights_magnitude=0.01,
-                 mode='train', device='cpu', save_path=None):
+    def __init__(self, n_input_neurons, n_hidden_neurons, n_output_neurons, topology, synaptic_filter=filters.base_feedforward_filter,
+                 n_basis_feedforward=1, n_basis_feedback=1, tau_ff=1, tau_fb=1, mu=1, initialization='uniform', weights_magnitude=0.01, device='cpu', save_path=None):
 
         super(SNNetwork, self).__init__()
         '''
