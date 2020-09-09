@@ -1,4 +1,4 @@
-from models.SNN import SNNetwork
+from models.SNN import BinarySNN
 from training_utils.snn_training import train
 from utils.filters import get_filter
 from utils.misc import *
@@ -7,7 +7,7 @@ from utils.misc import *
 def launch_binary_exp(args):
     for _ in range(args.num_ite):
         # Generate network
-        network = SNNetwork(**make_network_parameters(network_type=args.model,
+        network = BinarySNN(**make_network_parameters(network_type=args.model,
                                                       n_input_neurons=args.n_input_neurons,
                                                       n_output_neurons=args.n_output_neurons,
                                                       n_hidden_neurons=args.n_hidden_neurons,
@@ -17,13 +17,12 @@ def launch_binary_exp(args):
                                                       density=args.density,
                                                       weights_magnitude=args.weights_magnitude,
                                                       initialization=args.initialization,
-                                                      connection_topology='full',
                                                       synaptic_filter=get_filter(args.ff_filter),
                                                       n_basis_ff=args.n_basis_ff,
                                                       n_basis_fb=args.n_basis_fb,
                                                       tau_ff=args.tau_ff,
                                                       tau_fb=args.tau_fb,
-                                                      mu=args.mu,
+                                                      mu=args.mu
                                                       ),
                             device=args.device)
 

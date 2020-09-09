@@ -2,8 +2,8 @@ from wispike.utils.misc import *
 from wispike.utils import training_utils
 from wispike.test import testing_utils
 import lzma
-from binary_snn.models.SNN import SNNetwork
-from binary_snn.utils_binary import misc as misc_snn
+from models.SNN import SNNetwork
+from utils import utils_snn as misc_snn
 from wispike.models.mlp import MLP
 import pickle
 

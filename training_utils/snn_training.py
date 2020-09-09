@@ -1,6 +1,6 @@
 import torch
 import pickle
-from binary_snn.utils_binary.misc import refractory_period, get_acc_and_loss
+from utils.utils_snn import refractory_period, get_acc_and_loss
 from data_preprocessing.load_data import get_example
 import os
 
@@ -37,8 +37,8 @@ def local_feedback_and_update(network, ls_tmp, eligibility_trace_hidden, eligibi
         learning_signal = kappa * learning_signal + (1 - kappa) * ls_tmp
 
     # Update parameter
-    for parameter in network.gradients:
-        eligibility_trace_hidden[parameter].mul_(kappa).add_(1 - kappa, network.gradients[parameter][network.hidden_neurons - network.n_input_neurons])
+    for parameter in network.get_gradients():
+        eligibility_trace_hidden[parameter].mul_(kappa).add_(1 - kappa, network.get_gradients()[parameter][network.hidden_neurons - network.n_input_neurons])
 
         baseline_num[parameter].mul_(beta).add_(1 - beta, eligibility_trace_hidden[parameter].pow(2).mul_(learning_signal))
         baseline_den[parameter].mul_(beta).add_(1 - beta, eligibility_trace_hidden[parameter].pow(2))
@@ -48,17 +48,17 @@ def local_feedback_and_update(network, ls_tmp, eligibility_trace_hidden, eligibi
             += lr * (learning_signal - baseline) * eligibility_trace_hidden[parameter]
 
         if eligibility_trace_output is not None:
-            eligibility_trace_output[parameter].mul_(kappa).add_(1 - kappa, network.gradients[parameter][network.output_neurons - network.n_input_neurons])
+            eligibility_trace_output[parameter].mul_(kappa).add_(1 - kappa, network.get_gradients()[parameter][network.output_neurons - network.n_input_neurons])
             network.get_parameters()[parameter][network.output_neurons - network.n_input_neurons] += lr * eligibility_trace_output[parameter]
 
     return eligibility_trace_hidden, eligibility_trace_output, learning_signal, baseline_num, baseline_den
 
 
 def init_training(network):
-    network.set_mode('train')
+    network.train()
 
-    eligibility_trace_hidden = {parameter: network.gradients[parameter][network.hidden_neurons - network.n_input_neurons] for parameter in network.gradients}
-    eligibility_trace_output = {parameter: network.gradients[parameter][network.output_neurons - network.n_input_neurons] for parameter in network.gradients}
+    eligibility_trace_hidden = {parameter: network.get_gradients()[parameter][network.hidden_neurons - network.n_input_neurons] for parameter in network.get_gradients()}
+    eligibility_trace_output = {parameter: network.get_gradients()[parameter][network.output_neurons - network.n_input_neurons] for parameter in network.get_gradients()}
 
     learning_signal = 0
 
@@ -68,7 +68,8 @@ def init_training(network):
     return eligibility_trace_output, eligibility_trace_hidden, learning_signal, baseline_num, baseline_den
 
 
-def train(network, dataset, sample_length, dt, input_shape, polarity, indices, test_indices, lr, n_classes, r, beta, gamma, kappa, start_idx, test_accs, save_path):
+def \
+        train(network, dataset, sample_length, dt, input_shape, polarity, indices, test_indices, lr, n_classes, r, beta, gamma, kappa, start_idx, test_accs, save_path):
     """"
     Train an SNN.
     """
@@ -79,6 +80,7 @@ def train(network, dataset, sample_length, dt, input_shape, polarity, indices, t
     train_data = dataset.root.train
     test_data = dataset.root.test
     T = int(sample_length * 1000 / dt)
+
 
     for j, idx in enumerate(indices[start_idx:]):
         j += start_idx
@@ -97,7 +99,7 @@ def train(network, dataset, sample_length, dt, input_shape, polarity, indices, t
                         pickle.dump(test_accs, f, pickle.HIGHEST_PROTOCOL)
                     network.save(save_path + '/network_weights.hdf5')
 
-                network.set_mode('train')
+                network.train()
                 network.reset_internal_state()
 
         refractory_period(network)

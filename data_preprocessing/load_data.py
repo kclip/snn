@@ -1,14 +1,3 @@
-#!/usr/bin/env python
-# -----------------------------------------------------------------------------
-# Author: Emre Neftci
-#
-# Creation Date : Fri 01 Dec 2017 10:05:17 PM PST
-# Last Modified : Sun 29 Jul 2018 01:39:06 PM PDT
-#
-# Copyright : (c)
-# Licence : Apache License, Version 2.0
-# -----------------------------------------------------------------------------
-
 import numpy as np
 import scipy.misc
 import tables
@@ -26,7 +15,7 @@ def get_example(hdf5_group, idx, T=80, n_classes=10, size=[1, 26, 26], dt=1000, 
     end_time = hdf5_group.labels[idx, 2]
 
     curr = get_event_slice(times=hdf5_group.time[:], addrs=hdf5_group.data,
-                           start_time=start_time, end_time=end_time, T=T, size=size, dt=dt, polarity=polarity)
+                           start_time=start_time, end_time=end_time, T=T, size=size, dt=dt, x_max=x_max, polarity=polarity)
     if len(curr) < T:
         data[:len(curr)] = curr
     else:
@@ -61,7 +50,9 @@ def chunk_evs_pol(times, addrs, deltat=1000, size=[2, 304, 240], x_max=1, polari
                 if len(size) == 3:
                     np.add.at(chunks, (i, pol, x, y), 1)
                 elif len(size) == 2:
-                    np.add.at(chunks, (i, pol, (x * x_max + y).astype(int)), 1)
+                    # np.add.at(chunks, (i, pol, (x * x_max + y).astype(int)), 1)
+                    chunks[i, (x * x_max + y).astype(int), pol] = 1
+
                 elif len(size) == 1:
                     if polarity:
                         chunks[i, (pol + 2 * (x * x_max + y)).astype(int)] = 1

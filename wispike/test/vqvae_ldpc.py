@@ -1,6 +1,6 @@
 import torch
-from binary_snn.models.SNN import SNNetwork
-from binary_snn.utils_binary import misc as misc_snn
+from models.SNN import SNNetwork
+from utils import utils_snn as misc_snn
 from wispike.test.testing_utils import get_acc_classifier
 import numpy as np
 import pickle

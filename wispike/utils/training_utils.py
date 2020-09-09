@@ -1,18 +1,17 @@
-from binary_snn.utils_binary.training_utils import feedforward_sampling, local_feedback_and_update
-from binary_snn.utils_binary.misc import refractory_period
-from wispike.utils.misc import example_to_framed, framed_to_example
+from training_utils.snn_training import feedforward_sampling, local_feedback_and_update
+from utils.utils_snn import refractory_period
+from wispike.utils.misc import example_to_framed
 import torch
 import numpy as np
 import torch.nn.functional as F
-from binary_snn.models.SNN import SNNetwork
+from models.SNN import SNNetwork
 from wispike.models.mlp import MLP
-from binary_snn.utils_binary import misc as misc_snn
+from utils import utils_snn as misc_snn
 from wispike.models.vqvae import Model
 import torch.optim as optim
 from utils.filters import get_filter
-from binary_snn.utils_binary.training_utils import init_training
+from training_utils.snn_training import init_training
 import pyldpc
-from wispike.utils.misc import binarize
 
 
 ### VQ-VAE & LDPC

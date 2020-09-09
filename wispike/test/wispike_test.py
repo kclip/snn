@@ -1,7 +1,6 @@
-import torch
-from multivalued_snn.utils_multivalued.misc import str2bool
-from binary_snn.models.SNN import SNNetwork
-from binary_snn.utils_binary import misc as misc_snn
+from utils.utils_wtasnn import str2bool
+from models.SNN import SNNetwork
+from utils import utils_snn as misc_snn
 from wispike.test.testing_utils import get_acc_wispike
 import numpy as np
 import pickle

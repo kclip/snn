@@ -2,12 +2,12 @@ import numpy as np
 import tables
 import torch
 import argparse
-import binary_snn.utils_binary.misc as misc_snn
-from multivalued_snn.utils_multivalued.misc import str2bool
+import utils.utils_snn as misc_snn
+from utils.utils_wtasnn import str2bool
 import wispike.utils.misc as misc_wispike
 from wispike.utils import training_utils
 from wispike.test import testing_utils
-from binary_snn.models.SNN import SNNetwork
+from models.SNN import SNNetwork
 import pickle
 from misc import mksavedir
 

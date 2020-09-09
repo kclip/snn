@@ -1,7 +1,7 @@
 import torch
-from binary_snn.models.SNN import SNNetwork
+from models.SNN import SNNetwork
 from wispike.models.mlp import MLP
-import binary_snn.utils_binary.misc as misc_snn
+import utils.utils_snn as misc_snn
 from wispike.utils.misc import channel_coding_decoding, channel, framed_to_example, example_to_framed, binarize
 
 

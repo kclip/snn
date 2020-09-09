@@ -1,13 +1,14 @@
 import torch
 import tables
 import argparse
-from multivalued_snn.utils_multivalued.misc import str2bool
-from binary_snn.utils_binary import misc as misc_snn
+from utils.misc import str2bool
+from utils import utils_snn as misc_snn
 from wispike.test.lzma_ldpc import lzma_test
 from wispike.test.ook import ook_test, ook_ldpc_test
 from wispike.test.vqvae_ldpc import vqvae_test
 from wispike.test.wispike_test import wispike_test
 import pickle
+
 
 if __name__ == "__main__":
     # setting the hyper parameters

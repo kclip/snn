@@ -1,7 +1,5 @@
 import torch
 import tables
-import pickle
-from binary_snn.utils_binary.misc import refractory_period, get_acc_and_loss
 
 
 def feedforward_sampling(network, example, ls, et, args, gradients_accum=None):

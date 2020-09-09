@@ -1,6 +1,6 @@
-from binary_snn.models.SNN import SNNetwork
+from models.SNN import SNNetwork
 import pickle
-from binary_snn.utils_binary import misc
+from utils import utils_snn
 import torch
 import argparse
 import os
@@ -137,8 +137,8 @@ def get_acc(encoder, decoder, dataset, test_indices, noise_level, n_layers, syst
     hidden_hist = torch.zeros([encoder.n_hidden_neurons + decoder.n_hidden_neurons, S_prime])
 
     for j, sample_idx in enumerate(test_indices):
-        misc.refractory_period(encoder)
-        misc.refractory_period(decoder)
+        utils_snn.refractory_period(encoder)
+        utils_snn.refractory_period(decoder)
         sample_enc = dataset[sample_idx].to(encoder.device)
 
         for s in range(S_prime):
@@ -186,8 +186,8 @@ n_layers = 1
 
 # encoder = SNNetwork(**misc.make_network_parameters(n_inputs_enc, 0, n_hidden_enc + n_outputs_enc, topology_type='custom', topology=topology_enc), device=args.device)
 # decoder = SNNetwork(**misc.make_network_parameters(n_inputs_dec, n_outputs_dec, n_hidden_dec, topology_type='custom', topology=topology_dec), device=args.device)
-encoder = SNNetwork(**misc.make_network_parameters(n_inputs_enc, 0, n_hidden_enc + n_outputs_enc, topology_type='fully_connected'), device=args.device)
-decoder = SNNetwork(**misc.make_network_parameters(n_inputs_dec, n_outputs_dec, n_hidden_dec, topology_type='fully_connected'), device=args.device)
+encoder = SNNetwork(**utils_snn.make_network_parameters(n_inputs_enc, 0, n_hidden_enc + n_outputs_enc, topology_type='fully_connected'), device=args.device)
+decoder = SNNetwork(**utils_snn.make_network_parameters(n_inputs_dec, n_outputs_dec, n_hidden_dec, topology_type='fully_connected'), device=args.device)
 
 
 encoder.set_mode('train')
@@ -222,8 +222,8 @@ for j, sample_idx in enumerate(indices):
             encoder.set_mode('train')
             decoder.set_mode('train')
 
-    misc.refractory_period(encoder)
-    misc.refractory_period(decoder)
+    utils_snn.refractory_period(encoder)
+    utils_snn.refractory_period(decoder)
 
     sample_enc = dataset[sample_idx].to(encoder.device)
     output_dec = torch.cat((torch.zeros([dataset.shape[1], 1 + n_layers]), dataset[sample_idx, :, :-(1 + n_layers)]), dim=-1).to(decoder.device)

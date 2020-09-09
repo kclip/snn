@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 
+
 # Simple exponentially decreasing filter
 def base_feedforward_filter(t, n_basis, tau_1):
     return torch.tensor(np.vstack([np.exp([-i / tau_1 for i in range(t)]) for _ in range(n_basis)]), dtype=torch.float)

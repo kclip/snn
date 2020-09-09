@@ -1,10 +1,7 @@
 from __future__ import print_function
-import torch
-from multivalued_snn.utils_multivalued.misc import str2bool
-from multivalued_snn import multivalued_exp
-from binary_snn import binary_exp
+from utils.misc import *
+from experiments import binary_exp, wta_exp
 from wispike.wispike import wispike
-from misc import mksavedir
 import numpy as np
 import tables
 import pickle
@@ -186,7 +183,7 @@ else:
 if args.model == 'snn':
     binary_exp.launch_binary_exp(args)
 elif args.model == 'wta':
-    multivalued_exp.launch_multivalued_exp(args)
+    wta_exp.launch_multivalued_exp(args)
 elif args.model == 'wispike':
     args.systematic = str2bool(args.systematic)
     args.rand_snr = str2bool(args.rand_snr)

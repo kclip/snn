@@ -1,9 +1,8 @@
 import torch
-from binary_snn.models.SNN import SNNetwork
-from binary_snn.utils_binary import misc as misc_snn
+from models.SNN import SNNetwork
+from utils import utils_snn as misc_snn
 import numpy as np
 import pickle
-from binary_snn.utils_binary.misc import refractory_period
 from wispike.utils.misc import channel
 from wispike.test.testing_utils import classify
 import pyldpc

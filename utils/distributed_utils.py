@@ -3,7 +3,7 @@ import torch
 import torch.distributed as dist
 from models.SNN import SNNetwork
 import datetime
-from binary_snn.utils_binary import misc
+from utils import misc, filters, utils_snn
 
 
 def init_processes(rank, world_size, backend, url, args, train_func):
@@ -21,24 +21,25 @@ def init_training(rank, num_nodes, nodes_group, args):
     Initializes the different parameters for distributed training
     """
     # Initialize an SNN
-    network = SNNetwork(**misc.make_network_parameters(args.n_input_neurons,
-                                                       args.n_output_neurons,
-                                                       args.n_hidden_neurons,
-                                                       'fully_connected',
-                                                       None,
-                                                       1.,
-                                                       'train',
-                                                       args.weights_magnitude,
-                                                       args.n_basis_ff,
-                                                       args.ff_filter,
-                                                       args.n_basis_fb,
-                                                       args.fb_filter,
-                                                       'uniform',
-                                                       args.tau_ff,
-                                                       args.tau_fb,
-                                                       args.mu,
-                                                       args.save_path),
-                        device='cpu')
+    network = SNNetwork(**misc.make_network_parameters(network_type='snn',
+                                                       n_input_neurons=args.n_input_neurons,
+                                                       n_output_neurons=args.n_output_neurons,
+                                                       n_hidden_neurons=args.n_hidden_neurons,
+                                                       topology_type='fully_connected',
+                                                       topology=None,
+                                                       n_neurons_per_layer=0,
+                                                       density=1,
+                                                       weights_magnitude=0.05,
+                                                       initialization='uniform',
+                                                       synaptic_filter=filters.get_filter(args.ff_filter),
+                                                       n_basis_ff=args.n_basis_ff,
+                                                       n_basis_fb=args.n_basis_fb,
+                                                       tau_ff=args.tau_ff,
+                                                       tau_fb=args.tau_fb,
+                                                       mu=args.mu
+                                                       ),
+                        device=args.device)
+    network.train()
 
     # At the beginning, the master node:
     # - transmits its weights to the workers
@@ -64,8 +65,8 @@ def init_training(rank, num_nodes, nodes_group, args):
     # The nodes initialize their eligibility trace and learning signal
     learning_signal = 0
     ls_temp = 0
-    eligibility_trace = {parameter: network.gradients[parameter] for parameter in network.gradients}
-    et_temp = {parameter: network.gradients[parameter] for parameter in network.gradients}
+    eligibility_trace = {parameter: network.get_gradients()[parameter] for parameter in network.gradients}
+    et_temp = {parameter: network.get_gradients()[parameter] for parameter in network.gradients}
 
 
     return network, indices_local, weights_list, eligibility_trace, et_temp, learning_signal, ls_temp
@@ -161,7 +162,7 @@ def get_acc_and_loss(network, dataset, test_indices):
     """"
     Compute loss and accuracy on the indices from the dataset precised as arguments
     """
-    network.set_mode('test')
+    network.eval()
     network.reset_internal_state()
 
     S_prime = dataset.root.test.label[:].shape[-1]
@@ -172,7 +173,7 @@ def get_acc_and_loss(network, dataset, test_indices):
     rec = torch.zeros([network.n_learnable_neurons, S_prime])
 
     for j, sample_idx in enumerate(test_indices):
-        misc.refractory_period(network)
+        utils_snn.refractory_period(network)
 
         sample = torch.FloatTensor(dataset.root.test.data[sample_idx])
 
