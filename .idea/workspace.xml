@@ -3,7 +3,6 @@
   <component name="ChangeListManager">
     <list default="true" id="dfa62879-5cdc-4603-a43e-18a18161e0c9" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/launch_gpu_job.sh" beforeDir="false" afterPath="$PROJECT_DIR$/launch_gpu_job.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/utils_snn.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/utils_snn.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -46,7 +45,7 @@
         <entry file="file://$PROJECT_DIR$/launch_gpu_job.sh">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="170">
-              <caret line="10" column="36" selection-start-line="10" selection-start-column="36" selection-end-line="10" selection-end-column="36" />
+              <caret line="10" column="50" selection-start-line="10" selection-start-column="50" selection-end-line="10" selection-end-column="50" />
             </state>
           </provider>
         </entry>
@@ -378,12 +377,12 @@
       <workItem from="1599121495790" duration="9997000" />
       <workItem from="1599473497445" duration="37843000" />
       <workItem from="1599646490904" duration="346000" />
-      <workItem from="1599646999456" duration="1656000" />
+      <workItem from="1599646999456" duration="1811000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="760637000" />
+    <option name="totallyTimeSpent" value="760792000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
@@ -791,7 +790,7 @@
     <entry file="file://$PROJECT_DIR$/launch_gpu_job.sh">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="170">
-          <caret line="10" column="36" selection-start-line="10" selection-start-column="36" selection-end-line="10" selection-end-column="36" />
+          <caret line="10" column="50" selection-start-line="10" selection-start-column="50" selection-end-line="10" selection-end-column="50" />
         </state>
       </provider>
     </entry>
