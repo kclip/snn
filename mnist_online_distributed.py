@@ -8,7 +8,8 @@ import torch.multiprocessing as mp
 import os
 from training_utils.training_fl_snn import feedforward_sampling, local_feedback_and_update
 from utils.distributed_utils import init_processes, init_training, global_update, global_update_subset, get_acc_and_loss
-from utils.utils_snn import refractory_period, save_results, find_indices_for_labels
+from utils.utils_snn import refractory_period
+from utils.misc import save_results, find_indices_for_labels
 import tables
 
 """"
@@ -176,8 +177,8 @@ def train(rank, num_nodes, args):
                                         torch.FloatTensor(args.dataset.root.train.label[indices_local[s // S_prime]])), dim=0).to(network.device)
 
                 # lr decay
-                if s % S / 4 == 0:
-                    args.lr /= 2
+                # if s % S / 4 == 0:
+                #     args.lr /= 2
 
                 # Feedforward sampling
                 log_proba, ls_temp, et_temp, _ = feedforward_sampling(network, sample[:, s % S_prime], ls_temp, et_temp, args)

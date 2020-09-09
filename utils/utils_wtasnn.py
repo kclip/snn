@@ -25,11 +25,12 @@ def get_acc_and_loss(network, hdf5_group, test_indices, T, n_classes, input_shap
         refractory_period(network)
 
         inputs, lbl = get_example(hdf5_group, idx, T, n_classes, input_shape, dt, x_max, polarity)
+        inputs = inputs.to(network.device)
 
         for t in range(T):
             log_proba = network(inputs[:, :, t].to(network.device))
             loss += torch.sum(log_proba).cpu().numpy()
-            outputs[j, :, :, t] = network.spiking_history[network.output_neurons, :, -1]
+            outputs[j, :, :, t] = network.spiking_history[network.output_neurons, :, -1].cpu()
 
     predictions = torch.max(torch.sum(outputs, dim=(-1, -2)), dim=-1).indices
     acc = float(torch.sum(predictions == true_classes, dtype=torch.float) / len(predictions))
