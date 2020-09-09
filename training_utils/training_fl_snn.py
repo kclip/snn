@@ -12,12 +12,12 @@ def feedforward_sampling(network, example, ls, et, args, gradients_accum=None):
           * torch.log(1e-12 + proba_hidden / args.r)
           + (1 - network.spiking_history[network.hidden_neurons, -1]) * torch.log(1e-12 + (1. - proba_hidden) / (1 - args.r)))
 
-    for parameter in network.gradients:
+    for parameter in network.get_gradients():
         # Only when the comm. rate is fixed
         if (parameter == 'ff_weights') & (gradients_accum is not None):
-            gradients_accum += torch.abs(network.gradients[parameter])
+            gradients_accum += torch.abs(network.get_gradients()[parameter])
 
-        et[parameter] += network.gradients[parameter]
+        et[parameter] += network.get_gradients()[parameter]
 
     return log_proba, ls, et, gradients_accum
 
@@ -35,7 +35,7 @@ def local_feedback_and_update(network, eligibility_trace, et_temp, learning_sign
         ls_temp = 0
 
         # Update parameter
-        for parameter in network.gradients:
+        for parameter in network.get_gradients():
             eligibility_trace[parameter].mul_(args.kappa).add_(1 - args.kappa, et_temp[parameter])
             et_temp[parameter] = 0
 
@@ -45,11 +45,11 @@ def local_feedback_and_update(network, eligibility_trace, et_temp, learning_sign
 
 
 def init_training(network, indices, args):
-    eligibility_trace_hidden = {parameter: network.gradients[parameter][network.hidden_neurons - network.n_input_neurons] for parameter in network.gradients}
-    eligibility_trace_output = {parameter: network.gradients[parameter][network.output_neurons - network.n_input_neurons] for parameter in network.gradients}
+    eligibility_trace_hidden = {parameter: network.get_gradients()[parameter][network.hidden_neurons - network.n_input_neurons] for parameter in network.get_gradients()}
+    eligibility_trace_output = {parameter: network.get_gradients()[parameter][network.output_neurons - network.n_input_neurons] for parameter in network.get_gradients()}
 
-    et_temp_hidden = {parameter: network.gradients[parameter][network.hidden_neurons - network.n_input_neurons] for parameter in network.gradients}
-    et_temp_output = {parameter: network.gradients[parameter][network.output_neurons - network.n_input_neurons] for parameter in network.gradients}
+    et_temp_hidden = {parameter: network.get_gradients()[parameter][network.hidden_neurons - network.n_input_neurons] for parameter in network.get_gradients()}
+    et_temp_output = {parameter: network.get_gradients()[parameter][network.output_neurons - network.n_input_neurons] for parameter in network.get_gradients()}
 
     learning_signal = 0
     ls_temp = 0
