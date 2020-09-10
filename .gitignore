@@ -1,3 +1,4 @@
 local/
 results/
 .idea/
+*.sh
