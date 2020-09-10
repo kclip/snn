@@ -17,7 +17,7 @@ def launch_binary_exp(args):
                                                       density=args.density,
                                                       weights_magnitude=args.weights_magnitude,
                                                       initialization=args.initialization,
-                                                      synaptic_filter=get_filter(args.ff_filter),
+                                                      synaptic_filter=get_filter(args.syn_filter),
                                                       n_basis_ff=args.n_basis_ff,
                                                       n_basis_fb=args.n_basis_fb,
                                                       tau_ff=args.tau_ff,

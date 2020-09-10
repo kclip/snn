@@ -3,13 +3,8 @@ import numpy as np
 
 
 # Simple exponentially decreasing filter
-def base_feedforward_filter(t, n_basis, tau_1):
+def base_filter(t, n_basis, tau_1):
     return torch.tensor(np.vstack([np.exp([-i / tau_1 for i in range(t)]) for _ in range(n_basis)]), dtype=torch.float)
-
-
-# Simple exponentially decreasing filter
-def base_feedback_filter(t, n_basis, tau_m):
-    return torch.tensor(np.vstack([- np.exp([-i / tau_m for i in range(t)]) for _ in range(n_basis)]), dtype=torch.float)
 
 
 # Simple cosine basis
@@ -52,7 +47,7 @@ def raised_cosine_pillow_08(T, n_basis, mu):
 
 
 def get_filter(selected_filter):
-    filters_dict = {'base_ff_filter': base_feedforward_filter, 'base_fb_filter': base_feedback_filter, 'cosine_basis': cosine_basis,
+    filters_dict = {'base_filter': base_filter, 'cosine_basis': cosine_basis,
                     'raised_cosine': raised_cosine, 'raised_cosine_pillow_05': raised_cosine_pillow_05, 'raised_cosine_pillow_08': raised_cosine_pillow_08}
 
     return filters_dict[selected_filter]

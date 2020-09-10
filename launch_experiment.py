@@ -1,7 +1,6 @@
 from __future__ import print_function
 from utils.misc import *
 from experiments import binary_exp, wta_exp
-from wispike.wispike import wispike
 import numpy as np
 import tables
 import pickle
@@ -45,14 +44,11 @@ if __name__ == "__main__":
     parser.add_argument('--weights_magnitude', default=0.05, type=float, help='Magnitude of weights at initialization')
 
     parser.add_argument('--n_basis_ff', default=8, type=int, help='Number of basis functions for synaptic connections')
-    parser.add_argument('--ff_filter', default='raised_cosine_pillow_08', type=str,
-                        choices=['base_ff_filter', 'base_fb_filter', 'cosine_basis', 'raised_cosine', 'raised_cosine_pillow_05', 'raised_cosine_pillow_08'],
+    parser.add_argument('--syn_filter', default='raised_cosine_pillow_08', type=str,
+                        choices=['base_filter', 'cosine_basis', 'raised_cosine', 'raised_cosine_pillow_05', 'raised_cosine_pillow_08'],
                         help='Basis function to use for synaptic connections')
     parser.add_argument('--tau_ff', default=10, type=int, help='Feedforward connections time constant')
     parser.add_argument('--n_basis_fb', default=1, type=int, help='Number of basis functions for feedback connections')
-    parser.add_argument('--fb_filter', default='raised_cosine_pillow_08', type=str,
-                        choices=['base_ff_filter', 'base_fb_filter', 'cosine_basis', 'raised_cosine', 'raised_cosine_pillow_05', 'raised_cosine_pillow_08'],
-                        help='Basis function to use for feedback connections')
     parser.add_argument('--tau_fb', default=10, type=int, help='Feedback connections time constant')
     parser.add_argument('--mu', default=1.5, type=float, help='Width of basis functions')
 
@@ -60,19 +56,6 @@ if __name__ == "__main__":
     parser.add_argument('--r', default=0.3, type=float, help='Desired spiking sparsity of the hidden neurons')
     parser.add_argument('--beta', default=0.05, type=float, help='Baseline decay factor')
     parser.add_argument('--gamma', default=1., type=float, help='KL regularization strength')
-
-
-    # Arguments for WTA models
-    parser.add_argument('--dropout_rate', default=None, type=float, help='')
-    parser.add_argument('--T', type=float, default=1., help='temperature')
-    parser.add_argument('--n_neurons_per_layer', default=None, type=int, help='Number of neurons per layer if topology_type is "layered"')
-
-
-    # Arguments for Wispike
-    parser.add_argument('--systematic', type=str, default='true', help='Systematic communication')
-    parser.add_argument('--rand_snr', type=str, default='false', help='Use random SNR for each sample during training to make it more robust')
-    parser.add_argument('--snr', type=float, default=None, help='SNR')
-    parser.add_argument('--n_output_enc', default=128, type=int, help='Number of the hidden neurons that are output neurons for the encoder')
 
     args = parser.parse_args()
 
@@ -88,16 +71,7 @@ elif args.where == 'gcloud':
     home = r'/home/k1804053'
 
 
-datasets = {
-            'mnist_dvs_10_binary': r'mnist_dvs_binary_25ms_26pxl_10_digits.hdf5',
-            'mnist_dvs_10': r'mnist_dvs_25ms_26pxl_10_digits_polarity.hdf5',
-            'mnist_dvs_10ms_polarity': r'mnist_dvs_10ms_26pxl_10_digits_polarity.hdf5',
-            'dvs_gesture_5ms': r'dvs_gesture_5ms_11_classes.hdf5',
-            'dvs_gesture_15ms': r'dvs_gesture_15ms_11_classes.hdf5',
-            'dvs_gesture_20ms': r'dvs_gesture_20ms_11_classes.hdf5',
-            'dvs_gesture_30ms': r'dvs_gesture_30ms_11_classes.hdf5',
-            'dvs_gesture_1ms': r'dvs_gesture_1ms_11_classes.hdf5',
-            'mnist_dvs': r'mnist_dvs_events.hdf5',
+datasets = {'mnist_dvs': r'mnist_dvs_events.hdf5',
             'dvs_gesture': r'dvs_gestures_events.hdf5'
             }
 
@@ -135,10 +109,7 @@ if args.test_period is not None:
 
 
 # Save results and weights
-if args.model == 'wispike':
-    name = args.dataset + r'_' + args.model + r'_%d_epochs_nh_%d_nout_%d' % (args.num_samples_train, args.n_h, args.n_output_enc) + args.suffix
-else:
-    name = args.dataset + r'_' + args.model + r'_%d_epochs_nh_%d_dt_%d_' % (args.num_samples_train, args.n_h, args.dt) + r'_pol_' + args.polarity + args.suffix
+name = args.dataset + r'_' + args.model + r'_%d_epochs_nh_%d_dt_%d_' % (args.num_samples_train, args.n_h, args.dt) + r'_pol_' + args.polarity + args.suffix
 
 results_path = home + r'/results/'
 if args.save_path is None:
@@ -184,10 +155,6 @@ if args.model == 'snn':
     binary_exp.launch_binary_exp(args)
 elif args.model == 'wta':
     wta_exp.launch_multivalued_exp(args)
-elif args.model == 'wispike':
-    args.systematic = str2bool(args.systematic)
-    args.rand_snr = str2bool(args.rand_snr)
-    wispike(args)
 else:
-    raise NotImplementedError('Please use a model between "snn", "wta", or "wispike"')
+    raise NotImplementedError('Please choose a model between "snn" and "wta"')
 
