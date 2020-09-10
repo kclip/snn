@@ -161,7 +161,7 @@ def global_update_subset(nodes, rank, network, weights_list, gradients_accum, n_
 def find_indices_for_labels(hdf5_group, labels):
     res = []
     for label in labels:
-        res.append(np.where(np.max(np.sum(hdf5_group.label[:], axis=-1), axis=-1) == label)[0])
+        res.append(np.where(np.argmax(np.sum(hdf5_group.label[:], axis=-1), axis=-1) == label)[0])
     return np.hstack(res)
 
 
