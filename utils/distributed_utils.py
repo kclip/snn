@@ -177,8 +177,6 @@ def get_acc_and_loss(network, dataset, test_indices):
     outputs = torch.zeros([len(test_indices), network.n_output_neurons, S_prime])
     loss = 0
 
-    rec = torch.zeros([network.n_learnable_neurons, S_prime])
-
     for j, sample_idx in enumerate(test_indices):
         utils_snn.refractory_period(network)
 
@@ -188,10 +186,11 @@ def get_acc_and_loss(network, dataset, test_indices):
             log_proba = network(sample[:, s])
             loss += torch.sum(log_proba).numpy()
             outputs[j, :, s] = network.spiking_history[network.output_neurons, -1]
-            rec[:, s] = network.spiking_history[network.learnable_neurons, -1]
 
     predictions = torch.max(torch.sum(outputs, dim=-1), dim=-1).indices
     true_classes = torch.max(torch.sum(torch.FloatTensor(dataset.root.test.label[:][test_indices]), dim=-1), dim=-1).indices
+    print(predictions[:10])
+    print(true_classes[:10])
     acc = float(torch.sum(predictions == true_classes, dtype=torch.float) / len(predictions))
 
     return acc, loss

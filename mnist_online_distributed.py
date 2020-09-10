@@ -158,7 +158,6 @@ def train(rank, num_nodes, args):
 
         dist.barrier(all_nodes)
 
-
         for s in range(S):
             if rank == 0:
                 if s % S_prime == 0:
