@@ -3,6 +3,7 @@ from models.SNN import SNNetwork
 from wispike.models.mlp import MLP
 import utils.utils_snn as misc_snn
 from wispike.utils.misc import channel_coding_decoding, channel, framed_to_example, example_to_framed, binarize
+from data_preprocessing.load_data import *
 
 
 def classify(classifier, example, args, howto='final'):
@@ -150,30 +151,34 @@ def get_acc_classifier(classifier, vqvae, args, indices, howto='final'):
         return accs_final, accs_pf
 
 
-def get_acc_wispike(encoder, decoder, args, test_indices, n_outputs_enc, howto='final'):
-    encoder.set_mode('test')
+def get_acc_wispike(encoder, decoder, n_output_enc, hdf5_group, test_indices, T, n_classes, input_shape, dt, x_max, polarity, systematic, snr, howto='final'):
+    encoder.eval()
     encoder.reset_internal_state()
 
-    decoder.set_mode('test')
+    decoder.eval()
     decoder.reset_internal_state()
 
-    T = args.dataset.root.test.label[:].shape[-1]
     outputs = torch.zeros([len(test_indices), decoder.n_output_neurons, T])
+    loss = 0
 
+    true_classes = torch.LongTensor(hdf5_group.labels[test_indices, 0])
     hidden_hist = torch.zeros([encoder.n_hidden_neurons + decoder.n_hidden_neurons, T])
 
-    for j, sample_idx in enumerate(test_indices):
+    for j, idx in enumerate(test_indices):
         misc_snn.refractory_period(encoder)
         misc_snn.refractory_period(decoder)
-        sample_enc = torch.FloatTensor(args.dataset.root.test.data[sample_idx]).to(encoder.device)
+
+        sample_enc, _ = get_example(hdf5_group, idx, T, n_classes, input_shape, dt, x_max, polarity)
+        sample_enc = sample_enc.to(encoder.device)
+
 
         for t in range(T):
             _ = encoder(sample_enc[:, t])
 
-            if args.systematic:
-                decoder_input = channel(torch.cat((sample_enc[:, t], encoder.spiking_history[encoder.hidden_neurons[-n_outputs_enc:], -1])), decoder.device, args.snr)
+            if systematic:
+                decoder_input = channel(torch.cat((sample_enc[:, t], encoder.spiking_history[encoder.hidden_neurons[-n_output_enc:], -1])), decoder.device, snr)
             else:
-                decoder_input = channel(encoder.spiking_history[encoder.hidden_neurons[-args.n_output_enc:], -1], decoder.device, args.snr)
+                decoder_input = channel(encoder.spiking_history[encoder.hidden_neurons[-n_output_enc:], -1], decoder.device, snr)
 
             _ = decoder(decoder_input)
             outputs[j, :, t] = decoder.spiking_history[decoder.output_neurons, -1]
@@ -181,7 +186,6 @@ def get_acc_wispike(encoder, decoder, args, test_indices, n_outputs_enc, howto='
             hidden_hist[:encoder.n_hidden_neurons, t] = encoder.spiking_history[encoder.hidden_neurons, -1]
             hidden_hist[encoder.n_hidden_neurons:, t] = decoder.spiking_history[decoder.hidden_neurons, -1]
 
-    true_classes = torch.max(torch.sum(torch.FloatTensor(args.dataset.root.test.label[:][test_indices]), dim=-1), dim=-1).indices
 
     if howto == 'final':
         predictions = torch.max(torch.sum(outputs, dim=-1), dim=-1).indices

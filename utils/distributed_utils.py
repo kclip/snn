@@ -161,7 +161,7 @@ def global_update_subset(nodes, rank, network, weights_list, gradients_accum, n_
 def find_indices_for_labels(hdf5_group, labels):
     res = []
     for label in labels:
-        res.append(np.where(hdf5_group.label[:, 0] == label)[0])
+        res.append(np.where(np.sum(hdf5_group.label[:], dim=-1) == label)[0])
     return np.hstack(res)
 
 
@@ -191,6 +191,10 @@ def get_acc_and_loss(network, dataset, test_indices):
     true_classes = torch.max(torch.sum(torch.FloatTensor(dataset.root.test.label[:][test_indices]), dim=-1), dim=-1).indices
     print(predictions[:10])
     print(true_classes[:10])
+
+    print(predictions[-10:])
+    print(true_classes[-10:])
+
     acc = float(torch.sum(predictions == true_classes, dtype=torch.float) / len(predictions))
 
     return acc, loss

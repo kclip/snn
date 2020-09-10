@@ -157,12 +157,12 @@ def train_classifier(model, args, idx):
 
 ### WiSpike
 def init_training_wispike(encoder, decoder, args):
-    encoder.set_mode('train')
-    decoder.set_mode('train')
+    encoder.train()
+    decoder.train()
 
-    eligibility_trace_hidden_enc = {parameter: encoder.gradients[parameter]for parameter in encoder.gradients}
-    eligibility_trace_hidden_dec = {parameter: decoder.gradients[parameter][decoder.hidden_neurons - decoder.n_input_neurons] for parameter in decoder.gradients}
-    eligibility_trace_output_dec = {parameter: decoder.gradients[parameter][decoder.output_neurons - decoder.n_input_neurons] for parameter in decoder.gradients}
+    eligibility_trace_hidden_enc = {parameter: encoder.get_gradients()[parameter]for parameter in encoder.get_gradients()}
+    eligibility_trace_hidden_dec = {parameter: decoder.get_gradients()[parameter][decoder.hidden_neurons - decoder.n_input_neurons] for parameter in decoder.get_gradients()}
+    eligibility_trace_output_dec = {parameter: decoder.get_gradients()[parameter][decoder.output_neurons - decoder.n_input_neurons] for parameter in decoder.get_gradients()}
 
     learning_signal = 0
 

@@ -2,13 +2,15 @@ from wispike.utils import misc as misc_wispike
 from wispike.utils.training_utils import init_training_wispike
 from wispike.test.testing_utils import get_acc_wispike
 from utils import utils_snn as misc_snn
-from models.SNN import SNNetwork
+from utils.misc import *
+from models.SNN import BinarySNN
 from training_utils.snn_training import local_feedback_and_update
 import torch
 import numpy as np
 import pickle
 from utils.filters import get_filter
 import os
+from data_preprocessing.load_data import get_example
 
 
 def wispike(args):
@@ -36,59 +38,66 @@ def wispike(args):
             indices = np.random.choice(np.arange(args.dataset.root.stats.train_data[0]), [args.num_samples_train], replace=True)
             test_indices = np.random.choice(np.arange(args.dataset.root.stats.test_data[0]), [args.num_samples_test], replace=False)
 
-        encoder = SNNetwork(**misc_snn.make_network_parameters(args.n_input_neurons,
-                                                               0,
-                                                               n_hidden_enc,
-                                                               args.topology_type,
-                                                               args.topology,
-                                                               args.density,
-                                                               'train',
-                                                               args.weights_magnitude,
-                                                               args.n_basis_ff,
-                                                               get_filter(args.ff_filter),
-                                                               args.n_basis_fb,
-                                                               get_filter(args.fb_filter),
-                                                               args.initialization,
-                                                               args.tau_ff,
-                                                               args.tau_fb,
-                                                               args.mu,
-                                                               args.save_path),
+
+        encoder = BinarySNN(**make_network_parameters(network_type=args.model,
+                                                      n_input_neurons=args.n_input_neurons,
+                                                      n_output_neurons=0,
+                                                      n_hidden_neurons=n_hidden_enc,
+                                                      topology_type=args.topology_type,
+                                                      topology=args.topology,
+                                                      n_neurons_per_layer=args.n_neurons_per_layer,
+                                                      density=args.density,
+                                                      weights_magnitude=args.weights_magnitude,
+                                                      initialization=args.initialization,
+                                                      synaptic_filter=get_filter(args.ff_filter),
+                                                      n_basis_ff=args.n_basis_ff,
+                                                      n_basis_fb=args.n_basis_fb,
+                                                      tau_ff=args.tau_ff,
+                                                      tau_fb=args.tau_fb,
+                                                      mu=args.mu
+                                                      ),
                             device=args.device)
 
-        decoder = SNNetwork(**misc_snn.make_network_parameters(n_inputs_dec,
-                                                               args.n_output_neurons,
-                                                               n_hidden_dec,
-                                                               args.topology_type,
-                                                               args.topology,
-                                                               args.density,
-                                                               'train',
-                                                               args.weights_magnitude,
-                                                               args.n_basis_ff,
-                                                               get_filter(args.ff_filter),
-                                                               args.n_basis_fb,
-                                                               get_filter(args.fb_filter),
-                                                               args.initialization,
-                                                               args.tau_ff,
-                                                               args.tau_fb,
-                                                               args.mu,
-                                                               args.save_path),
+        decoder = BinarySNN(**make_network_parameters(network_type=args.model,
+                                                      n_input_neurons=n_inputs_dec,
+                                                      n_output_neurons=args.n_output_neurons,
+                                                      n_hidden_neurons=n_hidden_dec,
+                                                      topology_type=args.topology_type,
+                                                      topology=args.topology,
+                                                      n_neurons_per_layer=args.n_neurons_per_layer,
+                                                      density=args.density,
+                                                      weights_magnitude=args.weights_magnitude,
+                                                      initialization=args.initialization,
+                                                      synaptic_filter=get_filter(args.ff_filter),
+                                                      n_basis_ff=args.n_basis_ff,
+                                                      n_basis_fb=args.n_basis_fb,
+                                                      tau_ff=args.tau_ff,
+                                                      tau_fb=args.tau_fb,
+                                                      mu=args.mu
+                                                      ),
                             device=args.device)
+
 
         if args.start_idx > 0:
             encoder.import_weights(args.save_path + r'encoder_weights.hdf5')
             decoder.import_weights(args.save_path + r'decoder_weights.hdf5')
 
+        train_data = args.dataset.root.train
+        test_data = args.dataset.root.test
+        T = int(args.sample_length * 1000 / args.dt)
+
         # init training
         eligibility_trace_hidden_enc, eligibility_trace_hidden_dec, eligibility_trace_output_dec, \
             learning_signal, baseline_num_enc, baseline_den_enc, baseline_num_dec, baseline_den_dec, S_prime = init_training_wispike(encoder, decoder, args)
 
-        for j, sample_idx in enumerate(indices):
+        for j, idx in enumerate(indices):
             # if (j + 1) % args.dataset.root.train.data[:].shape[0] == 0:
             #     args.lr /= 2
 
             if args.test_accs:
                 if (j + 1) in args.test_accs:
-                    acc, _ = get_acc_wispike(encoder, decoder, args, test_indices, args.n_output_enc)
+                    acc, _ = get_acc_wispike(encoder, decoder, args.n_output_enc, test_data, test_indices, T, args.n_classes, args.input_shape,
+                                             args.dt, args.dataset.root.stats.train_data[1], args.polarity, args.systematic, args.snr, howto='final')
                     print('test accuracy at ite %d: %f' % (int(j + 1), acc))
                     args.test_accs[int(j + 1)].append(acc)
 
@@ -99,14 +108,13 @@ def wispike(args):
                         encoder.save(args.save_path + '/encoder_weights.hdf5')
                         decoder.save(args.save_path + '/decoder_weights.hdf5')
 
-                    encoder.set_mode('train')
-                    decoder.set_mode('train')
+                    encoder.train()
+                    decoder.train()
 
             misc_snn.refractory_period(encoder)
             misc_snn.refractory_period(decoder)
 
-            sample_enc = torch.FloatTensor(args.dataset.root.train.data[sample_idx]).to(encoder.device)
-            output_dec = torch.FloatTensor(args.dataset.root.train.label[sample_idx]).to(decoder.device)
+            sample_enc, output_dec = get_example(train_data, idx, T, args.n_classes, args.input_shape, args.dt, args.dataset.root.stats.train_data[1], args.polarity)
 
             if args.rand_snr:
                 args.snr = np.random.choice(np.arange(0, -9, -1))
@@ -137,11 +145,11 @@ def wispike(args):
                 # Local feedback and update
                 eligibility_trace_hidden_dec, eligibility_trace_output_dec, learning_signal, baseline_num_dec, baseline_den_dec \
                     = local_feedback_and_update(decoder, ls, eligibility_trace_hidden_dec, eligibility_trace_output_dec,
-                                                learning_signal, baseline_num_dec, baseline_den_dec, args.lr, args)
+                                                learning_signal, baseline_num_dec, baseline_den_dec, args.lr, args.beta, args.kappa)
 
                 eligibility_trace_hidden_enc, _, _, baseline_num_enc, baseline_den_enc \
                     = local_feedback_and_update(encoder, 0, eligibility_trace_hidden_enc, None,
-                                                learning_signal, baseline_num_enc, baseline_den_enc, args.lr, args)
+                                                learning_signal, baseline_num_enc, baseline_den_enc, args.lr, args.beta, args.kappa)
 
             if j % max(1, int(len(indices) / 5)) == 0:
                 print('Step %d out of %d' % (j, len(indices)))
