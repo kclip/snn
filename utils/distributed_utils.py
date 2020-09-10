@@ -187,6 +187,7 @@ def get_acc_and_loss(network, dataset, test_indices):
             loss += torch.sum(log_proba).numpy()
             outputs[j, :, s] = network.spiking_history[network.output_neurons, -1]
 
+    print(outputs.shape)
     predictions = torch.max(torch.sum(outputs, dim=-1), dim=-1).indices
     true_classes = torch.max(torch.sum(torch.FloatTensor(dataset.root.test.label[:][test_indices]), dim=-1), dim=-1).indices
 
