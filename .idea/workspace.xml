@@ -1,27 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="dfa62879-5cdc-4603-a43e-18a18161e0c9" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/experiments/binary_exp.py" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/binary_exp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/experiments/wta_exp.py" beforeDir="false" afterPath="$PROJECT_DIR$/experiments/wta_exp.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/launch_experiment.py" beforeDir="false" afterPath="$PROJECT_DIR$/launch_experiment.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/local_train.sh" beforeDir="false" afterPath="$PROJECT_DIR$/local_train.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mnist_online_distributed.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/training_utils/training_fl_snn.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/distributed_utils.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/filters.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/filters.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/wispike/models/mlp.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/wispike/models/vqvae.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/wispike/test/lzma_ldpc.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/wispike/test/ook.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/wispike/test/testing_utils.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/wispike/test/vqvae_ldpc.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/wispike/test/wispike_test.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/wispike/utils/misc.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/wispike/utils/training_utils.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/wispike/wispike.py" beforeDir="false" />
-    </list>
+    <list default="true" id="dfa62879-5cdc-4603-a43e-18a18161e0c9" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -331,16 +311,15 @@
       <workItem from="1599473497445" duration="37843000" />
       <workItem from="1599646490904" duration="346000" />
       <workItem from="1599646999456" duration="9365000" />
-      <workItem from="1599725525412" duration="12845000" />
+      <workItem from="1599725525412" duration="13075000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="781191000" />
+    <option name="totallyTimeSpent" value="781421000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1295" height="695" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49608356" visible="true" weight="0.22753036" />
       <window_info id="Structure" order="1" sideWeight="0.50391644" side_tool="true" weight="0.21052632" />
