@@ -61,29 +61,15 @@ if __name__ == "__main__":
 
 print(args)
 
-if args.where == 'local':
-    home = r'C:/Users/K1804053/PycharmProjects'
-elif args.where == 'rosalind':
-    home = r'/users/k1804053'
-elif args.where == 'jade':
-    home = r'/jmain01/home/JAD014/mxm09/nxs94-mxm09'
-elif args.where == 'gcloud':
-    home = r'/home/k1804053'
-
-
+home = r'/home/snn/'
 datasets = {'mnist_dvs': r'mnist_dvs_events.hdf5',
             'dvs_gesture': r'dvs_gestures_events.hdf5'
             }
 
-
-if args.dataset[:3] == 'shd':
-    dataset = home + r'/datasets/shd/' + datasets[args.dataset]
-elif args.dataset[:5] == 'mnist':
+if args.dataset[:5] == 'mnist':
     dataset = home + r'/datasets/mnist-dvs/' + datasets[args.dataset]
 elif args.dataset[:11] == 'dvs_gesture':
     dataset = home + r'/datasets/DvsGesture/' + datasets[args.dataset]
-elif args.dataset[:7] == 'swedish':
-    dataset = home + r'/datasets/SwedishLeaf_processed/' + datasets[args.dataset]
 else:
     print('Error: dataset not found')
 
