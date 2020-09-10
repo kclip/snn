@@ -161,7 +161,7 @@ def global_update_subset(nodes, rank, network, weights_list, gradients_accum, n_
 def find_indices_for_labels(hdf5_group, labels):
     res = []
     for label in labels:
-        res.append(np.where(np.sum(hdf5_group.label[:], axis=-1) == label)[0])
+        res.append(np.where(np.max(np.sum(hdf5_group.label[:], axis=-1), axis=-1) == label)[0])
     return np.hstack(res)
 
 
@@ -187,7 +187,6 @@ def get_acc_and_loss(network, dataset, test_indices):
             loss += torch.sum(log_proba).numpy()
             outputs[j, :, s] = network.spiking_history[network.output_neurons, -1]
 
-    print(outputs.shape)
     predictions = torch.max(torch.sum(outputs, dim=-1), dim=-1).indices
     true_classes = torch.max(torch.sum(torch.FloatTensor(dataset.root.test.label[:][test_indices]), dim=-1), dim=-1).indices
 
