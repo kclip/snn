@@ -1,14 +1,17 @@
-import tables
 import os
 import glob
-import numpy as np
 import math
 import struct
-from data_preprocessing.misc import one_hot, make_output, make_stats_group
+
+import numpy as np
+import tables
+
+from .misc import one_hot, make_output, make_stats_group
 
 """
 Load and preprocess data from the MNIST-DVS dataset. The data samples had previously been processed using matlab scripts provided by the authors. 
 See http://www2.imse-cnm.csic.es/caviar/MNISTDVS.html
+The data format obtained is no longer supported in this package
 """
 
 

@@ -1,14 +1,15 @@
 from __future__ import print_function
 import torch
-import utils.filters as filters
 from torch.distributions.one_hot_categorical import OneHotCategorical
+
 from utils.misc import custom_softmax
+from utils import filters
 from models.base import SNNetwork
 
 
 class WTASNN(SNNetwork):
     def __init__(self, n_input_neurons, n_hidden_neurons, n_output_neurons, topology,
-                 synaptic_filter=filters.base_feedforward_filter, n_basis_feedforward=1, n_basis_feedback=1,
+                 synaptic_filter=filters.base_filter, n_basis_feedforward=1, n_basis_feedback=1,
                  tau_ff=1, tau_fb=1, mu=1, weights_magnitude=0., initialization='glorot', device='cpu', save_path=None):
 
         super(WTASNN, self).__init__(n_input_neurons=n_input_neurons, n_hidden_neurons=n_hidden_neurons, n_output_neurons=n_output_neurons, topology=topology,

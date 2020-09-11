@@ -1,11 +1,13 @@
+import pickle
+import time
+import os
+
 import torch
 import numpy as np
 import argparse
-import time
-import os
 import fnmatch
-from utils import filters
-import pickle
+
+from . import filters
 
 
 def str2bool(v):

@@ -1,21 +1,15 @@
-#!/usr/bin/env python
-# -----------------------------------------------------------------------------
-# Author: Emre Neftci
-#
-# Creation Date : Fri 01 Dec 2017 10:05:17 PM PST
-# Last Modified : Sun 29 Jul 2018 01:39:06 PM PDT
-#
-# Copyright : (c)
-# Licence : Apache License, Version 2.0
-# -----------------------------------------------------------------------------
 import struct
+import os
+
 import numpy as np
 import scipy.misc
 import tables
-import glob
-from misc import *
-import os
 
+from .misc import *
+
+""""
+Load and preprocess data from the DVS Gesture dataset, based on scripts by Emre Neftci.
+"""
 
 mapping = {0: 'Hand Clapping',
            1: 'Right Hand Wave',
@@ -28,7 +22,6 @@ mapping = {0: 'Hand Clapping',
            8: 'Air Drums',
            9: 'Air Guitar',
            10: 'Other'}
-
 
 
 def gather_gestures_stats(hdf5_grp):

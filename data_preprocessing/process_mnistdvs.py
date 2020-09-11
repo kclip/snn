@@ -1,12 +1,18 @@
 import struct
+import glob
+import os
+
 import numpy as np
 import scipy.misc
 import tables
-import h5py
-import glob
-from misc import *
-import os
 import torch
+
+from .misc import *
+
+
+""""
+Load and preprocess data from the DVS Gesture dataset, based on scripts by Emre Neftci and Garrick Orchard
+"""
 
 
 def gather_aedat(directory, start_id, end_id):

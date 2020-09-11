@@ -1,8 +1,10 @@
-import torch
-from utils.utils_wtasnn import refractory_period, get_acc_and_loss
 import pickle
-from data_preprocessing.load_data import get_example
 import os
+
+import torch
+
+from utils.utils_wtasnn import refractory_period, get_acc_and_loss
+from data_preprocessing.load_data import get_example
 
 
 def feedforward_sampling_ml(network, training_sequence, r, gamma):

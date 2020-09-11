@@ -1,8 +1,9 @@
+import os
+
 import torch
 import pickle
 from utils.utils_snn import refractory_period, get_acc_and_loss
 from data_preprocessing.load_data import get_example
-import os
 
 
 def feedforward_sampling(network, example, gamma, r):

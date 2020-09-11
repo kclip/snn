@@ -1,6 +1,7 @@
+import bisect
+
 import numpy as np
 import tables
-import bisect
 
 
 def make_output(label, pattern, num_labels, alphabet_size, S_prime):

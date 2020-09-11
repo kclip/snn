@@ -1,11 +1,15 @@
+import math
+
 import tables
 import numpy as np
-import math
-from data_preprocessing.misc import one_hot, make_output, make_stats_group
+
+from .misc import one_hot, make_output, make_stats_group
 
 """
 Load and preprocess data from the Heidelberg dataset.
+The data format obtained is no longer supported in this package
 """
+
 
 def load_shd(data, S_prime, digits, window_length, alphabet_size, pattern):
 

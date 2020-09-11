@@ -1,10 +1,17 @@
-import numpy as np
 import os
 import struct
+import glob
+
+import numpy as np
 import tables
 from tqdm import tqdm
-from data_preprocessing.misc import make_stats_group
-import glob
+
+from .misc import make_stats_group
+
+""""
+Load and preprocess data from the DVS Gesture dataset, based on scripts by Emre Neftci.
+The data format obtained is no longer supported in this package
+"""
 
 
 def gather_aedat(directory, start_id, end_id, filename_prefix='user'):

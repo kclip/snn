@@ -1,11 +1,12 @@
 from __future__ import print_function
-import torch
-import utils.filters as filters
 import tables
+import torch
+
+from utils import filters
 
 
 class SNNetwork(torch.nn.Module):
-    def __init__(self, n_input_neurons, n_hidden_neurons, n_output_neurons, topology, synaptic_filter=filters.base_feedforward_filter,
+    def __init__(self, n_input_neurons, n_hidden_neurons, n_output_neurons, topology, synaptic_filter=filters.base_filter,
                  n_basis_feedforward=1, n_basis_feedback=1, tau_ff=1, tau_fb=1, mu=1, initialization='uniform', weights_magnitude=0.01, device='cpu', save_path=None):
 
         super(SNNetwork, self).__init__()

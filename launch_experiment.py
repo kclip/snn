@@ -1,10 +1,12 @@
 from __future__ import print_function
-from utils.misc import *
-from experiments import binary_exp, wta_exp
+import pickle
+
 import numpy as np
 import tables
-import pickle
 import argparse
+
+from utils.misc import *
+from experiments import binary_exp, wta_exp
 
 ''''
 '''
@@ -39,7 +41,8 @@ if __name__ == "__main__":
     # Arguments common to all models
     parser.add_argument('--n_h', default=256, type=int, help='Number of hidden neurons')
     parser.add_argument('--topology_type', default='fully_connected', type=str, choices=['fully_connected', 'feedforward', 'layered', 'custom'], help='Topology of the network')
-    parser.add_argument('--density', default=None, type=int, help='Density of the connections if topology_type is "sparse"')
+    parser.add_argument('--density', default=None, type=float, help='Density of the connections if topology_type is "sparse"')
+    parser.add_argument('--n_neurons_per_layer', default=0, type=int, help='Number of neurons per layer if topology_type is "layered"')
     parser.add_argument('--initialization', default='uniform', type=str, choices=['uniform', 'glorot'], help='Initialization of the weights')
     parser.add_argument('--weights_magnitude', default=0.05, type=float, help='Magnitude of weights at initialization')
 
@@ -61,7 +64,8 @@ if __name__ == "__main__":
 
 print(args)
 
-home = r'/home/snn/'
+# home = r'/home/snn/'
+home = r'C:/Users/K1804053/PycharmProjects'
 datasets = {'mnist_dvs': r'mnist_dvs_events.hdf5',
             'dvs_gesture': r'dvs_gestures_events.hdf5'
             }

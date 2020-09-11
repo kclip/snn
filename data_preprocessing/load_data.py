@@ -1,11 +1,13 @@
+import os
+
 import numpy as np
 import scipy.misc
+import torch
 import tables
 import h5py
 import glob
-from data_preprocessing.misc import *
-import os
-import torch
+
+from .misc import *
 
 
 def get_example(hdf5_group, idx, T=80, n_classes=10, size=[1, 26, 26], dt=1000, x_max=1, polarity=True):
