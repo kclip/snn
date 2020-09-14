@@ -29,6 +29,12 @@ def get_acc_and_loss(network, hdf5_group, test_indices, T, n_classes, input_shap
         refractory_period(network)
 
         inputs, lbl = get_example(hdf5_group, idx, T, n_classes, input_shape, dt, x_max, polarity)
+
+        if np.isnan(inputs.numpy()).any():
+            'NaN detected'
+            print(inputs)
+            raise RuntimeError
+
         inputs = inputs.to(network.device)
 
         for t in range(T):
