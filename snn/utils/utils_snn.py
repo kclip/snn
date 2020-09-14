@@ -41,5 +41,6 @@ def get_acc_and_loss(network, hdf5_group, test_indices, T, n_classes, input_shap
 
     print(predictions[:10])
     print(true_classes[:10])
+    print(torch.sum(outputs, dim=-1))
 
     return acc, loss
