@@ -23,6 +23,11 @@ def get_example(hdf5_group, idx, T=80, n_classes=10, size=[1, 26, 26], dt=1000, 
     else:
         data = curr[:T]
 
+    if np.isnan(data).any():
+        'NaN detected'
+        print(data)
+        raise RuntimeError
+
     return torch.FloatTensor(data.T), torch.FloatTensor(make_output_from_label(label, T, n_classes))
 
 
