@@ -129,8 +129,12 @@ class BinarySNN(SNNetwork):
             spiking_history[neurons_group, -1] = torch.bernoulli(torch.sigmoid(self.potential[neurons_group - self.n_input_neurons])).to(self.device)
             return spiking_history
         except RuntimeError:
-            print(self.spiking_history[neurons_group - self.n_input_neurons])
-
+            print('Spiking history')
+            print(self.spiking_history[neurons_group, -1])
+            print('Inputs')
+            print(self.spiking_history[self.input_neurons, -5:])
+            print('Potential')
+            self.potential[neurons_group - self.n_input_neurons]
 
     def update_spiking_history(self, input_signal):
         spiking_history = torch.cat((self.spiking_history[:, - self.memory_length:], torch.zeros([self.n_neurons, 1]).to(self.device)), dim=-1)
