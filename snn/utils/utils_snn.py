@@ -30,10 +30,6 @@ def get_acc_and_loss(network, hdf5_group, test_indices, T, n_classes, input_shap
 
         inputs, lbl = get_example(hdf5_group, idx, T, n_classes, input_shape, dt, x_max, polarity)
         inputs = inputs.to(network.device)
-        if np.isnan(inputs.cpu().numpy()).any():
-            'NaN detected'
-            print(inputs)
-            raise RuntimeError
 
         for t in range(T):
             log_proba = network(inputs[:, t])
