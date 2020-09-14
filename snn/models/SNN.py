@@ -136,6 +136,7 @@ class BinarySNN(SNNetwork):
             print('Potential')
             print(self.potential[neurons_group - self.n_input_neurons])
 
+
     def update_spiking_history(self, input_signal):
         spiking_history = torch.cat((self.spiking_history[:, - self.memory_length:], torch.zeros([self.n_neurons, 1]).to(self.device)), dim=-1)
         spiking_history[self.visible_neurons, -1] = input_signal

@@ -39,4 +39,7 @@ def get_acc_and_loss(network, hdf5_group, test_indices, T, n_classes, input_shap
     predictions = torch.max(torch.sum(outputs, dim=-1), dim=-1).indices
     acc = float(torch.sum(predictions == true_classes, dtype=torch.float) / len(predictions))
 
+    print(predictions[:10])
+    print(true_classes[:10])
+
     return acc, loss
