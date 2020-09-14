@@ -65,4 +65,7 @@ def chunk_evs_pol(times, addrs, deltat=1000, size=[2, 304, 240], x_max=1, polari
                 print(x[i_max], y[i_max], pol[i_max])
                 raise IndexError
         idx_start = idx_end
+        if np.isnan(chunks).any():
+            'NaN detected'
+            print(chunks)
     return chunks

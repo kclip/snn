@@ -7,7 +7,7 @@ import scipy.misc
 import tables
 import torch
 
-from .misc import *
+from snn.data_preprocessing.misc import *
 
 
 """"
@@ -152,6 +152,9 @@ def create_data(path_to_hdf5='../data/mnist_dvs_events.hdf5', path_to_data=None)
         print('Either an hdf5 file or MNIST DVS data must be specified')
 
 
-create_data(path_to_hdf5=r'\users\k1804053\datasets\mnist-dvs\mnist_dvs_events.hdf5',
-            path_to_data=r'\users\k1804053\processed_polarity')
+create_data(path_to_hdf5=r'C:\Users\K1804053\PycharmProjects\datasets\mnist-dvs\mnist_dvs_events.hdf5',
+            path_to_data=r'C:\Users\K1804053\PycharmProjects\datasets\mnist-dvs\processed_polarity')
+
+# create_data(path_to_hdf5=r'\users\k1804053\datasets\mnist-dvs\mnist_dvs_events.hdf5',
+#             path_to_data=r'\users\k1804053\processed_polarity')
 
