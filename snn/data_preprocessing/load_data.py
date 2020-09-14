@@ -68,4 +68,5 @@ def chunk_evs_pol(times, addrs, deltat=1000, size=[2, 304, 240], x_max=1, polari
         if np.isnan(chunks).any():
             'NaN detected'
             print(chunks)
+
     return chunks
