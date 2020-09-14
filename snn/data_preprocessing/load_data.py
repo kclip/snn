@@ -11,7 +11,7 @@ from .misc import *
 
 
 def get_example(hdf5_group, idx, T=80, n_classes=10, size=[1, 26, 26], dt=1000, x_max=1, polarity=True):
-    data = np.empty([T] + size, dtype='float')
+    data = np.zeros([T] + size, dtype='float')
     label = hdf5_group.labels[idx, 0]
     start_time = hdf5_group.labels[idx, 1]
     end_time = hdf5_group.labels[idx, 2]
@@ -41,7 +41,7 @@ def get_event_slice(times, addrs, start_time, end_time, T, size=[128, 128], dt=1
 def chunk_evs_pol(times, addrs, deltat=1000, size=[2, 304, 240], x_max=1, polarity=True):
     t_start = times[0]
     ts = range(t_start, times[-1], deltat)
-    chunks = np.zeros([len(ts)]+size)
+    chunks = np.zeros([len(ts)]+size, dtype='float')
     idx_start = 0
     idx_end = 0
 
