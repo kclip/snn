@@ -1,0 +1,9 @@
+README.md
+setup.cfg
+setup.py
+snn/__init__.py
+snn/launch_experiment.py
+snn.egg-info/PKG-INFO
+snn.egg-info/SOURCES.txt
+snn.egg-info/dependency_links.txt
+snn.egg-info/top_level.txt

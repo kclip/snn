@@ -2,3 +2,5 @@ local/
 results/
 .idea/
 *.sh
+snn.egg-info/
+__pycache__/
