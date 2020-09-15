@@ -44,7 +44,7 @@ def chunk_evs_pol(times, addrs, deltat=1000, size=[2, 304, 240], x_max=1, polari
         idx_end += find_first(times[idx_end:], t)
         if idx_end > idx_start:
             ee = addrs[idx_start:idx_end]
-            if set(ee[:, 2]) == set([-1, 1]):  # Polarities are either [0, 1] or [-1, 1]
+            if set(ee[:, 2]) == set([-1, 1]):  # Polarities are either [0, 1] or [-1, 1], we set them to [0, 1]
                 pol, x, y = ((1 + ee[:, 2]) / 2).astype(np.int), ee[:, 0], ee[:, 1]
             else:
                 pol, x, y = ee[:, 2], ee[:, 0], ee[:, 1]

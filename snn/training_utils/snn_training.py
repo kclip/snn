@@ -77,7 +77,7 @@ def train_on_example(network, T, example, gamma, r, eligibility_trace_hidden, el
         eligibility_trace_hidden, eligibility_trace_output, learning_signal, baseline_num, baseline_den \
             = local_feedback_and_update(network, ls_tmp, eligibility_trace_hidden, eligibility_trace_output, learning_signal, baseline_num, baseline_den, lr, beta, kappa)
 
-        return log_proba, eligibility_trace_hidden, eligibility_trace_output, learning_signal, baseline_num, baseline_den
+    return log_proba, eligibility_trace_hidden, eligibility_trace_output, learning_signal, baseline_num, baseline_den
 
 
 def train(network, dataset, sample_length, dt, input_shape, polarity, indices, test_indices, lr, n_classes, r, beta, gamma, kappa, start_idx, test_accs, save_path):
@@ -91,7 +91,6 @@ def train(network, dataset, sample_length, dt, input_shape, polarity, indices, t
     train_data = dataset.root.train
     test_data = dataset.root.test
     T = int(sample_length * 1000 / dt)
-
 
     for j, idx in enumerate(indices[start_idx:]):
         j += start_idx
