@@ -65,8 +65,8 @@ if __name__ == "__main__":
 
 print(args)
 
-# home = r'/home/snn/'
-home = r'C:/Users/K1804053/PycharmProjects'
+home = r'/home/snn/'
+
 datasets = {'mnist_dvs': r'mnist_dvs_events.hdf5',
             'dvs_gesture': r'dvs_gestures_events.hdf5'
             }

@@ -139,14 +139,9 @@ class BinarySNN(SNNetwork):
 
         return spiking_history
 
-
     def update_spiking_history(self, input_signal):
         spiking_history = torch.cat((self.spiking_history[:, - self.memory_length:], torch.zeros([self.n_neurons, 1]).to(self.device)), dim=-1)
         spiking_history[self.visible_neurons, -1] = input_signal
-
-        if np.isnan(input_signal).any():
-            print(input_signal)
-            raise RuntimeError
 
         if self.n_hidden_neurons > 0:
             spiking_history = self.generate_spikes(spiking_history, self.hidden_neurons)
