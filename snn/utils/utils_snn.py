@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+import pickle
 
 from snn.data_preprocessing.load_data import *
 
@@ -71,4 +72,42 @@ def get_acc_loss_and_spikes(network, hdf5_group, test_indices, T, n_classes, inp
     acc = float(torch.sum(predictions == true_classes, dtype=torch.float) / len(predictions))
 
     return acc, loss, spikes
+
+
+def test(network, j, train_data, train_indices, test_data, test_indices, T, n_classes, input_shape,
+         dt, x_max, polarity, test_period, train_accs, train_losses, test_accs, test_losses, save_path):
+    if (j + 1) % test_period == 0:
+        if (test_accs is not None) or (test_losses is not None):
+            test_acc, test_loss = get_acc_and_loss(network, test_data, test_indices, T, n_classes, input_shape, dt, x_max, polarity)
+
+            if test_accs is not None:
+                test_accs[int(j + 1)].append(test_acc)
+                print('test accuracy at ite %d: %f' % (int(j + 1), test_acc))
+                with open(save_path + '/test_accs.pkl', 'wb') as f:
+                    pickle.dump(test_accs, f, pickle.HIGHEST_PROTOCOL)
+
+            if test_losses is not None:
+                test_losses[int(j + 1)].append(test_loss)
+                with open(save_path + '/test_losses.pkl', 'wb') as f:
+                    pickle.dump(test_accs, f, pickle.HIGHEST_PROTOCOL)
+
+        if (train_accs is not None) or (train_losses is not None):
+            train_acc, train_loss = get_acc_and_loss(network, train_data, train_indices, T, n_classes, input_shape, dt, x_max, polarity)
+
+            if train_accs is not None:
+                train_accs[int(j + 1)].append(train_acc)
+                with open(save_path + '/train_accs.pkl', 'wb') as f:
+                    pickle.dump(test_accs, f, pickle.HIGHEST_PROTOCOL)
+
+            if train_losses is not None:
+                train_losses[int(j + 1)].append(train_loss)
+                with open(save_path + '/train_losses.pkl', 'wb') as f:
+                    pickle.dump(test_accs, f, pickle.HIGHEST_PROTOCOL)
+
+        network.save(save_path + '/network_weights.hdf5')
+
+        network.train()
+        network.reset_internal_state()
+
+
 

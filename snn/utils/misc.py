@@ -38,16 +38,19 @@ def find_indices_for_labels(hdf5_group, labels):
 
 
 def get_indices(args):
+    if args.num_samples_train is None:
+        args.num_samples_train = len(find_indices_for_labels(args.dataset.root.train, args.labels))
+    if args.num_samples_test is None:
+        args.num_samples_test = len(find_indices_for_labels(args.dataset.root.test, args.labels))
+
     if args.labels is not None:
         print('Training on labels ', args.labels)
-        indices = np.random.choice(find_indices_for_labels(args.dataset.root.train, args.labels), [args.num_samples_train], replace=True)
+        args.train_indices = np.random.choice(find_indices_for_labels(args.dataset.root.train, args.labels), [args.num_samples_train], replace=True)
         args.num_samples_test = min(args.num_samples_test, len(find_indices_for_labels(args.dataset.root.test, args.labels)))
-        test_indices = np.random.choice(find_indices_for_labels(args.dataset.root.test, args.labels), [args.num_samples_test], replace=False)
+        args.test_indices = np.random.choice(find_indices_for_labels(args.dataset.root.test, args.labels), [args.num_samples_test], replace=False)
     else:
-        indices = np.random.choice(np.arange(args.dataset.root.stats.train_data[0]), [args.num_samples_train], replace=True)
-        test_indices = np.random.choice(np.arange(args.dataset.root.stats.test_data[0]), [args.num_samples_test], replace=False)
-
-    return indices, test_indices
+        args.train_indices = np.random.choice(np.arange(args.dataset.root.stats.train_data[0]), [args.num_samples_train], replace=True)
+        args.test_indices = np.random.choice(np.arange(args.dataset.root.stats.test_data[0]), [args.num_samples_test], replace=False)
 
 
 def make_topology(network_type, topology_type, n_input_neurons, n_output_neurons, n_hidden_neurons, n_neurons_per_layer=0, topology=None, density=1):
@@ -155,10 +158,68 @@ def mksavedir(pre='results/', exp_dir=None):
     else:
         raise TypeError('exp_dir should be a string')
 
-
     os.makedirs(save_dir)
     print(("Created experiment directory {0}".format(save_dir)))
     return save_dir + r'/'
+
+
+def make_recordings(args):
+    args.record_test_acc = str2bool(args.record_test_acc)
+    args.record_test_loss = str2bool(args.record_test_loss)
+    args.record_train_loss = str2bool(args.record_train_loss)
+    args.record_train_acc = str2bool(args.record_train_acc)
+
+    if str2bool(args.record_all):
+        args.record_test_acc = True
+        args.record_test_loss = True
+        args.record_train_loss = True
+        args.record_train_acc = True
+
+    if args.test_period is not None:
+        args.ite_test = np.arange(0, args.num_samples_train, args.test_period)
+
+        if args.weights is not None:
+            if args.record_test_acc:
+                with open(args.home + args.weights + '/test_accs.pkl', 'rb') as f:
+                    args.test_accs = pickle.load(f)
+            else:
+                args.test_accs = None
+            if args.record_test_loss:
+                with open(args.home + args.weights + '/test_losses.pkl', 'rb') as f:
+                    args.test_losses = pickle.load(f)
+            else:
+                args.test_losses = None
+            if args.record_train_loss:
+                with open(args.home + args.weights + '/train_losses.pkl', 'rb') as f:
+                    args.train_losses = pickle.load(f)
+            else:
+                args.train_losses = None
+            if args.record_train_acc:
+                with open(args.home + args.weights + '/train_accs.pkl', 'rb') as f:
+                    args.train_accs = pickle.load(f)
+            else:
+                args.train_accs = None
+        else:
+            if args.record_test_acc:
+                args.test_accs = {i: [] for i in args.ite_test}
+                args.test_accs[args.num_samples_train] = []
+            else:
+                args.test_accs = None
+            if args.record_test_loss:
+                args.test_losses = {i: [] for i in args.ite_test}
+                args.test_losses[args.num_samples_train] = []
+            else:
+                args.test_losses = None
+            if args.record_train_loss:
+                args.train_losses = {i: [] for i in args.ite_test}
+                args.train_losses[args.num_samples_train] = []
+            else:
+                args.train_losses = None
+            if args.record_train_acc:
+                args.train_accs = {i: [] for i in args.ite_test}
+                args.train_accs[args.num_samples_train] = []
+            else:
+                args.train_accs = None
 
 
 def save_results(results, save_path):

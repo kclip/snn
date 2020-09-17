@@ -25,13 +25,10 @@ def launch_multivalued_exp(args):
                                                    ),
                          device=args.device)
 
-        # Select training and test examples from subset of labels if specified
-        indices, test_indices = get_indices(args)
-
         # Import weights if specified
         if args.start_idx > 0:
             network.import_weights(args.save_path + r'/network_weights.hdf5')
 
         # Start training
-        args.test_accs = train(network, args.dataset, args.sample_length, args.dt, args.input_shape, args.polarity, indices, test_indices,
+        args.test_accs = train(network, args.dataset, args.sample_length, args.dt, args.input_shape, args.polarity, args.indices, args.test_indices,
                                args.lr, args.n_classes, args.r, args.beta, args.gamma, args.kappa, args.start_idx, args.test_accs, args.save_path)

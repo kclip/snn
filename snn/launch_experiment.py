@@ -28,13 +28,21 @@ if __name__ == "__main__":
     parser.add_argument('--input_shape', nargs='+', default=[1352], type=int, help='Shape of an input sample')
     parser.add_argument('--polarity', default='true', type=str, help='Use polarity or not')
 
-    parser.add_argument('--num_samples_train', default=None, type=int, help='Number of samples to train on for each experiment')
-    parser.add_argument('--num_samples_test', default=None, type=int, help='Number of samples to test on')
+    parser.add_argument('--num_samples_train', default=1, type=int, help='Number of samples to train on for each experiment')
+    parser.add_argument('--num_samples_test', default=1, type=int, help='Number of samples to test on')
     parser.add_argument('--lr', default=0.0001, type=float, help='Learning rate')
     parser.add_argument('--start_idx', type=int, default=0, help='When resuming training from existing weights, index to start over from')
     parser.add_argument('--labels', nargs='+', default=None, type=int, help='Class labels to be used during training')
 
-    parser.add_argument('--save_path', type=str, default=None, help='')
+    parser.add_argument('--home', default='/home')
+    parser.add_argument('--save_path', type=str, default=None, help='Path to where weights are stored (relative to home)')
+    parser.add_argument('--weights', type=str, default=None, help='Path to existing weights (relative to home)')
+
+    parser.add_argument('--record_test_acc', type=str, default='true', help='')
+    parser.add_argument('--record_test_loss', type=str, default='false', help='')
+    parser.add_argument('--record_train_loss', type=str, default='false', help='')
+    parser.add_argument('--record_train_acc', type=str, default='false', help='')
+    parser.add_argument('--record_all', type=str, default='false', help='Overrides the other record arguments to set them to yes')
     parser.add_argument('--suffix', type=str, default='', help='Appended to the name of the saved results and weights')
     parser.add_argument('--disable-cuda', type=str, default='true', help='Disable CUDA')
 
@@ -65,16 +73,14 @@ if __name__ == "__main__":
 
 print(args)
 
-home = r'/home/snn/'
-
 datasets = {'mnist_dvs': r'mnist_dvs_events.hdf5',
             'dvs_gesture': r'dvs_gestures_events.hdf5'
             }
 
 if args.dataset[:5] == 'mnist':
-    dataset = home + r'/datasets/mnist-dvs/' + datasets[args.dataset]
+    dataset = args.home + r'/datasets/mnist-dvs/' + datasets[args.dataset]
 elif args.dataset[:11] == 'dvs_gesture':
-    dataset = home + r'/datasets/DvsGesture/' + datasets[args.dataset]
+    dataset = args.home + r'/datasets/DvsGesture/' + datasets[args.dataset]
 else:
     print('Error: dataset not found')
 
@@ -85,33 +91,25 @@ dataset = tables.open_file(dataset)
 if not args.num_samples_train:
     args.num_samples_train = dataset.root.stats.train_data[0]
 
-if args.test_period is not None:
-    if not args.num_samples_test:
-        args.num_samples_test = dataset.root.stats.test_data[0]
-
-    args.ite_test = np.arange(0, args.num_samples_train, args.test_period)
-
-    if args.save_path is not None:
-        with open(args.save_path + '/test_accs.pkl', 'rb') as f:
-            args.test_accs = pickle.load(f)
-    else:
-        args.test_accs = {i: [] for i in args.ite_test}
-        args.test_accs[args.num_samples_train] = []
-
-
 # Save results and weights
 name = args.dataset + r'_' + args.model + r'_%d_epochs_nh_%d_dt_%d_' % (args.num_samples_train, args.n_h, args.dt) + r'_pol_' + args.polarity + args.suffix
 
-results_path = home + r'/results/'
-if args.save_path is None:
-    args.save_path = mksavedir(pre=results_path, exp_dir=name)
+results_path = args.home + r'/results/'
 
+if args.weights is None:
+    if args.save_path is None:
+        args.save_path = mksavedir(pre=results_path, exp_dir=name)
+else:
+    args.save_path = args.weights
 
 with open(args.save_path + 'commandline_args.pkl', 'wb') as f:
     pickle.dump(args.__dict__, f, pickle.HIGHEST_PROTOCOL)
 
-
 args.dataset = dataset
+
+# Select training and test examples from subset of labels if specified
+get_indices(args)
+make_recordings(args)
 
 args.disable_cuda = str2bool(args.disable_cuda)
 args.device = None
