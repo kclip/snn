@@ -41,7 +41,7 @@ def get_acc_and_loss(network, hdf5_group, test_indices, T, n_classes, input_shap
             outputs[j, :, t] = network.spiking_history[network.output_neurons, -1].cpu()
 
     predictions = torch.max(torch.sum(outputs, dim=-1), dim=-1).indices
-    acc = float(torch.sum(predictions == true_classes, dtype=torch.float) / len(predictions))
+    acc = float(torch.sum(predictions == true_classes, dtype=torch.float)) / len(predictions)
 
     return acc, loss
 
