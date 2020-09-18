@@ -21,9 +21,9 @@ def get_acc_and_loss(network, hdf5_group, test_indices, T, n_classes, input_shap
     network.eval()
     network.reset_internal_state()
 
-    if test_indices > len(hdf5_group.labels):
+    if len(test_indices) > len(hdf5_group.labels):
         test_indices = np.random.choice(np.arange(len(hdf5_group.labels)), [len(hdf5_group.labels)], replace=False)
-        
+
     outputs = torch.zeros([len(test_indices), network.n_output_neurons, T])
     loss = 0
 
