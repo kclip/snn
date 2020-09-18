@@ -1,11 +1,9 @@
 import os
+import glob
 
 import numpy as np
-import scipy.misc
 import torch
 import tables
-import h5py
-import glob
 
 from .misc import *
 
