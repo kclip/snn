@@ -92,7 +92,7 @@ def test(network, j, train_data, train_indices, test_data, test_indices, T, n_cl
             if test_losses is not None:
                 test_losses[int(j + 1)].append(test_loss)
                 with open(save_path + '/test_losses.pkl', 'wb') as f:
-                    pickle.dump(test_accs, f, pickle.HIGHEST_PROTOCOL)
+                    pickle.dump(test_losses, f, pickle.HIGHEST_PROTOCOL)
 
         if (train_accs is not None) or (train_losses is not None):
             train_acc, train_loss = get_acc_and_loss(network, train_data, train_indices, T, n_classes, input_shape, dt, x_max, polarity)
@@ -100,12 +100,12 @@ def test(network, j, train_data, train_indices, test_data, test_indices, T, n_cl
             if train_accs is not None:
                 train_accs[int(j + 1)].append(train_acc)
                 with open(save_path + '/train_accs.pkl', 'wb') as f:
-                    pickle.dump(test_accs, f, pickle.HIGHEST_PROTOCOL)
+                    pickle.dump(train_accs, f, pickle.HIGHEST_PROTOCOL)
 
             if train_losses is not None:
                 train_losses[int(j + 1)].append(train_loss)
                 with open(save_path + '/train_losses.pkl', 'wb') as f:
-                    pickle.dump(test_accs, f, pickle.HIGHEST_PROTOCOL)
+                    pickle.dump(train_losses, f, pickle.HIGHEST_PROTOCOL)
 
         network.save(save_path + '/network_weights.hdf5')
 
