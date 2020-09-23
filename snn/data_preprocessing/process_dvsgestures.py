@@ -5,7 +5,7 @@ import numpy as np
 import scipy.misc
 import tables
 
-from .misc import *
+from snn.data_preprocessing.misc import *
 
 """"
 Load and preprocess data from the DVS Gesture dataset, based on scripts by Emre Neftci.
@@ -161,10 +161,10 @@ def create_data(path_to_hdf5='../data/mnist_dvs_events.hdf5', path_to_data=None,
         print('Either an hdf5 file or DvsGestures data must be specified')
 
 
-# create_data(path_to_hdf5=r'C:\Users\K1804053\PycharmProjects\datasets\DvsGesture\dvs_gestures_events.hdf5',
-#             path_to_data=r'C:\Users\K1804053\PycharmProjects\datasets\DvsGesture',
-#             ds=4)
-
-create_data(path_to_hdf5=r'/users/k1804053/datasets/DvsGesture/dvs_gestures_events.hdf5',
-            path_to_data=r'/users/k1804053/DvsGesture',
+create_data(path_to_hdf5=r'C:\Users\K1804053\PycharmProjects\datasets\DvsGesture\dvs_gestures_events.hdf5',
+            path_to_data=r'C:\Users\K1804053\PycharmProjects\datasets\DvsGesture',
             ds=4)
+
+# create_data(path_to_hdf5=r'/users/k1804053/datasets/DvsGesture/dvs_gestures_events.hdf5',
+#             path_to_data=r'/users/k1804053/DvsGesture',
+#             ds=4)

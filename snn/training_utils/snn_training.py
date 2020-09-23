@@ -92,12 +92,13 @@ def train_experiment(network, args):
     test_data = args.dataset.root.test
     T = int(args.sample_length * 1000 / args.dt)
     x_max = args.dataset.root.stats.train_data[1]
+    lr = args.lr
 
     for j, idx in enumerate(args.train_indices[args.start_idx:]):
         j += args.start_idx
 
-        if (j + 1) % (5 * (args.dataset.root.stats.train_data[0])) == 0:
-            args.lr /= 2
+        if ((j + 1) % args.dataset.root.stats.train_data[0]) == 0:
+            lr /= 2
 
         # Regularly test the accuracy
         test(network, j, train_data, args.train_indices, test_data, args.test_indices, T, args.n_classes, args.input_shape,
@@ -110,7 +111,7 @@ def train_experiment(network, args):
 
         log_proba, eligibility_trace_hidden, eligibility_trace_output, learning_signal, baseline_num, baseline_den = \
             train_on_example(network, T, example, args.gamma, args.r, eligibility_trace_hidden,
-                             eligibility_trace_output, learning_signal, baseline_num, baseline_den, args.lr, args.beta, args.kappa)
+                             eligibility_trace_output, learning_signal, baseline_num, baseline_den, lr, args.beta, args.kappa)
 
         if j % max(1, int(len(args.train_indices) / 5)) == 0:
             print('Step %d out of %d' % (j, len(args.train_indices)))
