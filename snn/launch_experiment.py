@@ -17,7 +17,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Train probabilistic multivalued SNNs using Pytorch')
 
     # Training arguments
-    parser.add_argument('--where', default='local')
     parser.add_argument('--dataset', default='mnist_dvs')
     parser.add_argument('--model', default='snn', choices=['snn', 'wta', 'wispike'], help='Model type, either "binary" or "wta"')
     parser.add_argument('--num_ite', default=5, type=int, help='Number of times every experiment will be repeated')

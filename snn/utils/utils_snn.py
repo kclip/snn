@@ -113,7 +113,8 @@ def test(network, j, train_data, train_indices, test_data, test_indices, T, n_cl
                 with open(save_path + '/train_losses.pkl', 'wb') as f:
                     pickle.dump(train_losses, f, pickle.HIGHEST_PROTOCOL)
 
-        network.save(save_path + '/network_weights.hdf5')
+        if not os.path.exists(save_path + '/network_weights_best.hdf5'):
+            network.save(save_path + '/network_weights.hdf5')
 
         network.train()
         network.reset_internal_state()
