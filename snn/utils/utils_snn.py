@@ -92,7 +92,7 @@ def test(network, j, train_data, train_indices, test_data, test_indices, T, n_cl
                 if not os.path.exists(save_path + '/network_weights_best.hdf5'):
                     network.save(save_path + '/network_weights_best.hdf5')
                 else:
-                    if test_accs[int(j + 1)][-1] >= max(test_accs[int(j + 1)][:-1]):
+                    if test_accs[int(j + 1)][-1] >= max(list(test_accs.values())):
                         network.save(save_path + '/network_weights_best.hdf5')
 
             if test_losses is not None:
