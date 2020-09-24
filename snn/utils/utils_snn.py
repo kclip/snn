@@ -89,6 +89,12 @@ def test(network, j, train_data, train_indices, test_data, test_indices, T, n_cl
                 with open(save_path + '/test_accs.pkl', 'wb') as f:
                     pickle.dump(test_accs, f, pickle.HIGHEST_PROTOCOL)
 
+                if not os.path.exists(save_path + '/network_weights_best.hdf5'):
+                    network.save(save_path + '/network_weights_best.hdf5')
+                else:
+                    if test_accs[int(j + 1)][-1] >= max(test_accs[int(j + 1)][:-1]):
+                        network.save(save_path + '/network_weights_best.hdf5')
+
             if test_losses is not None:
                 test_losses[int(j + 1)].append(test_loss)
                 with open(save_path + '/test_losses.pkl', 'wb') as f:
