@@ -107,6 +107,7 @@ def train_experiment(network, args):
         refractory_period(network)
 
         inputs, label = get_example(train_data, idx, T, args.n_classes, args.pattern, args.input_shape, args.dt, x_max, args.polarity)
+
         example = torch.cat((inputs, label), dim=0).to(network.device)
 
         log_proba, eligibility_trace_hidden, eligibility_trace_output, learning_signal, baseline_num, baseline_den = \

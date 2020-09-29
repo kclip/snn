@@ -33,9 +33,9 @@ def expand_targets(targets, T=500, burnin=0):
 
 
 def make_output_from_label(label, T, num_classes, pattern):
-    output_signal = np.array([[[0] * T] * label
+    output_signal = np.array([[0] * T] * label
                               + [pattern * int(T / len(pattern)) + pattern[:(T % len(pattern))]]
-                              + [[0] * T] * (num_classes - 1 - label)])
+                              + [[0] * T] * (num_classes - 1 - label))
 
     return output_signal
 
