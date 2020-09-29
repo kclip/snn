@@ -46,7 +46,6 @@ if __name__ == "__main__":
     parser.add_argument('--suffix', type=str, default='', help='Appended to the name of the saved results and weights')
     parser.add_argument('--disable-cuda', type=str, default='true', help='Disable CUDA')
 
-
     # Arguments common to all models
     parser.add_argument('--n_h', default=256, type=int, help='Number of hidden neurons')
     parser.add_argument('--topology_type', default='fully_connected', type=str, choices=['fully_connected', 'feedforward', 'layered', 'custom'], help='Topology of the network')
