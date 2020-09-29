@@ -101,12 +101,12 @@ def train_experiment(network, args):
             lr /= 2
 
         # Regularly test the accuracy
-        test(network, j, train_data, args.train_indices, test_data, args.test_indices, T, args.n_classes, args.input_shape,
+        test(network, j, train_data, args.train_indices, test_data, args.test_indices, T, args.n_classes, args.pattern, args.input_shape,
              args.dt, x_max, args.polarity, args.test_period, args.train_accs, args.train_losses, args.test_accs, args.test_losses, args.save_path)
 
         refractory_period(network)
 
-        inputs, label = get_example(train_data, idx, T, args.n_classes, args.input_shape, args.dt, x_max, args.polarity)
+        inputs, label = get_example(train_data, idx, T, args.n_classes, args.pattern, args.input_shape, args.dt, x_max, args.polarity)
         example = torch.cat((inputs, label), dim=0).to(network.device)
 
         log_proba, eligibility_trace_hidden, eligibility_trace_output, learning_signal, baseline_num, baseline_den = \

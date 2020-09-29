@@ -14,7 +14,7 @@ def refractory_period(network):
         network(torch.zeros([len(network.visible_neurons)], dtype=torch.float).to(network.device))
 
 
-def get_acc_and_loss(network, hdf5_group, test_indices, T, n_classes, input_shape, dt, x_max, polarity):
+def get_acc_and_loss(network, hdf5_group, test_indices, T, n_classes, pattern, input_shape, dt, x_max, polarity):
     """"
     Compute loss and accuracy on the indices from the dataset precised as arguments
     """
@@ -32,7 +32,7 @@ def get_acc_and_loss(network, hdf5_group, test_indices, T, n_classes, input_shap
     for j, idx in enumerate(test_indices):
         refractory_period(network)
 
-        inputs, lbl = get_example(hdf5_group, idx, T, n_classes, input_shape, dt, x_max, polarity)
+        inputs, lbl = get_example(hdf5_group, idx, T, n_classes, pattern, input_shape, dt, x_max, polarity)
         inputs = inputs.to(network.device)
 
         for t in range(T):
@@ -46,7 +46,7 @@ def get_acc_and_loss(network, hdf5_group, test_indices, T, n_classes, input_shap
     return acc, loss
 
 
-def get_acc_loss_and_spikes(network, hdf5_group, test_indices, T, n_classes, input_shape, dt, x_max, polarity):
+def get_acc_loss_and_spikes(network, hdf5_group, test_indices, T, n_classes, pattern, input_shape, dt, x_max, polarity):
     """"
     Compute loss and accuracy on the indices from the dataset precised as arguments
     """
@@ -62,7 +62,7 @@ def get_acc_loss_and_spikes(network, hdf5_group, test_indices, T, n_classes, inp
     for j, idx in enumerate(test_indices):
         refractory_period(network)
 
-        inputs, lbl = get_example(hdf5_group, idx, T, n_classes, input_shape, dt, x_max, polarity)
+        inputs, lbl = get_example(hdf5_group, idx, T, n_classes, pattern, input_shape, dt, x_max, polarity)
         inputs = inputs.to(network.device)
 
         for t in range(T):
@@ -77,11 +77,11 @@ def get_acc_loss_and_spikes(network, hdf5_group, test_indices, T, n_classes, inp
     return acc, loss, spikes
 
 
-def test(network, j, train_data, train_indices, test_data, test_indices, T, n_classes, input_shape,
+def test(network, j, train_data, train_indices, test_data, test_indices, T, n_classes, pattern, input_shape,
          dt, x_max, polarity, test_period, train_accs, train_losses, test_accs, test_losses, save_path):
     if (j + 1) % test_period == 0:
         if (test_accs is not None) or (test_losses is not None):
-            test_acc, test_loss = get_acc_and_loss(network, test_data, test_indices, T, n_classes, input_shape, dt, x_max, polarity)
+            test_acc, test_loss = get_acc_and_loss(network, test_data, test_indices, T, n_classes, pattern, input_shape, dt, x_max, polarity)
 
             if test_accs is not None:
                 test_accs[int(j + 1)].append(test_acc)
