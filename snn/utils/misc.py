@@ -37,20 +37,20 @@ def find_indices_for_labels(hdf5_group, labels):
     return np.hstack(res)
 
 
-def get_indices(args):
-    if args.num_samples_train is None:
-        args.num_samples_train = len(find_indices_for_labels(args.dataset.root.train, args.labels))
-    if args.num_samples_test is None:
-        args.num_samples_test = len(find_indices_for_labels(args.dataset.root.test, args.labels))
+def get_indices(params):
+    if params['num_samples_train'] is None:
+        params['num_samples_train'] = len(find_indices_for_labels(params['dataset'].root.train, params['labels']))
+    if params['num_samples_test'] is None:
+        params['num_samples_test'] = len(find_indices_for_labels(params['dataset'].root.test, params['labels']))
 
-    if args.labels is not None:
-        print('Training on labels ', args.labels)
-        args.train_indices = np.random.choice(find_indices_for_labels(args.dataset.root.train, args.labels), [args.num_samples_train], replace=True)
-        args.num_samples_test = min(args.num_samples_test, len(find_indices_for_labels(args.dataset.root.test, args.labels)))
-        args.test_indices = np.random.choice(find_indices_for_labels(args.dataset.root.test, args.labels), [args.num_samples_test], replace=False)
+    if params['labels'] is not None:
+        print('Training on labels ', params['labels'])
+        params['train_indices'] = np.random.choice(find_indices_for_labels(params['dataset'].root.train, params['labels']), [params['num_samples_train']], replace=True)
+        params['num_samples_test'] = min(params['num_samples_test'], len(find_indices_for_labels(params['dataset'].root.test, params['labels'])))
+        params['test_indices'] = np.random.choice(find_indices_for_labels(params['dataset'].root.test, params['labels']), [params['num_samples_test']], replace=False)
     else:
-        args.train_indices = np.random.choice(np.arange(args.dataset.root.stats.train_data[0]), [args.num_samples_train], replace=True)
-        args.test_indices = np.random.choice(np.arange(args.dataset.root.stats.test_data[0]), [args.num_samples_test], replace=False)
+        params['train_indices'] = np.random.choice(np.arange(params['dataset'].root.stats.train_data[0]), [params['num_samples_train']], replace=True)
+        params['test_indices'] = np.random.choice(np.arange(params['dataset'].root.stats.test_data[0]), [params['num_samples_test']], replace=False)
 
 
 def make_topology(network_type, topology_type, n_input_neurons, n_output_neurons, n_hidden_neurons, n_neurons_per_layer=0, topology=None, density=1):
@@ -163,63 +163,63 @@ def mksavedir(pre='results/', exp_dir=None):
     return save_dir + r'/'
 
 
-def make_recordings(args):
-    args.record_test_acc = str2bool(args.record_test_acc)
-    args.record_test_loss = str2bool(args.record_test_loss)
-    args.record_train_loss = str2bool(args.record_train_loss)
-    args.record_train_acc = str2bool(args.record_train_acc)
+def make_recordings(args, params):
+    params['record_test_acc'] = str2bool(params['record_test_acc'])
+    params['record_test_loss'] = str2bool(params['record_test_loss'])
+    params['record_train_loss'] = str2bool(params['record_train_loss'])
+    params['record_train_acc'] = str2bool(params['record_train_acc'])
 
-    if str2bool(args.record_all):
-        args.record_test_acc = True
-        args.record_test_loss = True
-        args.record_train_loss = True
-        args.record_train_acc = True
+    if str2bool(params['record_all']):
+        params['record_test_acc'] = True
+        params['record_test_loss'] = True
+        params['record_train_loss'] = True
+        params['record_train_acc'] = True
 
-    if args.test_period is not None:
-        args.ite_test = np.arange(0, args.num_samples_train, args.test_period)
+    if params['test_period'] is not None:
+        params['ite_test'] = np.arange(0, params['num_samples_train'], params['test_period'])
 
         if args.weights is not None:
-            if args.record_test_acc:
+            if params['record_test_acc']:
                 with open(args.home + args.weights + '/test_accs.pkl', 'rb') as f:
-                    args.test_accs = pickle.load(f)
+                    params['test_accs'] = pickle.load(f)
             else:
-                args.test_accs = None
-            if args.record_test_loss:
+                params['test_accs'] = None
+            if params['record_test_loss']:
                 with open(args.home + args.weights + '/test_losses.pkl', 'rb') as f:
-                    args.test_losses = pickle.load(f)
+                    params['test_losses'] = pickle.load(f)
             else:
-                args.test_losses = None
-            if args.record_train_loss:
+                params['test_losses'] = None
+            if params['record_train_loss']:
                 with open(args.home + args.weights + '/train_losses.pkl', 'rb') as f:
-                    args.train_losses = pickle.load(f)
+                    params['train_losses'] = pickle.load(f)
             else:
-                args.train_losses = None
-            if args.record_train_acc:
+                params['train_losses'] = None
+            if params['record_train_acc']:
                 with open(args.home + args.weights + '/train_accs.pkl', 'rb') as f:
-                    args.train_accs = pickle.load(f)
+                    params['train_accs'] = pickle.load(f)
             else:
-                args.train_accs = None
+                params['train_accs'] = None
         else:
-            if args.record_test_acc:
-                args.test_accs = {i: [] for i in args.ite_test}
-                args.test_accs[args.num_samples_train] = []
+            if params['record_test_acc']:
+                params['test_accs'] = {i: [] for i in params['ite_test']}
+                params['test_accs'][params['num_samples_train']] = []
             else:
-                args.test_accs = None
-            if args.record_test_loss:
-                args.test_losses = {i: [] for i in args.ite_test}
-                args.test_losses[args.num_samples_train] = []
+                params['test_accs'] = None
+            if params['record_test_loss']:
+                params['test_losses'] = {i: [] for i in params['ite_test']}
+                params['test_losses'][params['num_samples_train']] = []
             else:
-                args.test_losses = None
-            if args.record_train_loss:
-                args.train_losses = {i: [] for i in args.ite_test}
-                args.train_losses[args.num_samples_train] = []
+                params['test_losses'] = None
+            if params['record_train_loss']:
+                params['train_losses'] = {i: [] for i in params['ite_test']}
+                params['train_losses'][params['num_samples_train']] = []
             else:
-                args.train_losses = None
-            if args.record_train_acc:
-                args.train_accs = {i: [] for i in args.ite_test}
-                args.train_accs[args.num_samples_train] = []
+                params['train_losses'] = None
+            if params['record_train_acc']:
+                params['train_accs'] = {i: [] for i in params['ite_test']}
+                params['train_accs'][params['num_samples_train']] = []
             else:
-                args.train_accs = None
+                params['train_accs'] = None
 
 
 def save_results(results, save_path):

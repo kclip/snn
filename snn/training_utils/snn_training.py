@@ -80,7 +80,7 @@ def train_on_example(network, T, example, gamma, r, eligibility_trace_hidden, el
     return log_proba, eligibility_trace_hidden, eligibility_trace_output, learning_signal, baseline_num, baseline_den
 
 
-def train_experiment(network, args):
+def train_experiment(network, args, params):
     """"
     Train an SNN.
     """
@@ -88,40 +88,38 @@ def train_experiment(network, args):
     eligibility_trace_output, eligibility_trace_hidden, \
         learning_signal, baseline_num, baseline_den = init_training(network)
 
-    train_data = args.dataset.root.train
-    test_data = args.dataset.root.test
-    T = int(args.sample_length * 1000 / args.dt)
-    x_max = args.dataset.root.stats.train_data[1]
-    lr = args.lr
+    train_data = params['dataset'].root.train
+    test_data = params['dataset'].root.test
+    T = int(params['sample_length'] * 1000 / params['dt'])
+    x_max = params['dataset'].root.stats.train_data[1]
+    lr = params['lr']
 
-    for j, idx in enumerate(args.train_indices[args.start_idx:]):
-        j += args.start_idx
+    for j, idx in enumerate(params['train_indices'][params['start_idx']:]):
+        j += params['start_idx']
 
-        if ((j + 1) % args.dataset.root.stats.train_data[0]) == 0:
+        if ((j + 1) % params['dataset'].root.stats.train_data[0]) == 0:
             lr /= 2
 
         # Regularly test the accuracy
-        test(network, j, train_data, args.train_indices, test_data, args.test_indices, T, args.n_classes, args.pattern, args.input_shape,
-             args.dt, x_max, args.polarity, args.test_period, args.train_accs, args.train_losses, args.test_accs, args.test_losses, args.save_path)
+        test(network, j, train_data, params['train_indices'], test_data, params['test_indices'], T, params['n_classes'], params['pattern'], params['input_shape'],
+             params['dt'], x_max, params['polarity'], params['test_period'], params['train_accs'], params['train_losses'], params['test_accs'], params['test_losses'], args.save_path)
 
         refractory_period(network)
 
-        inputs, label = get_example(train_data, idx, T, args.n_classes, args.pattern, args.input_shape, args.dt, x_max, args.polarity)
+        inputs, label = get_example(train_data, idx, T, params['n_classes'], params['pattern'], params['input_shape'], params['dt'], x_max, params['polarity'])
 
         example = torch.cat((inputs, label), dim=0).to(network.device)
 
         log_proba, eligibility_trace_hidden, eligibility_trace_output, learning_signal, baseline_num, baseline_den = \
-            train_on_example(network, T, example, args.gamma, args.r, eligibility_trace_hidden,
-                             eligibility_trace_output, learning_signal, baseline_num, baseline_den, lr, args.beta, args.kappa)
+            train_on_example(network, T, example, params['gamma'], params['r'], eligibility_trace_hidden,
+                             eligibility_trace_output, learning_signal, baseline_num, baseline_den, lr, params['beta'], params['kappa'])
 
-        if j % max(1, int(len(args.train_indices) / 5)) == 0:
-            print('Step %d out of %d' % (j, len(args.train_indices)))
+        if j % max(1, int(len(params['train_indices']) / 5)) == 0:
+            print('Step %d out of %d' % (j, len(params['train_indices'])))
 
     # At the end of training, save final weights if none exist or if this ite was better than all the others
     if not os.path.exists(args.save_path + '/network_weights_final.hdf5'):
         network.save(args.save_path + '/network_weights_final.hdf5')
     else:
-        if args.test_accs[args.num_samples_train][-1] >= max(args.test_accs[args.num_samples_train][:-1]):
+        if params['test_accs'][params['num_samples_train']][-1] >= max(params['test_accs'][params['num_samples_train']][:-1]):
             network.save(args.save_path + '/network_weights_final.hdf5')
-
-    return args.test_accs
