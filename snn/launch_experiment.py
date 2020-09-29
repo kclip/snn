@@ -32,6 +32,7 @@ if __name__ == "__main__":
     parser.add_argument('--lr', default=0.0001, type=float, help='Learning rate')
     parser.add_argument('--start_idx', type=int, default=0, help='When resuming training from existing weights, index to start over from')
     parser.add_argument('--labels', nargs='+', default=None, type=int, help='Class labels to be used during training')
+    parser.add_argument('--pattern', nargs='+', default=None, type=int, help='Class labels to be used during training')
 
     parser.add_argument('--home', default='/home')
     parser.add_argument('--save_path', type=str, default=None, help='Path to where weights are stored (relative to home)')

@@ -8,7 +8,7 @@ import tables
 from .misc import *
 
 
-def get_example(hdf5_group, idx, T=80, n_classes=10, size=[1, 26, 26], dt=1000, x_max=1, polarity=True):
+def get_example(hdf5_group, idx, T=80, n_classes=10, pattern=[1],  size=[1, 26, 26], dt=1000, x_max=1, polarity=True):
     data = np.zeros([T] + size, dtype='float')
     label = hdf5_group.labels[idx, 0]
     start_time = hdf5_group.labels[idx, 1]
@@ -21,7 +21,7 @@ def get_example(hdf5_group, idx, T=80, n_classes=10, size=[1, 26, 26], dt=1000, 
     else:
         data = curr[:T]
 
-    return torch.FloatTensor(data.T), torch.FloatTensor(make_output_from_label(label, T, n_classes))
+    return torch.FloatTensor(data.T), torch.FloatTensor(make_output_from_label(label, T, n_classes, pattern))
 
 
 def get_event_slice(times, addrs, start_time, end_time, T, size=[128, 128], dt=1000, x_max=1, polarity=True):

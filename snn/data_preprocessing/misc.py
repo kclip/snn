@@ -32,10 +32,12 @@ def expand_targets(targets, T=500, burnin=0):
     return y
 
 
-def make_output_from_label(label, T, num_classes):
-    out = np.zeros([num_classes, T])
-    out[label, :] = 1
-    return out
+def make_output_from_label(label, T, num_classes, pattern):
+    output_signal = np.array([[[0] * T] * label
+                              + [pattern * int(T / len(pattern)) + pattern[:(T % len(pattern))]]
+                              + [[0] * T] * (num_classes - 1 - label)])
+
+    return output_signal
 
 
 def find_first(a, tgt):
