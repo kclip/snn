@@ -101,7 +101,7 @@ def test(network, j, train_data, train_indices, test_data, test_indices, T, n_cl
                     pickle.dump(test_losses, f, pickle.HIGHEST_PROTOCOL)
 
         if (train_accs is not None) or (train_losses is not None):
-            train_acc, train_loss = get_acc_and_loss(network, train_data, train_indices, T, n_classes, input_shape, dt, x_max, polarity)
+            train_acc, train_loss = get_acc_and_loss(network, train_data, train_indices, T, n_classes, pattern, input_shape, dt, x_max, polarity)
 
             if train_accs is not None:
                 train_accs[int(j + 1)].append(train_acc)

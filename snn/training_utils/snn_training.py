@@ -1,6 +1,5 @@
 import os
 
-import time
 import torch
 import pickle
 from snn.utils.utils_snn import refractory_period, test
@@ -86,8 +85,6 @@ def train_experiment(network, args, params):
     Train an SNN.
     """
 
-    t0 = time.time()
-
     eligibility_trace_output, eligibility_trace_hidden, \
         learning_signal, baseline_num, baseline_den = init_training(network)
 
@@ -125,5 +122,3 @@ def train_experiment(network, args, params):
     else:
         if params['test_accs'][params['num_samples_train']][-1] >= max(params['test_accs'][params['num_samples_train']][:-1]):
             network.save(args.save_path + '/network_weights_final.hdf5')
-
-    print(t0 - time.time())
