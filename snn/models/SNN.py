@@ -71,7 +71,6 @@ class BinarySNN(SNNetwork):
         return log_proba
 
 
-
     ### Weights initialization
     def initialize_ff_weights(self, topology, howto='glorot', gain=0.):
         if howto == 'glorot':

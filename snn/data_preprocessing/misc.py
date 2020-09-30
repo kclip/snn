@@ -42,7 +42,6 @@ def make_output_from_label(label, T, num_classes, size, pattern):
                                              + [pattern * int(T / len(pattern)) + pattern[:(T % len(pattern))]]
                                              + [[0] * T] * (num_classes - 1 - label)], dtype=bool),
                                    np.zeros([2 - 1, num_classes, T], dtype=bool))).transpose(1, 0, 2)[None, :]
-
     return output_signal
 
 

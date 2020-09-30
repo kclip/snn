@@ -19,7 +19,7 @@ if __name__ == "__main__":
 
     # Training arguments
     parser.add_argument('--home', default='/home')
-    parser.add_argument('--params_file', default='/snn/snn/parameters/params_mnistdvs_binary.yml')
+    parser.add_argument('--params_file', default='snn\snn\experiments\parameters\params_mnistdvs_binary.yml')
     parser.add_argument('--save_path', type=str, default=None, help='Path to where weights are stored (relative to home)')
     parser.add_argument('--weights', type=str, default=None, help='Path to existing weights (relative to home)')
 
@@ -34,7 +34,7 @@ results_path = args.home + r'/results/'
 
 if args.weights is None:
     if args.save_path is None:
-        params_file = args.home + args.params_file
+        params_file = os.path.join(args.home, args.params_file)
         with open(params_file, 'r') as f:
             params = yaml.load(f)
 

@@ -1,8 +1,7 @@
 dataset: /datasets/mnist-dvs/mnist_dvs_events.hdf5 # Path relative to home specified in args
 model: snn
-batch_size: 100
 num_ite: 1
-test_period: 5
+test_period: 100
 
 record_test_acc: True
 record_test_loss: True
@@ -12,8 +11,8 @@ record_all: False
 suffix: _
 disable_cuda: True
 
-num_samples_train: 10
-num_samples_test: 10
+num_samples_train: 100
+num_samples_test: 1000
 lr: 0.0001
 start_idx: 0
 labels:
