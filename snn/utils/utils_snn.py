@@ -33,7 +33,7 @@ def get_acc_and_loss(network, hdf5_group, test_indices, T, classes, input_shape,
         refractory_period(network)
 
         inputs, lbl = get_example(hdf5_group, idx, T, classes, input_shape, dt, x_max, polarity)
-        true_classes = torch.cat((true_classes, lbl))
+        true_classes = torch.cat((true_classes, lbl.unsqueeze(0)), dim=-1)
         inputs = inputs.to(network.device)
 
         for t in range(T):
@@ -65,7 +65,7 @@ def get_acc_loss_and_spikes(network, hdf5_group, test_indices, T, classes, input
         refractory_period(network)
 
         inputs, lbl = get_example(hdf5_group, idx, T, classes, input_shape, dt, x_max, polarity)
-        true_classes = torch.cat((true_classes, lbl))
+        true_classes = torch.cat((true_classes, lbl.unsqueeze(0)), dim=-1)
         inputs = inputs.to(network.device)
 
         for t in range(T):
