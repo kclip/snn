@@ -2,7 +2,7 @@ import bisect
 
 import numpy as np
 import tables
-
+import torch
 
 def one_hot(alphabet_size, idx):
     assert idx <= alphabet_size
