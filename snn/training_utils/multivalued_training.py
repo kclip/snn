@@ -63,7 +63,7 @@ def init_training(network):
     return eligibility_trace_output, eligibility_trace_hidden, updates_hidden, baseline_num, baseline_den, reward
 
 
-def train(network, dataset, sample_length, dt, input_shape, polarity, indices, test_indices, lr, n_classes, pattern, r, beta, gamma, kappa, start_idx, test_accs, save_path):
+def train(network, dataset, sample_length, dt, input_shape, polarity, indices, test_indices, lr, classes, r, beta, gamma, kappa, start_idx, test_accs, save_path):
 
     eligibility_trace_output, eligibility_trace_hidden, updates_hidden, baseline_num, baseline_den, reward = init_training(network)
 
@@ -79,7 +79,7 @@ def train(network, dataset, sample_length, dt, input_shape, polarity, indices, t
 
         if test_accs:
             if (j + 1) in test_accs:
-                acc, loss = get_acc_and_loss(network, test_data, test_indices, T, n_classes, pattern, input_shape, dt, dataset.root.stats.train_data[1], polarity)
+                acc, loss = get_acc_and_loss(network, test_data, test_indices, T, classes, input_shape, dt, dataset.root.stats.train_data[1], polarity)
                 test_accs[int(j + 1)].append(acc)
                 print('test accuracy at ite %d: %f' % (int(j + 1), acc))
 
@@ -93,7 +93,7 @@ def train(network, dataset, sample_length, dt, input_shape, polarity, indices, t
 
         refractory_period(network)
 
-        inputs, label = get_example(train_data, idx, T, n_classes, pattern, input_shape, dt, dataset.root.stats.train_data[1], polarity)
+        inputs, label = get_example(train_data, idx, T, classes, input_shape, dt, dataset.root.stats.train_data[1], polarity)
         sample = torch.cat((inputs, label), dim=0).to(network.device)
 
         for t in range(T):

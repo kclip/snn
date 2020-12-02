@@ -31,5 +31,5 @@ def launch_multivalued_exp(args, params):
 
         # Start training
         params['test_accs'] = train(network, params['dataset'], params['sample_length'], params['dt'], params['input_shape'], params['polarity'],
-                                    params['indices'], params['test_indices'], params['lr'], params['n_classes'], params['pattern'], params['r'], params['beta'], params['gamma'],
+                                    params['indices'], params['test_indices'], params['lr'], params['labels'], params['r'], params['beta'], params['gamma'],
                                     params['kappa'], params['start_idx'], params['test_accs'], params['save_path'])

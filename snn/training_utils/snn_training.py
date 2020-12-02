@@ -41,7 +41,7 @@ def local_feedback_and_update(network, ls_tmp, eligibility_trace_hidden, eligibi
     for parameter in network.get_gradients():
         eligibility_trace_hidden[parameter].mul_(kappa).add_(1 - kappa, network.get_gradients()[parameter][network.hidden_neurons - network.n_input_neurons])
 
-        baseline_num[parameter].mul_(beta).add_(1 - beta, eligibility_trace_hidden[parameter].pow(2).mul_(learning_signal))
+        baseline_num[parameter].mul_(beta).add_(1 - beta, eligibility_trace_hidden[parameter].pow(2).mul(learning_signal))
         baseline_den[parameter].mul_(beta).add_(1 - beta, eligibility_trace_hidden[parameter].pow(2))
         baseline = (baseline_num[parameter]) / (baseline_den[parameter] + 1e-07)
 
@@ -101,12 +101,12 @@ def train_experiment(network, args, params):
             lr /= 2
 
         # Regularly test the accuracy
-        test(network, j, train_data, params['train_indices'], test_data, params['test_indices'], T, params['n_classes'], params['pattern'], params['input_shape'],
+        test(network, j, train_data, params['train_indices'], test_data, params['test_indices'], T, params['labels'], params['input_shape'],
              params['dt'], x_max, params['polarity'], params['test_period'], params['train_accs'], params['train_losses'], params['test_accs'], params['test_losses'], args.save_path)
 
         refractory_period(network)
 
-        inputs, label = get_example(train_data, idx, T, params['n_classes'], params['pattern'], params['input_shape'], params['dt'], x_max, params['polarity'])
+        inputs, label = get_example(train_data, idx, T, params['labels'], params['input_shape'], params['dt'], x_max, params['polarity'])
         example = torch.cat((inputs, label), dim=0).to(network.device)
 
         log_proba, eligibility_trace_hidden, eligibility_trace_output, learning_signal, baseline_num, baseline_den = \

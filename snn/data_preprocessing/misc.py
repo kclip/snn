@@ -4,20 +4,6 @@ import numpy as np
 import tables
 
 
-def make_output(label, pattern, num_labels, alphabet_size, S_prime):
-    if alphabet_size ==1:
-        output_signal = np.array([[[0] * S_prime] * label
-                                  + [pattern * int(S_prime / len(pattern)) + pattern[:(S_prime % len(pattern))]]
-                                  + [[0] * S_prime] * (num_labels - 1 - label)], dtype=bool)
-    else:
-        output_signal = np.vstack((np.array([[[0] * S_prime] * label
-                                             + [pattern * int(S_prime / len(pattern)) + pattern[:(S_prime % len(pattern))]]
-                                             + [[0] * S_prime] * (num_labels - 1 - label)], dtype=bool),
-                                   np.zeros([alphabet_size - 1, num_labels, S_prime], dtype=bool))).transpose(1, 0, 2)[None, :]
-
-    return output_signal
-
-
 def one_hot(alphabet_size, idx):
     assert idx <= alphabet_size
     out = [0]*alphabet_size
@@ -32,17 +18,39 @@ def expand_targets(targets, T=500, burnin=0):
     return y
 
 
-def make_output_from_label(label, T, num_classes, size, pattern):
+def make_output_from_labels(labels, T, classes, size):
     if len(size) == 1:
-        output_signal = np.array([[0] * T] * label
-                                  + [pattern * int(T / len(pattern)) + pattern[:(T % len(pattern))]]
-                                  + [[0] * T] * (num_classes - 1 - label))
+        return make_outputs_binary(labels, T, classes)
     elif len(size) == 2:
-        output_signal = np.vstack((np.array([[[0] * T] * label
-                                             + [pattern * int(T / len(pattern)) + pattern[:(T % len(pattern))]]
-                                             + [[0] * T] * (num_classes - 1 - label)], dtype=bool),
-                                   np.zeros([2 - 1, num_classes, T], dtype=bool))).transpose(1, 0, 2)[None, :]
-    return output_signal
+        return make_outputs_multivalued(labels, T, classes)
+    else:
+        raise NotImplementedError
+
+
+def make_outputs_binary(labels, T, classes):
+    mapping = {classes[i]: i for i in range(len(classes))}
+
+    if hasattr(labels, 'len'):
+        out = torch.zeros([len(labels), len(classes), T])
+        out[[i for i in range(len(labels))], [mapping[lbl] for lbl in labels], :] = 1
+    else:
+        out = torch.zeros([len(classes), T])
+        mapping = {classes[i]: i for i in range(len(classes))}
+        out[mapping[labels], :] = 1
+    return out
+
+
+def make_outputs_multivalued(labels, T, classes):
+    mapping = {classes[i]: i for i in range(len(classes))}
+
+    if hasattr(labels, 'len'):
+        out = torch.zeros([len(labels), len(classes), 2, T])
+        out[[i for i in range(len(labels))], [mapping[lbl] for lbl in labels], 0, :] = 1
+    else:
+        out = torch.zeros([len(classes), 2, T])
+        mapping = {classes[i]: i for i in range(len(classes))}
+        out[mapping[labels], 0, :] = 1
+    return out
 
 
 def find_first(a, tgt):

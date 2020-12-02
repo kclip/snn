@@ -10,7 +10,7 @@ def refractory_period(network):
         network(torch.zeros([len(network.visible_neurons), network.alphabet_size], dtype=torch.float).to(network.device))
 
 
-def get_acc_and_loss(network, hdf5_group, test_indices, T, n_classes, pattern, input_shape, dt, x_max, polarity):
+def get_acc_and_loss(network, hdf5_group, test_indices, T, classes, input_shape, dt, x_max, polarity):
     """"
     Compute loss and accuracy on the indices from the dataset precised as arguments
     """
@@ -25,7 +25,7 @@ def get_acc_and_loss(network, hdf5_group, test_indices, T, n_classes, pattern, i
     for j, idx in enumerate(test_indices):
         refractory_period(network)
 
-        inputs, lbl = get_example(hdf5_group, idx, T, n_classes, pattern, input_shape, dt, x_max, polarity)
+        inputs, lbl = get_example(hdf5_group, idx, T, classes, input_shape, dt, x_max, polarity)
         inputs = inputs.to(network.device)
 
         for t in range(T):
