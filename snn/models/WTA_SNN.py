@@ -137,14 +137,16 @@ class WTASNN(SNNetwork):
         self.spiking_history[neurons_group, :, -1] = spikes[:, 1:].to(self.device)
 
 
-    def update_spiking_history(self, input_signal):
+    def update_spiking_history(self, input_signal, output_signal=None):
         self.spiking_history = torch.cat((self.spiking_history[:, :, - self.memory_length:],
                                           torch.zeros([self.n_neurons, self.alphabet_size, 1]).to(self.device)), dim=-1)
-        self.spiking_history[self.visible_neurons, :, -1] = input_signal
+        self.spiking_history[self.input_neurons, :, -1] = input_signal
 
         if self.n_hidden_neurons > 0:
             self.generate_spikes(self.hidden_neurons)
-        if not self.training:
+        if output_signal is not None:
+            self.spiking_history[self.output_neurons, :, -1] = output_signal
+        else:
             self.generate_spikes(self.output_neurons)
 
 

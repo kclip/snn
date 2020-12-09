@@ -7,7 +7,8 @@ from snn.data_preprocessing.load_data import *
 def refractory_period(network):
     length = network.memory_length + 1
     for s in range(length):
-        network(torch.zeros([len(network.visible_neurons), network.alphabet_size], dtype=torch.float).to(network.device))
+        network(torch.zeros([len(network.input_neurons), network.alphabet_size], dtype=torch.float).to(network.device),
+                torch.zeros([len(network.output_neurons), network.alphabet_size], dtype=torch.float).to(network.device))
 
 
 def get_acc_and_loss(network, hdf5_group, test_indices, T, classes, input_shape, dt, x_max, polarity):

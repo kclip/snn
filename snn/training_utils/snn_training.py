@@ -6,14 +6,14 @@ from snn.utils.utils_snn import refractory_period, test
 from snn.data_preprocessing.load_data import get_example
 
 
-def feedforward_sampling(network, example, gamma, r):
+def feedforward_sampling(network, inputs, outputs, gamma, r):
     """"
     Feedforward sampling step:
     - passes information through the network
     - computes the learning signal
     """
 
-    log_proba = network(example)
+    log_proba = network(inputs, outputs)
 
     # Accumulate learning signal
     proba_hidden = torch.sigmoid(network.potential[network.hidden_neurons - network.n_input_neurons])
@@ -69,10 +69,10 @@ def init_training(network):
     return eligibility_trace_output, eligibility_trace_hidden, learning_signal, baseline_num, baseline_den
 
 
-def train_on_example(network, T, example, gamma, r, eligibility_trace_hidden, eligibility_trace_output, learning_signal, baseline_num, baseline_den, lr, beta, kappa):
+def train_on_example(network, T, inputs, outputs, gamma, r, eligibility_trace_hidden, eligibility_trace_output, learning_signal, baseline_num, baseline_den, lr, beta, kappa):
     for t in range(T):
         # Feedforward sampling
-        log_proba, ls_tmp = feedforward_sampling(network, example[:, t], gamma, r)
+        log_proba, ls_tmp = feedforward_sampling(network, inputs[:, t], outputs[:, t], gamma, r)
         # Local feedback and update
         eligibility_trace_hidden, eligibility_trace_output, learning_signal, baseline_num, baseline_den \
             = local_feedback_and_update(network, ls_tmp, eligibility_trace_hidden, eligibility_trace_output, learning_signal, baseline_num, baseline_den, lr, beta, kappa)
@@ -106,11 +106,12 @@ def train_experiment(network, args, params):
 
         refractory_period(network)
 
-        inputs, label = get_example(train_data, idx, T, params['labels'], params['input_shape'], params['dt'], x_max, params['polarity'])
-        example = torch.cat((inputs, label), dim=0).to(network.device)
+        inputs, outputs = get_example(train_data, idx, T, params['labels'], params['input_shape'], params['dt'], x_max, params['polarity'])
+        inputs = inputs.to(network.device)
+        outputs = outputs.to(network.device)
 
         log_proba, eligibility_trace_hidden, eligibility_trace_output, learning_signal, baseline_num, baseline_den = \
-            train_on_example(network, T, example, params['gamma'], params['r'], eligibility_trace_hidden,
+            train_on_example(network, T, inputs, outputs, params['gamma'], params['r'], eligibility_trace_hidden,
                              eligibility_trace_output, learning_signal, baseline_num, baseline_den, lr, params['beta'], params['kappa'])
 
         if j % max(1, int(len(params['train_indices']) / 5)) == 0:

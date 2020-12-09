@@ -41,7 +41,7 @@ class BinarySNN(SNNetwork):
 
 
 
-    def forward(self, input_signal):
+    def forward(self, input_signal, output_signal=None):
         assert self.n_neurons == (len(self.input_neurons) + len(self.hidden_neurons) + len(self.output_neurons)), "The numbers of neurons don't match"
         assert self.n_neurons == (len(self.learnable_neurons) + len(self.input_neurons)), "The numbers of neurons don't match"
 
@@ -53,7 +53,7 @@ class BinarySNN(SNNetwork):
         self.potential = self.compute_ff_potential(ff_trace) + self.compute_fb_potential(fb_trace) + self.bias
 
         ### Update spiking history
-        self.spiking_history = self.update_spiking_history(input_signal)
+        self.spiking_history = self.update_spiking_history(input_signal, output_signal)
 
         ### Compute log-probabilities
         # noinspection PyTypeChecker
@@ -138,13 +138,15 @@ class BinarySNN(SNNetwork):
 
         return spiking_history
 
-    def update_spiking_history(self, input_signal):
+    def update_spiking_history(self, input_signal, output_signal=None):
         spiking_history = torch.cat((self.spiking_history[:, - self.memory_length:], torch.zeros([self.n_neurons, 1]).to(self.device)), dim=-1)
-        spiking_history[self.visible_neurons, -1] = input_signal
+        spiking_history[self.input_neurons, -1] = input_signal
 
         if self.n_hidden_neurons > 0:
             spiking_history = self.generate_spikes(spiking_history, self.hidden_neurons)
-        if not self.training:
+        if output_signal is not None:
+            spiking_history[self.output_neurons, -1] = output_signal
+        else:
             spiking_history = self.generate_spikes(spiking_history, self.output_neurons)
 
         return spiking_history

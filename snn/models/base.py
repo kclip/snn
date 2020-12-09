@@ -44,7 +44,6 @@ class SNNetwork(torch.nn.Module):
         self.n_learnable_neurons = n_hidden_neurons + n_output_neurons
         self.learnable_neurons = torch.cat((self.hidden_neurons, self.output_neurons))
 
-        self.visible_neurons = None
         self.training = None
 
 
@@ -141,14 +140,9 @@ class SNNetwork(torch.nn.Module):
 
 
     def train(self, mode: bool = True):
-        if mode:
-            self.visible_neurons = torch.cat((self.input_neurons, self.output_neurons))
-        else:
-            self.visible_neurons = self.input_neurons
         self.training = mode
 
     def eval(self):
-        self.visible_neurons = self.input_neurons
         self.training = False
 
 

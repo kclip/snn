@@ -7,8 +7,8 @@ from snn.utils.utils_wtasnn import refractory_period, get_acc_and_loss
 from snn.data_preprocessing.load_data import get_example
 
 
-def feedforward_sampling_ml(network, training_sequence, r, gamma):
-    log_proba = network(training_sequence)
+def feedforward_sampling_ml(network, inputs, outputs, r, gamma):
+    log_proba = network(inputs, outputs)
 
     probas = torch.softmax(torch.cat((torch.zeros([network.n_hidden_neurons, 1]).to(network.device),
                                       network.potential[network.hidden_neurons - network.n_input_neurons]), dim=-1), dim=-1)
@@ -93,11 +93,12 @@ def train(network, dataset, sample_length, dt, input_shape, polarity, indices, t
 
         refractory_period(network)
 
-        inputs, label = get_example(train_data, idx, T, classes, input_shape, dt, dataset.root.stats.train_data[1], polarity)
-        sample = torch.cat((inputs, label), dim=0).to(network.device)
+        inputs, outputs = get_example(train_data, idx, T, classes, input_shape, dt, dataset.root.stats.train_data[1], polarity)
+        inputs = inputs.to(network.device)
+        outputs = outputs.to(network.device)
 
         for t in range(T):
-            reward = feedforward_sampling_ml(network, sample[:, :, t].to(network.device), r, gamma)
+            reward = feedforward_sampling_ml(network, inputs[:, :, t], outputs[:, :, t], r, gamma)
             baseline_num, baseline_den, updates_hidden, eligibility_trace_hidden, eligibility_trace_output = \
                 ml_update(network, eligibility_trace_hidden, eligibility_trace_output, reward, updates_hidden, baseline_num, baseline_den, lr, kappa, beta)
 
