@@ -1,7 +1,7 @@
-dataset: /datasets/mnist-dvs/mnist_dvs_events_new.hdf5 # Path relative to home specified in args
-model: wta
-num_ite: 1
-test_period: 5
+dataset: /datasets/mnist-dvs/mnist_dvs_events.hdf5 # Path relative to home specified in args
+model: snn
+num_ite: 1000
+test_period: 50
 
 record_test_acc: True
 record_test_loss: True
@@ -22,7 +22,7 @@ sample_length_train: 2000000 # length of each sample in mus for training
 sample_length_test: 2000000 # length of each sample in mus for testing
 ds: 1
 polarity: True
-n_hidden_neurons: 32
+n_hidden_neurons: 256
 topology_type: fully_connected # one of 'fully_connected', 'feedforward', 'layered', 'custom'
 density: # Density of the connections if topology_type is "sparse"
 n_neurons_per_layer: 0 # Number of neurons per layer if topology_type is "layered"
