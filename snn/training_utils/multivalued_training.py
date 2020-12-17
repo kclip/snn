@@ -90,7 +90,6 @@ def train_experiment(network, args, params, train_dl, test_dl, train_accs, train
 
         inputs = inputs[0].transpose(1, 2).to(network.device)
         outputs = outputs[0].to(network.device)
-        print(inputs.shape, outputs.shape)
         for t in range(T_train):
             reward = feedforward_sampling_ml(network, inputs[t], outputs[:, :, t], params['r'], params['gamma'])
             baseline_num, baseline_den, updates_hidden, eligibility_trace_hidden, eligibility_trace_output = \
