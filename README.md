@@ -25,4 +25,11 @@ An experiment can be run on the MNIST-DVS dataset by launching
 
 `python snn/launch_experiment.py`
 
-Make sure to first download and preprocess the MNIST-DVS dataset using the script in `snn/data_preprocessing/process_mnistdvs.py` and change your home directory in `snn/launch_experiment.py`.
+You must first download and preprocess the MNIST-DVS dataset.
+
+# Data preprocessing
+The `data_preprocessing` module will be deprecated in following versions and is only kept for compability reasons.
+Please download our `neurodata` data preprocessing and loading package instead. 
+ 
+ 
+ Author: Nicolas Skatchkovsky

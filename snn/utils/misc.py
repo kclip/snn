@@ -30,29 +30,6 @@ def time_average(old, new, kappa):
     return old * kappa + new * (1 - kappa)
 
 
-def find_indices_for_labels(hdf5_group, labels):
-    res = []
-    for label in labels:
-        res.append(np.where(hdf5_group.labels[:, 0] == label)[0])
-    return np.hstack(res)
-
-
-def get_indices(params):
-    if params['num_samples_train'] is None:
-        params['num_samples_train'] = len(find_indices_for_labels(params['dataset'].root.train, params['labels']))
-    if params['num_samples_test'] is None:
-        params['num_samples_test'] = len(find_indices_for_labels(params['dataset'].root.test, params['labels']))
-
-    if params['labels'] is not None:
-        print('Training on labels ', params['labels'])
-        params['train_indices'] = np.random.choice(find_indices_for_labels(params['dataset'].root.train, params['labels']), [params['num_samples_train']], replace=True)
-        params['num_samples_test'] = min(params['num_samples_test'], len(find_indices_for_labels(params['dataset'].root.test, params['labels'])))
-        params['test_indices'] = np.random.choice(find_indices_for_labels(params['dataset'].root.test, params['labels']), [params['num_samples_test']], replace=False)
-    else:
-        params['train_indices'] = np.random.choice(np.arange(params['dataset'].root.stats.train_data[0]), [params['num_samples_train']], replace=True)
-        params['test_indices'] = np.random.choice(np.arange(params['dataset'].root.stats.test_data[0]), [params['num_samples_test']], replace=False)
-
-
 def make_topology(network_type, topology_type, n_input_neurons, n_output_neurons, n_hidden_neurons, n_neurons_per_layer=0, topology=None, density=1):
     if topology_type == 'fully_connected':
         topology = torch.ones([n_hidden_neurons + n_output_neurons, n_input_neurons + n_hidden_neurons + n_output_neurons], dtype=torch.float)
@@ -164,62 +141,63 @@ def mksavedir(pre='results/', exp_dir=None):
 
 
 def make_recordings(args, params):
-    params['record_test_acc'] = str2bool(params['record_test_acc'])
-    params['record_test_loss'] = str2bool(params['record_test_loss'])
-    params['record_train_loss'] = str2bool(params['record_train_loss'])
-    params['record_train_acc'] = str2bool(params['record_train_acc'])
+    params['record_test_acc'] = params['record_test_acc']
+    params['record_test_loss'] = params['record_test_loss']
+    params['record_train_loss'] = params['record_train_loss']
+    params['record_train_acc'] = params['record_train_acc']
 
-    if str2bool(params['record_all']):
+    if params['record_all']:
         params['record_test_acc'] = True
         params['record_test_loss'] = True
         params['record_train_loss'] = True
         params['record_train_acc'] = True
 
     if params['test_period'] is not None:
-        params['ite_test'] = np.arange(0, params['num_samples_train'], params['test_period'])
+        params['ite_test'] = np.arange(0, params['n_examples_train'], params['test_period'])
 
         if args.weights is not None:
             if params['record_test_acc']:
                 with open(args.home + args.weights + '/test_accs.pkl', 'rb') as f:
-                    params['test_accs'] = pickle.load(f)
+                    test_accs = pickle.load(f)
             else:
-                params['test_accs'] = None
+                test_accs = None
             if params['record_test_loss']:
                 with open(args.home + args.weights + '/test_losses.pkl', 'rb') as f:
-                    params['test_losses'] = pickle.load(f)
+                    test_losses = pickle.load(f)
             else:
-                params['test_losses'] = None
+                test_losses = None
             if params['record_train_loss']:
                 with open(args.home + args.weights + '/train_losses.pkl', 'rb') as f:
-                    params['train_losses'] = pickle.load(f)
+                    train_losses = pickle.load(f)
             else:
-                params['train_losses'] = None
+                train_losses = None
             if params['record_train_acc']:
                 with open(args.home + args.weights + '/train_accs.pkl', 'rb') as f:
-                    params['train_accs'] = pickle.load(f)
+                    train_accs = pickle.load(f)
             else:
-                params['train_accs'] = None
+                train_accs = None
         else:
             if params['record_test_acc']:
-                params['test_accs'] = {i: [] for i in params['ite_test']}
-                params['test_accs'][params['num_samples_train']] = []
+                test_accs = {i: [] for i in params['ite_test']}
+                test_accs[params['n_examples_train']] = []
             else:
-                params['test_accs'] = None
+                test_accs = None
             if params['record_test_loss']:
-                params['test_losses'] = {i: [] for i in params['ite_test']}
-                params['test_losses'][params['num_samples_train']] = []
+                test_losses = {i: [] for i in params['ite_test']}
+                test_losses[params['n_examples_train']] = []
             else:
-                params['test_losses'] = None
+                test_losses = None
             if params['record_train_loss']:
-                params['train_losses'] = {i: [] for i in params['ite_test']}
-                params['train_losses'][params['num_samples_train']] = []
+                train_losses = {i: [] for i in params['ite_test']}
+                train_losses[params['n_examples_train']] = []
             else:
-                params['train_losses'] = None
+                train_losses = None
             if params['record_train_acc']:
-                params['train_accs'] = {i: [] for i in params['ite_test']}
-                params['train_accs'][params['num_samples_train']] = []
+                train_accs = {i: [] for i in params['ite_test']}
+                train_accs[params['n_examples_train']] = []
             else:
-                params['train_accs'] = None
+                train_accs = None
+    return train_accs, train_losses, test_accs, test_losses
 
 
 def save_results(results, save_path):

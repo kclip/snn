@@ -1,10 +1,10 @@
 from snn.models.SNN import BinarySNN
 from snn.training_utils.snn_training import train_experiment
 from snn.utils.filters import get_filter
-from snn.utils.misc import make_network_parameters, get_indices
+from snn.utils.misc import make_network_parameters
 
 
-def launch_binary_exp(args, params):
+def launch_binary_exp(args, params, train_dl, test_dl, train_accs, train_losses, test_accs, test_losses):
     for _ in range(params['num_ite']):
         # Generate network
         network = BinarySNN(**make_network_parameters(network_type=params['model'],
@@ -32,4 +32,4 @@ def launch_binary_exp(args, params):
             network.import_weights(args.save_path + r'/network_weights.hdf5')
 
         # Start training
-        train_experiment(network, args, params)
+        train_accs, train_losses, test_accs, test_losses = train_experiment(network, args, params, train_dl, test_dl, train_accs, train_losses, test_accs, test_losses)

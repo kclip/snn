@@ -48,7 +48,7 @@ class WTASNN(SNNetwork):
 
 
 
-    def forward(self, input_signal):
+    def forward(self, input_signal, output_signal=None):
         assert self.n_neurons == (len(self.input_neurons) + len(self.hidden_neurons) + len(self.output_neurons)), "The numbers of neurons don't match"
         assert self.n_neurons == (len(self.learnable_neurons) + len(self.input_neurons)), "The numbers of neurons don't match"
 
@@ -59,7 +59,7 @@ class WTASNN(SNNetwork):
         self.potential = self.compute_ff_potential(ff_trace) + self.compute_fb_potential(fb_trace) + self.bias
 
         ### Update spiking history
-        self.update_spiking_history(input_signal)
+        self.update_spiking_history(input_signal, output_signal)
 
         ### Compute log-probabilities
         # noinspection PyTypeChecker

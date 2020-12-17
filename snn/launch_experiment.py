@@ -1,12 +1,8 @@
 from __future__ import print_function
-import pickle
-
-import numpy as np
 import tables
-import argparse
-import torch
 import yaml
 
+from neurodata.load_data import create_dataloader
 from snn.utils.misc import *
 from snn.experiments import binary_exp, wta_exp
 
@@ -18,7 +14,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Train probabilistic multivalued SNNs using Pytorch')
 
     # Training arguments
-    parser.add_argument('--home', default='/home')
+    parser.add_argument('--home', default=r"C:\Users\K1804053\OneDrive - King's College London\PycharmProjects")
     parser.add_argument('--params_file', default='snn\snn\experiments\parameters\params_mnistdvs_binary.yml')
     parser.add_argument('--save_path', type=str, default=None, help='Path to where weights are stored (relative to home)')
     parser.add_argument('--weights', type=str, default=None, help='Path to existing weights (relative to home)')
@@ -39,7 +35,7 @@ if args.weights is None:
             params = yaml.load(f)
 
         name = params['dataset'].split("/", -1)[-1][:-5] + r'_' + params['model'] \
-               + r'_%d_epochs_nh_%d_dt_%d_' % (params['num_samples_train'], params['n_h'], params['dt']) + r'_pol_' + str(params['polarity']) + params['suffix']
+               + r'_%d_epochs_nh_%d_dt_%d_' % (params['n_examples_train'], params['n_hidden_neurons'], params['dt']) + r'_pol_' + str(params['polarity']) + params['suffix']
 
         args.save_path = mksavedir(pre=results_path, exp_dir=name)
 
@@ -52,18 +48,33 @@ else:
     with open(params_file, 'r') as f:
         params = yaml.load(f)
 
-dataset = tables.open_file(args.home + params['dataset'])
 
+# Create dataloaders
+dataset_path = args.home + params['dataset']
+dataset = tables.open_file(dataset_path)
+x_max = dataset.root.stats.train_data[1] // params['ds']
 
-### Learning parameters
-if params['num_samples_train'] is None:
-    params['num_samples_train'] = dataset.root.stats.train_data[0]
+dataset.close()
 
-params['dataset'] = dataset
+### Network parameters
+params['n_classes'] = len(params['classes'])
+params['n_output_neurons'] = params['n_classes']
 
-# Select training and test examples from subset of labels if specified
-get_indices(params)
-make_recordings(args, params)
+if params['model'] == 'snn':
+    params['n_input_neurons'] = (1 + params['polarity']) * x_max * x_max
+    size = [params['n_input_neurons']]
+elif params['model'] == 'wta':
+    params['n_input_neurons'] = x_max * x_max
+    size = [2, params['n_input_neurons']]
+else:
+    raise NotImplementedError
+
+train_dl, test_dl = create_dataloader(dataset_path, batch_size=1, size=size, classes=params['classes'],
+                                      sample_length_train=params['sample_length_train'], sample_length_test=params['sample_length_test'], dt=params['dt'],
+                                      polarity=params['polarity'], ds=params['ds'], shuffle_test=True, num_workers=0)
+
+# Prepare placeholders for recording test/train acc/loss
+train_accs, train_losses, test_accs, test_losses = make_recordings(args, params)
 
 args.device = None
 if not params['disable_cuda'] and torch.cuda.is_available():
@@ -71,15 +82,7 @@ if not params['disable_cuda'] and torch.cuda.is_available():
 else:
     args.device = torch.device('cpu')
 
-params['n_classes'] = params['dataset'].root.stats.test_label[1]
 
-### Network parameters
-if params['polarity']:
-    params['n_input_neurons'] = int(2 * (params['dataset'].root.stats.train_data[1] ** 2))
-else:
-    params['n_input_neurons'] = int(params['dataset'].root.stats.train_data[1] ** 2)
-params['n_output_neurons'] = params['dataset'].root.stats.train_label[1]
-params['n_hidden_neurons'] = params['n_h']
 
 
 if params['topology_type'] == 'custom':
@@ -94,9 +97,9 @@ else:
 
 # Create the network
 if params['model'] == 'snn':
-    binary_exp.launch_binary_exp(args, params)
+    binary_exp.launch_binary_exp(args, params, train_dl, test_dl, train_accs, train_losses, test_accs, test_losses)
 elif params['model'] == 'wta':
-    wta_exp.launch_multivalued_exp(args, params)
+    wta_exp.launch_multivalued_exp(args, params, train_dl, test_dl, train_accs, train_losses, test_accs, test_losses)
 else:
     raise NotImplementedError('Please choose a model between "snn" and "wta"')
 

@@ -1,9 +1,7 @@
 import os
-
 import torch
-import pickle
+
 from snn.utils.utils_snn import refractory_period, test
-from snn.data_preprocessing.load_data import get_example
 
 
 def feedforward_sampling(network, inputs, outputs, gamma, r):
@@ -39,17 +37,17 @@ def local_feedback_and_update(network, ls_tmp, eligibility_trace_hidden, eligibi
 
     # Update parameter
     for parameter in network.get_gradients():
-        eligibility_trace_hidden[parameter].mul_(kappa).add_(1 - kappa, network.get_gradients()[parameter][network.hidden_neurons - network.n_input_neurons])
+        eligibility_trace_hidden[parameter].mul_(kappa).add_(network.get_gradients()[parameter][network.hidden_neurons - network.n_input_neurons], alpha=1 - kappa)
 
-        baseline_num[parameter].mul_(beta).add_(1 - beta, eligibility_trace_hidden[parameter].pow(2).mul(learning_signal))
-        baseline_den[parameter].mul_(beta).add_(1 - beta, eligibility_trace_hidden[parameter].pow(2))
+        baseline_num[parameter].mul_(beta).add_(eligibility_trace_hidden[parameter].pow(2).mul(learning_signal), alpha=1 - beta)
+        baseline_den[parameter].mul_(beta).add_(eligibility_trace_hidden[parameter].pow(2), alpha=1 - beta)
         baseline = (baseline_num[parameter]) / (baseline_den[parameter] + 1e-07)
 
         network.get_parameters()[parameter][network.hidden_neurons - network.n_input_neurons] \
             += lr * (learning_signal - baseline) * eligibility_trace_hidden[parameter]
 
         if eligibility_trace_output is not None:
-            eligibility_trace_output[parameter].mul_(kappa).add_(1 - kappa, network.get_gradients()[parameter][network.output_neurons - network.n_input_neurons])
+            eligibility_trace_output[parameter].mul_(kappa).add_(network.get_gradients()[parameter][network.output_neurons - network.n_input_neurons], alpha=1 - kappa)
             network.get_parameters()[parameter][network.output_neurons - network.n_input_neurons] += lr * eligibility_trace_output[parameter]
 
     return eligibility_trace_hidden, eligibility_trace_output, learning_signal, baseline_num, baseline_den
@@ -72,7 +70,7 @@ def init_training(network):
 def train_on_example(network, T, inputs, outputs, gamma, r, eligibility_trace_hidden, eligibility_trace_output, learning_signal, baseline_num, baseline_den, lr, beta, kappa):
     for t in range(T):
         # Feedforward sampling
-        log_proba, ls_tmp = feedforward_sampling(network, inputs[:, t], outputs[:, t], gamma, r)
+        log_proba, ls_tmp = feedforward_sampling(network, inputs[t], outputs[:, t], gamma, r)
         # Local feedback and update
         eligibility_trace_hidden, eligibility_trace_output, learning_signal, baseline_num, baseline_den \
             = local_feedback_and_update(network, ls_tmp, eligibility_trace_hidden, eligibility_trace_output, learning_signal, baseline_num, baseline_den, lr, beta, kappa)
@@ -80,7 +78,7 @@ def train_on_example(network, T, inputs, outputs, gamma, r, eligibility_trace_hi
     return log_proba, eligibility_trace_hidden, eligibility_trace_output, learning_signal, baseline_num, baseline_den
 
 
-def train_experiment(network, args, params):
+def train_experiment(network, args, params, train_dl, test_dl, train_accs, train_losses, test_accs, test_losses):
     """"
     Train an SNN.
     """
@@ -88,38 +86,42 @@ def train_experiment(network, args, params):
     eligibility_trace_output, eligibility_trace_hidden, \
         learning_signal, baseline_num, baseline_den = init_training(network)
 
-    train_data = params['dataset'].root.train
-    test_data = params['dataset'].root.test
-    T = int(params['sample_length'] * 1000 / params['dt'])
-    x_max = params['dataset'].root.stats.train_data[1]
+    T_train = int(params['sample_length_train'] / params['dt'])
+    T_test = int(params['sample_length_test'] / params['dt'])
     lr = params['lr']
 
-    for j, idx in enumerate(params['train_indices'][params['start_idx']:]):
+    train_iterator = iter(train_dl)
+
+    for j in range(params['n_examples_train'] - params['start_idx']):
         j += params['start_idx']
 
-        if ((j + 1) % params['dataset'].root.stats.train_data[0]) == 0:
-            lr /= 2
-
         # Regularly test the accuracy
-        test(network, j, train_data, params['train_indices'], test_data, params['test_indices'], T, params['labels'], params['input_shape'],
-             params['dt'], x_max, params['polarity'], params['test_period'], params['train_accs'], params['train_losses'], params['test_accs'], params['test_losses'], args.save_path)
+        train_accs, train_losses, test_accs, test_losses = test(network, params, j, train_dl, T_train, test_dl, T_test,
+                                                                params['test_period'], train_accs, train_losses, test_accs, test_losses, args.save_path)
 
         refractory_period(network)
 
-        inputs, outputs = get_example(train_data, idx, T, params['labels'], params['input_shape'], params['dt'], x_max, params['polarity'])
-        inputs = inputs.to(network.device)
-        outputs = outputs.to(network.device)
+        try:
+            inputs, outputs = next(train_iterator)
+        except StopIteration:
+            train_iterator = iter(train_dl)
+            inputs, outputs = next(train_iterator)
+
+        inputs = inputs[0].to(network.device)
+        outputs = outputs[0].to(network.device)
 
         log_proba, eligibility_trace_hidden, eligibility_trace_output, learning_signal, baseline_num, baseline_den = \
-            train_on_example(network, T, inputs, outputs, params['gamma'], params['r'], eligibility_trace_hidden,
+            train_on_example(network, T_train, inputs, outputs, params['gamma'], params['r'], eligibility_trace_hidden,
                              eligibility_trace_output, learning_signal, baseline_num, baseline_den, lr, params['beta'], params['kappa'])
 
-        if j % max(1, int(len(params['train_indices']) / 5)) == 0:
-            print('Step %d out of %d' % (j, len(params['train_indices'])))
+        if j % max(1, int(params['n_examples_train'] / 5)) == 0:
+            print('Step %d out of %d' % (j, params['n_examples_train']))
 
     # At the end of training, save final weights if none exist or if this ite was better than all the others
     if not os.path.exists(args.save_path + '/network_weights_final.hdf5'):
         network.save(args.save_path + '/network_weights_final.hdf5')
     else:
-        if params['test_accs'][params['num_samples_train']][-1] >= max(params['test_accs'][params['num_samples_train']][:-1]):
+        if test_accs[list(test_accs.keys())[-1]][-1] >= max(test_accs[list(test_accs.keys())[-1]][:-1]):
             network.save(args.save_path + '/network_weights_final.hdf5')
+
+    return train_accs, train_losses, test_accs, test_losses
