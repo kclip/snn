@@ -76,6 +76,7 @@ train_iterator = iter(train_dl)
 
 for ite in range(500):
     if (ite+1) % 50 == 0:
+        print('Ite %d: ' % (ite+1))
         acc_snn, _ = get_acc_and_loss(network2, test_dl, 100, T)
         print('Acc with LayeredSNN', acc_snn)
 

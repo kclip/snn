@@ -32,4 +32,8 @@ The `data_preprocessing` module will be deprecated in following versions and is 
 Please download our `neurodata` data preprocessing and loading package instead. 
  
  
+# Layered SNNs
+New in the latest version: an implementation of layered SNNs, to make better use of training on GPU and train (much) larger networks in native Pytorch.
+An example code is in snn.test_layered.py
+
  Author: Nicolas Skatchkovsky
