@@ -38,12 +38,21 @@ def raised_cosine_pillow_05(T, n_basis, mu):
 
 
 # Raised cosine as defined in Pillow 2008
-def raised_cosine_pillow_08(T, n_basis, mu):
-    # mu = compression parameter
-    phi = np.array([k * np.pi / 2 for k in range(n_basis)])
-    b = 1
+def raised_cosine_pillow_08(T, n_basis, mu=0.5):
+    # mu is a compression parameter, the smaller it is the wider the cosines.
+    b = T/10
+    nt = [np.log(t + b) for t in np.arange(T)]
+    cSt = nt[0]
+    cEnd = nt[-1]
+    db = (cEnd - cSt) / max((n_basis-1), 1)
+    c = np.arange(cSt, cEnd + db, db)
 
-    return torch.FloatTensor([[0.5 + np.cos(max(-np.pi, min(np.pi, np.pi * mu * np.log(t + b) - phi[k]))) / 2 for t in range(T)] for k in range(n_basis)])
+    pi_array = np.array([np.pi] * len(nt))
+    bas = np.zeros([n_basis, T])
+    for k in range(n_basis):
+        bas[k] = (np.cos(np.maximum(-pi_array, np.minimum(pi_array, (nt - c[k]) * mu * np.pi/db))) + 1) / 2
+
+    return torch.FloatTensor(bas)
 
 
 def get_filter(selected_filter):

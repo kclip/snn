@@ -1,6 +1,7 @@
 import torch
 import pickle
 import os
+import numpy as np
 
 
 def refractory_period(network):
@@ -11,6 +12,16 @@ def refractory_period(network):
     for s in range(length):
         network(torch.zeros([len(network.input_neurons)], dtype=torch.float).to(network.device),
                 torch.zeros([len(network.output_neurons)], dtype=torch.float).to(network.device))
+
+
+def refractory_period_layered(network):
+    """"
+    Neural refractory period between two samples for layered SNN
+    """
+    length = np.max([l.memory_length for l in network.hidden_layers] + [network.out_layer.memory_length]) + 1
+    refractory_sig = torch.zeros([network.n_input_neurons, length])
+    for s in range(length):
+        network(refractory_sig[:, :s])
 
 
 def get_acc_and_loss(network, dataloader, n_examples, T):
@@ -87,6 +98,41 @@ def get_acc_loss_and_spikes(network, dataloader, n_examples, T):
     acc = float(torch.sum(predictions == true_classes, dtype=torch.float)) / len(predictions)
 
     return acc, loss, spikes
+
+
+def get_acc_layered(network, dataloader, n_examples, T):
+    """"
+    Compute loss and accuracy on the indices from the dataset precised as arguments
+    """
+    network.eval()
+
+    iterator = iter(dataloader)
+    outputs = torch.zeros([n_examples, network.n_output_neurons, T])
+
+    true_classes = torch.FloatTensor()
+
+    for ite in range(n_examples):
+        refractory_period_layered(network)
+
+        try:
+            inputs, lbls = next(iterator)
+        except StopIteration:
+            iterator = iter(dataloader)
+            inputs, lbls = next(iterator)
+
+        true_classes = torch.cat((true_classes, lbls), dim=0)
+        inputs = inputs.to(network.device)
+
+        for t in range(T):
+            _ = network(inputs[:, t])
+
+            outputs[ite, :, t] = network.out_layer.spiking_history[:, -1].cpu()
+
+    predictions = torch.max(torch.sum(outputs, dim=-1), dim=-1).indices
+    true_classes = torch.max(torch.sum(true_classes, dim=-1), dim=-1).indices
+    acc = float(torch.sum(predictions == true_classes, dtype=torch.float)) / len(predictions)
+
+    return acc
 
 
 def test(network, params, ite, train_dl, T_train, test_dl, T_test, test_period, train_accs, train_losses, test_accs, test_losses, save_path):

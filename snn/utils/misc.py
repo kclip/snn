@@ -66,13 +66,18 @@ def make_topology(network_type, topology_type, n_input_neurons, n_output_neurons
 
     elif topology_type == 'custom':
         topology = topology
+        # Make sure that the diagonal is all 0s
+        topology[[i for i in range(n_output_neurons + n_hidden_neurons)], [i + n_input_neurons for i in range(n_output_neurons + n_hidden_neurons)]] = 0
+        return topology
 
 
-    if (network_type == 'snn') & (topology_type != 'feedforward') & (topology_type != 'custom'):
+    if (network_type == 'snn') & (topology_type != 'feedforward'):
         topology[:n_hidden_neurons, -n_output_neurons:] = 1
+        topology[-n_output_neurons:, -n_output_neurons:] = 1
+
     if network_type == 'wta':
         topology[:n_hidden_neurons, -n_output_neurons:] = 0
-    topology[-n_output_neurons:, -n_output_neurons:] = 1
+        topology[-n_output_neurons:, -n_output_neurons:] = 1
 
     # Make sure that the diagonal is all 0s
     topology[[i for i in range(n_output_neurons + n_hidden_neurons)], [i + n_input_neurons for i in range(n_output_neurons + n_hidden_neurons)]] = 0
@@ -82,10 +87,10 @@ def make_topology(network_type, topology_type, n_input_neurons, n_output_neurons
 
 def make_network_parameters(network_type, n_input_neurons, n_output_neurons, n_hidden_neurons, topology_type='fully_connected', topology=None, n_neurons_per_layer=0,
                             density=1, weights_magnitude=0.05, initialization='uniform', synaptic_filter=filters.raised_cosine_pillow_08, n_basis_ff=8,
-                            n_basis_fb=1, tau_ff=10, tau_fb=10, mu=1.5):
+                            n_basis_fb=1, tau_ff=10, tau_fb=10, mu=0.5):
 
     topology = make_topology(network_type, topology_type, n_input_neurons, n_output_neurons, n_hidden_neurons, n_neurons_per_layer, topology, density)
-    print(topology[:, n_input_neurons:])
+    print(topology)
 
     network_parameters = {'n_input_neurons': n_input_neurons,
                           'n_output_neurons': n_output_neurons,

@@ -34,7 +34,7 @@ n_basis_ff: 8 # Number of basis functions for synaptic connections
 tau_ff: 10 # Feedforward connections time constant
 n_basis_fb: 1 # Number of basis functions for feedback connections
 tau_fb: 10 # Feedforward connections time constant
-mu: 1.5 # Width factor in basis functions
+mu: 0.5 # Width factor in basis functions
 
 kappa: 0.2 # eligibility trace decay coefficient
 r: 0.3 # Desired spiking sparsity of the hidden neurons

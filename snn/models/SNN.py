@@ -3,7 +3,7 @@ import torch
 import numpy as np
 
 from snn.utils import filters
-from snn.models.base import SNNetwork
+from snn.models.base import SNNetwork, SNNLayer
 
 
 class BinarySNN(SNNetwork):
@@ -76,6 +76,7 @@ class BinarySNN(SNNetwork):
         if howto == 'glorot':
             std = torch.tensor([torch.sqrt(torch.tensor(2.)) / ((torch.sum(topology[:, i]) + torch.sum(topology[i, :])) * self.n_basis_feedforward) for i in range(self.n_learnable_neurons)]).flatten()
             std = std.unsqueeze(1).unsqueeze(2).repeat(1, self.n_neurons, self.n_basis_feedforward)
+
             assert std.shape == self.ff_weights_shape
             self.feedforward_weights = (torch.normal(gain * std, std).to(self.device) * self.feedforward_mask)
         elif howto == 'uniform':
@@ -85,8 +86,9 @@ class BinarySNN(SNNetwork):
 
     def initialize_fb_weights(self, topology, howto='glorot', gain=0.):
         if howto == 'glorot':
-            std = torch.tensor([torch.sqrt(torch.tensor(2.) / (torch.sum(topology[:, i]) + torch.sum(topology[i, :]))) for i in range(self.n_learnable_neurons)]).flatten()
+            std = torch.tensor([torch.sqrt(torch.tensor(2.)) / ((torch.sum(topology[:, i]) + torch.sum(topology[i, :])) * self.n_basis_feedback) for i in range(self.n_learnable_neurons)]).flatten()
             std = std.unsqueeze(1).repeat(1, self.n_basis_feedback)
+
             assert std.shape == self.fb_weights_shape
             self.feedback_weights = (torch.normal(gain * std, std)).to(self.device)
         elif howto == 'uniform':
@@ -163,3 +165,83 @@ class BinarySNN(SNNetwork):
 
         self.fb_grad = feedback_trace * self.bias_grad.unsqueeze(1).repeat(1, self.n_basis_feedback)
         assert self.fb_grad.shape == self.fb_weights_shape, "Wrong feedback weights gradient shape"
+
+
+
+
+
+class LayeredSNN(torch.nn.Module):
+    def __init__(self, n_input_neurons, n_neurons_per_layer, n_output_neurons, synaptic_filter=filters.base_filter, n_basis_feedforward=[8],
+                 n_basis_feedback=[1], tau_ff=[10], tau_fb=[10], mu=[0.5], device='cpu'):
+
+        super(LayeredSNN, self).__init__()
+        '''
+        '''
+
+        self.device = device
+
+        ### Network parameters
+        self.n_input_neurons = n_input_neurons
+        self.n_hidden_neurons = np.sum(n_neurons_per_layer)
+        self.n_hidden_layers = len(n_neurons_per_layer)
+        self.n_output_neurons = n_output_neurons
+        self.n_neurons = n_input_neurons + self.n_hidden_neurons + self.n_output_neurons
+
+        if len(n_basis_feedforward) == 1:
+            n_basis_feedforward = n_basis_feedforward * (1 + self.n_hidden_layers)
+        if len(n_basis_feedback) == 1:
+            n_basis_feedback = n_basis_feedback * (1 + self.n_hidden_layers)
+        if len(tau_ff) == 1:
+            tau_ff = tau_ff * (1 + self.n_hidden_layers)
+        if len(tau_fb) == 1:
+            tau_fb = tau_fb * (1 + self.n_hidden_layers)
+        if len(mu) == 1:
+            mu = mu * (1 + self.n_hidden_layers)
+
+        self.hidden_layers = torch.nn.ModuleList()
+        Nhid = [n_input_neurons] + n_neurons_per_layer
+
+        for i in range(self.n_hidden_layers):
+            self.hidden_layers.append(SNNLayer(Nhid[i], Nhid[i + 1], synaptic_filter=synaptic_filter, n_basis_feedforward=n_basis_feedforward[i],
+                                               n_basis_feedback=n_basis_feedback[i], tau_ff=tau_ff[i], tau_fb=tau_fb[i], mu=mu[i], device=device))
+
+        self.out_layer = SNNLayer(Nhid[-1], n_output_neurons, synaptic_filter=synaptic_filter, n_basis_feedforward=n_basis_feedforward[-1],
+                                  n_basis_feedback=n_basis_feedback[-1], tau_ff=tau_ff[-1], tau_fb=tau_fb[-1], mu=mu[-1], device=device)
+
+        self.training = None
+
+    def forward(self, inputs_history, target=None):
+        probas_hidden = torch.Tensor()
+
+        if self.n_hidden_layers > 0:
+            proba_layer = self.hidden_layers[0](inputs_history)
+            probas_hidden = torch.cat((probas_hidden, proba_layer))
+
+            for i in range(1, self.n_hidden_layers):
+                proba_layer = self.hidden_layers[i](self.hidden_layers[i - 1].spiking_history)
+                probas_hidden = torch.cat((probas_hidden, proba_layer))
+
+            return self.out_layer(self.hidden_layers[-1].spiking_history, target), probas_hidden
+
+        return self.out_layer(inputs_history, target), None
+
+    ### Setters
+    def reset_weights(self):
+        for l in self.hidden_layers:
+            l.reset_weights()
+
+    def train(self, mode: bool = True) -> None:
+        self.training = mode
+
+    def eval(self):
+        self.training = False
+
+    ### Misc
+    def save(self, path=None):
+        # todo
+        return
+
+    def import_weights(self, path):
+        # todo
+        return
+

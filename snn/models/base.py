@@ -7,7 +7,7 @@ from snn.utils import filters
 
 class SNNetwork(torch.nn.Module):
     def __init__(self, n_input_neurons, n_hidden_neurons, n_output_neurons, topology, synaptic_filter=filters.base_filter,
-                 n_basis_feedforward=1, n_basis_feedback=1, tau_ff=1, tau_fb=1, mu=1, initialization='uniform', weights_magnitude=0.01, device='cpu', save_path=None):
+                 n_basis_feedforward=1, n_basis_feedback=1, tau_ff=1, tau_fb=1, mu=0.5, initialization='uniform', weights_magnitude=0.01, device='cpu', save_path=None):
 
         super(SNNetwork, self).__init__()
         '''
@@ -173,3 +173,97 @@ class SNNetwork(torch.nn.Module):
         return
 
 
+
+
+class SNNLayer(torch.nn.Module):
+    def __init__(self, n_inputs, n_outputs, synaptic_filter=filters.base_filter,
+                 n_basis_feedforward=1, n_basis_feedback=1, tau_ff=1, tau_fb=1, mu=0.5, device='cpu'):
+        super(SNNLayer, self).__init__()
+
+        self.device = device
+
+        self.n_inputs = n_inputs
+        self.n_outputs = n_outputs
+
+        ### Feedforward connections
+        self.n_basis_feedforward = n_basis_feedforward
+        self.feedforward_filter = synaptic_filter(tau_ff, self.n_basis_feedforward, mu).transpose(0, 1).to(self.device)
+        self.tau_ff = tau_ff
+
+        ### Feedback connections
+        self.n_basis_feedback = n_basis_feedback
+        self.feedback_filter = synaptic_filter(tau_fb, self.n_basis_feedback, mu).transpose(0, 1).to(self.device)
+        self.tau_fb = tau_fb
+
+        self.ff_weights = torch.nn.parameter.Parameter(torch.Tensor(n_outputs, n_inputs, n_basis_feedforward)).to(self.device)
+        torch.nn.init.xavier_uniform_(self.ff_weights)
+
+        self.fb_weights = torch.nn.parameter.Parameter(torch.Tensor(n_outputs, n_basis_feedback)).to(self.device)
+        torch.nn.init.xavier_uniform_(self.fb_weights)
+
+        self.bias = torch.nn.parameter.Parameter(torch.Tensor(n_outputs)).to(self.device)
+
+        self.spiking_history = torch.zeros([self.n_outputs, 2]).to(self.device)
+
+        self.potential = None
+
+        ### Number of timesteps to keep in synaptic memory
+        self.memory_length = max(self.tau_ff, self.tau_fb)
+
+
+
+    def forward(self, input_history, target=None):
+        ff_trace = self.compute_ff_trace(input_history)
+        fb_trace = self.compute_fb_trace()
+        self.potential = self.compute_ff_potential(ff_trace) + self.compute_fb_potential(fb_trace) + self.bias
+
+        self.spiking_history = self.update_spiking_history(target)
+
+        # return logits
+        return torch.sigmoid(self.potential)
+
+
+    def compute_ff_trace(self, input_history):
+        input_history = input_history[:, -self.memory_length:]
+        return torch.matmul(input_history.flip(-1), self.feedforward_filter[:input_history.shape[-1]])
+
+    def compute_ff_potential(self, ff_trace):
+        return torch.sum(self.ff_weights * ff_trace, dim=(-1, -2))
+
+    def compute_fb_trace(self):
+        return torch.matmul(self.spiking_history.flip(-1), self.feedback_filter[:self.spiking_history.shape[-1]])
+
+    def compute_fb_potential(self, fb_trace):
+        return torch.sum(self.fb_weights * fb_trace, dim=(-1))
+
+
+    def generate_spikes(self, spiking_history):
+
+        spiking_history[:, -1] = torch.bernoulli(torch.sigmoid(self.potential)).to(self.device)
+
+        if torch.isnan(spiking_history).any():
+            print('Spiking history')
+            print(self.spiking_history[:, -5:])
+            print('Potential')
+            print(self.potential)
+
+            raise RuntimeError
+
+        return spiking_history
+
+
+    def update_spiking_history(self, target=None):
+        with torch.no_grad():
+            spiking_history = torch.cat((self.spiking_history[:, 1-self.memory_length:], torch.zeros([self.n_outputs, 1]).to(self.device)), dim=-1)
+            if target is not None:
+                spiking_history[:, -1] = target
+            else:
+                spiking_history = self.generate_spikes(spiking_history)
+
+            return spiking_history
+
+
+    def reset_weights(self):
+        torch.nn.init.xavier_uniform_(self.fb_weights)
+        torch.nn.init.xavier_uniform_(self.ff_weights)
+        torch.nn.init.xavier_uniform_(self.bias)
