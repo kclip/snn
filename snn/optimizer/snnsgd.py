@@ -6,6 +6,7 @@ from torch import Tensor
 
 def snnsgd(params: List[Tensor],
            d_p_list: List[Tensor],
+           num_timesteps: float,
            lr: float,
            dampening: float,
            with_ls: bool,
@@ -20,14 +21,14 @@ def snnsgd(params: List[Tensor],
 
     for i, param in enumerate(params):
 
-        d_p = d_p_list[i]
+        d_p = d_p_list[i] / num_timesteps
 
         if with_ls:
             ls = ls_list[i]
             if ls is None:
-                ls = ls_temp
+                ls = ls_temp / num_timesteps
             else:
-                ls.mul_(dampening).add_(ls_temp, alpha=1 - dampening)
+                ls.mul_(dampening).add_(ls_temp / num_timesteps, alpha=1 - dampening)
             ls_list[i] = ls
 
             if with_baseline:
@@ -60,11 +61,11 @@ def snnsgd(params: List[Tensor],
 
 
 class SNNSGD(Optimizer):
-    def __init__(self, params, lr=required, dampening=0.01, ls=True, baseline=True):
+    def __init__(self, params, lr=required, dampening=0.01, num_timesteps=1, ls=True, baseline=True):
         if lr is not required and lr < 0.0:
             raise ValueError("Invalid learning rate: {}".format(lr))
 
-        defaults = dict(lr=lr, ls=ls, dampening=dampening, baseline=baseline)
+        defaults = dict(lr=lr, ls=ls, dampening=dampening, baseline=baseline, num_timesteps=num_timesteps)
         super(SNNSGD, self).__init__(params, defaults)
 
     def __setstate__(self, state):
@@ -91,6 +92,7 @@ class SNNSGD(Optimizer):
             lr = group['lr']
             with_ls = group['ls']
             with_baseline = group['baseline']
+            num_timesteps = group['num_timesteps']
             baseline_num_list = []
             baseline_den_list = []
             ls_list = []
@@ -120,6 +122,7 @@ class SNNSGD(Optimizer):
 
             snnsgd(params_with_grad,
                    d_p_list,
+                   num_timesteps,
                    lr,
                    dampening,
                    with_ls,
