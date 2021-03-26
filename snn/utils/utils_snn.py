@@ -2,26 +2,23 @@ import torch
 import pickle
 import os
 import numpy as np
-
+from snn.models.SNN import BinarySNN, LayeredSNN
 
 def refractory_period(network):
     """"
     Neural refractory period between two samples
     """
-    length = network.memory_length + 1
-    for s in range(length):
-        network(torch.zeros([len(network.input_neurons)], dtype=torch.float).to(network.device),
-                torch.zeros([len(network.output_neurons)], dtype=torch.float).to(network.device))
+    if isinstance(network, BinarySNN):
+        length = network.memory_length + 1
+        for t in range(length):
+            network(torch.zeros([len(network.input_neurons)], dtype=torch.float).to(network.device),
+                    torch.zeros([len(network.output_neurons)], dtype=torch.float).to(network.device))
+    elif isinstance(network, LayeredSNN):
+        length = np.max([l.memory_length for l in network.hidden_layers] + [network.out_layer.memory_length]) + 1
+        refractory_sig = torch.zeros([network.n_input_neurons, length])
+        for t in range(length):
+            network(refractory_sig[:, :t])
 
-
-def refractory_period_layered(network):
-    """"
-    Neural refractory period between two samples for layered SNN
-    """
-    length = np.max([l.memory_length for l in network.hidden_layers] + [network.out_layer.memory_length]) + 1
-    refractory_sig = torch.zeros([network.n_input_neurons, length])
-    for s in range(length):
-        network(refractory_sig[:, :s])
 
 
 def get_acc_and_loss(network, dataloader, n_examples, T):

@@ -86,7 +86,7 @@ for ite in range(500):
     network.train()
     network2.train()
 
-    refractory_period_layered(network)
+    refractory_period(network)
     refractory_period(network2)
 
     try:
