@@ -28,7 +28,7 @@ def snnsgd(params: List[Tensor],
             if ls is None:
                 ls = ls_temp / num_timesteps
             else:
-                ls.mul_(dampening).add_(ls_temp / num_timesteps, alpha=1 - dampening)
+                ls.mul_(dampening).add_(ls_temp, alpha=1 - dampening)
             ls_list[i] = ls
 
             if with_baseline:
