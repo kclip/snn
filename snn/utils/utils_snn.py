@@ -109,7 +109,7 @@ def get_acc_layered(network, dataloader, n_examples, T):
     true_classes = torch.FloatTensor()
 
     for ite in range(n_examples):
-        refractory_period_layered(network)
+        refractory_period(network)
 
         try:
             inputs, lbls = next(iterator)
@@ -118,10 +118,11 @@ def get_acc_layered(network, dataloader, n_examples, T):
             inputs, lbls = next(iterator)
 
         true_classes = torch.cat((true_classes, lbls), dim=0)
-        inputs = inputs.to(network.device)
+
+        inputs = inputs[0].to(network.device)
 
         for t in range(T):
-            _ = network(inputs[:, t])
+            _ = network(inputs[:t].T)
 
             outputs[ite, :, t] = network.out_layer.spiking_history[:, -1].cpu()
 

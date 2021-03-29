@@ -25,17 +25,17 @@ dataset = tables.open_file(dataset_path)
 x_max = dataset.root.stats.train_data[1] // ds
 dataset.close()
 
-n_outputs = 2
+classes = [1, 7]
+n_outputs = len(classes)
 n_hidden = 32
-n_neurons_per_layer = [n_hidden]
+n_neurons_per_layer = [n_hidden, n_hidden]
 
 
 network = LayeredSNN(input_size, n_neurons_per_layer, n_outputs,  synaptic_filter=filters.raised_cosine_pillow_08, n_basis_feedforward=[8],
                      n_basis_feedback=[1], tau_ff=[10], tau_fb=[10], mu=[0.5], device='cpu')
 
 topology = torch.zeros([n_hidden + n_outputs, n_hidden + input_size + n_outputs])
-topology[:n_hidden, :input_size] = 1
-topology[n_hidden:, input_size:-n_outputs] = 1
+topology[:, :input_size] = 1
 
 network2 = BinarySNN(**make_network_parameters(network_type='snn',
                                                n_input_neurons=input_size,
@@ -51,7 +51,8 @@ optimizer = SNNSGD([{'params': network.out_layer.parameters(), 'ls': False, 'bas
                     {'params': network.hidden_layers.parameters(), 'ls': True, 'baseline': True}
                     ], lr=lr)
 
-loss_fn = torch.nn.BCELoss(reduction='mean')
+bce = torch.nn.BCELoss()
+loss_fn = torch.nn.BCELoss(reduction='sum')
 
 network.train()
 network2.train()
@@ -64,12 +65,11 @@ learning_signal = 0
 baseline_num = {parameter: eligibility_trace_hidden[parameter].pow(2) * learning_signal for parameter in eligibility_trace_hidden}
 baseline_den = {parameter: eligibility_trace_hidden[parameter].pow(2) for parameter in eligibility_trace_hidden}
 
-classes = [1, 7]
 train_dl, test_dl = create_dataloader(dataset_path, batch_size=1, size=[input_size], classes=classes,
                                       sample_length_train=sample_length, sample_length_test=sample_length, dt=dt,
                                       polarity=polarity, ds=ds, shuffle_test=True, num_workers=0)
 
-r = 0.1
+r = 0.3
 
 
 train_iterator = iter(train_dl)
@@ -77,11 +77,11 @@ train_iterator = iter(train_dl)
 for ite in range(500):
     if (ite+1) % 50 == 0:
         print('Ite %d: ' % (ite+1))
-        acc_layered = get_acc_layered(network, test_dl, 100, T)
-        print('Acc with LayeredSNN', acc_layered)
-
         acc_snn, _ = get_acc_and_loss(network2, test_dl, 100, T)
         print('Acc with BinarySNN', acc_snn)
+
+        acc_layered = get_acc_layered(network, test_dl, 100, T)
+        print('Acc with Layered', acc_layered)
 
     network.train()
     network2.train()
@@ -98,13 +98,12 @@ for ite in range(500):
     inputs = inputs[0].to(network.device)
     targets = targets[0].to(network.device)
 
+
     for t in range(T):
         output_proba, probas_hidden = network(inputs[:t].T)
 
         if probas_hidden is not None:
-            kl_reg = loss_fn(probas_hidden, torch.cat([l.spiking_history[:, -1] for l in network.hidden_layers]))\
-                     + loss_fn(torch.ones(network.n_hidden_neurons, requires_grad=False) * r,
-                               torch.cat([l.spiking_history[:, -1] for l in network.hidden_layers]).detach()).detach()
+            kl_reg = bce(probas_hidden, torch.cat([l.spiking_history[:, -1] for l in network.hidden_layers]))
             kl_reg.backward()
         else:
             kl_reg = 0

@@ -1,9 +1,9 @@
 from __future__ import print_function
 import tables
 import torch
-
+from torch.nn.init import _calculate_fan_in_and_fan_out, _no_grad_uniform_
 from snn.utils import filters
-
+import math
 
 class SNNetwork(torch.nn.Module):
     def __init__(self, n_input_neurons, n_hidden_neurons, n_output_neurons, topology, synaptic_filter=filters.base_filter,
@@ -196,12 +196,16 @@ class SNNLayer(torch.nn.Module):
         self.tau_fb = tau_fb
 
         self.ff_weights = torch.nn.parameter.Parameter(torch.Tensor(n_outputs, n_inputs, n_basis_feedforward)).to(self.device)
-        torch.nn.init.xavier_uniform_(self.ff_weights)
 
         self.fb_weights = torch.nn.parameter.Parameter(torch.Tensor(n_outputs, n_basis_feedback)).to(self.device)
-        torch.nn.init.xavier_uniform_(self.fb_weights)
 
         self.bias = torch.nn.parameter.Parameter(torch.Tensor(n_outputs)).to(self.device)
+
+        a = self.get_xavier()
+        _no_grad_uniform_(self.ff_weights, -a, a)
+        _no_grad_uniform_(self.fb_weights, -a, a)
+        _no_grad_uniform_(self.bias, -a, a)
+
 
         self.spiking_history = torch.zeros([self.n_outputs, 2]).to(self.device)
 
@@ -267,3 +271,10 @@ class SNNLayer(torch.nn.Module):
         torch.nn.init.xavier_uniform_(self.fb_weights)
         torch.nn.init.xavier_uniform_(self.ff_weights)
         torch.nn.init.xavier_uniform_(self.bias)
+
+    def get_xavier(self, gain=1.):
+        fan_in, fan_out = _calculate_fan_in_and_fan_out(self.ff_weights)
+        std = gain * math.sqrt(2.0 / float(fan_in + fan_out))
+        a = math.sqrt(3.0) * std  # Calculate uniform bounds from standard deviation
+
+        return a
