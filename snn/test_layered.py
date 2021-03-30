@@ -26,9 +26,8 @@ x_max = dataset.root.stats.train_data[1] // ds
 dataset.close()
 
 n_outputs = 2
-n_hidden = 32
+n_hidden = 16
 n_neurons_per_layer = [n_hidden]
-
 
 network = LayeredSNN(input_size, n_neurons_per_layer, n_outputs,  synaptic_filter=filters.raised_cosine_pillow_08, n_basis_feedforward=[8],
                      n_basis_feedback=[1], tau_ff=[10], tau_fb=[10], mu=[0.5], device='cpu')
@@ -45,7 +44,8 @@ network2 = BinarySNN(**make_network_parameters(network_type='snn',
                                                topology=topology
                                                ))
 
-lr = 0.01
+lr = 0.0001
+n_samples = 3
 
 optimizer = SNNSGD([{'params': network.out_layer.parameters(), 'ls': False, 'baseline': False},
                     {'params': network.hidden_layers.parameters(), 'ls': True, 'baseline': True}
@@ -70,7 +70,7 @@ train_dl, test_dl = create_dataloader(dataset_path, batch_size=1, size=[input_si
                                       polarity=polarity, ds=ds, shuffle_test=True, num_workers=0)
 
 r = 0.1
-
+gamma = 1
 
 train_iterator = iter(train_dl)
 
@@ -99,22 +99,31 @@ for ite in range(500):
     targets = targets[0].to(network.device)
 
     for t in range(T):
-        output_proba, probas_hidden = network(inputs[:t].T)
+        for _ in range(n_samples):
+            net_probas, net_outputs, probas_hidden, outputs_hidden = network(inputs[:t].T, targets[:, t], n_samples=n_samples)
 
-        if probas_hidden is not None:
-            kl_reg = loss_fn(probas_hidden, torch.cat([l.spiking_history[:, -1] for l in network.hidden_layers]))\
-                     + loss_fn(torch.ones(network.n_hidden_neurons, requires_grad=False) * r,
-                               torch.cat([l.spiking_history[:, -1] for l in network.hidden_layers]).detach()).detach()
-            kl_reg.backward()
-        else:
-            kl_reg = 0
-        loss = loss_fn(output_proba, targets[:, t])
+            # Generate gradients and KL regularization for hidden neurons
+            out_loss = loss_fn(probas_hidden, outputs_hidden.detach())
+            if probas_hidden is not None:
+                hidden_loss = loss_fn(probas_hidden, outputs_hidden.detach())
+                with torch.no_grad():
+                    kl_reg = - gamma * torch.mean(outputs_hidden * torch.log(1e-7 + probas_hidden / r)
+                                                  + (1 - outputs_hidden) * torch.log(1e-7 + (1 - probas_hidden) / (1 - r)))
+            else:
+                hidden_loss = 0
+                kl_reg = 0
 
+        loss = out_loss + hidden_loss
         loss.backward()
-        optimizer.step(loss.detach() + kl_reg)
+        optimizer.step(out_loss.detach() + kl_reg)
         optimizer.zero_grad()
 
-        log_proba, ls_tmp = feedforward_sampling(network2, inputs[t], targets[:, t], 1, r)
+        log_proba = network2(inputs[t],  targets[:, t])
+        # Accumulate learning signal
+        proba_hidden = torch.sigmoid(network2.potential[network2.hidden_neurons - network2.n_input_neurons])
+        ls_tmp = torch.sum(log_proba[network2.output_neurons - network2.n_input_neurons]) \
+                 - gamma * torch.sum(network2.spiking_history[network2.hidden_neurons, -1] * torch.log(1e-07 + proba_hidden / r)
+                                     + (1 - network2.spiking_history[network2.hidden_neurons, -1]) * torch.log(1e-07 + (1. - proba_hidden) / (1 - r)))
 
         if ls_tmp != 0:
             learning_signal = 0.01 * learning_signal + (1 - 0.01) * ls_tmp

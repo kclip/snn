@@ -32,6 +32,8 @@ def get_acc_and_loss(network, dataloader, n_examples, T):
     outputs = torch.zeros([n_examples, network.n_output_neurons, T])
     loss = 0
 
+    hidden_hist = torch.zeros([n_examples, network.n_hidden_neurons, T])
+
     true_classes = torch.FloatTensor()
 
     for ite in range(n_examples):
@@ -51,6 +53,7 @@ def get_acc_and_loss(network, dataloader, n_examples, T):
             loss += torch.sum(log_proba).cpu().numpy()
 
             outputs[ite, :, t] = network.spiking_history[network.output_neurons, -1].cpu()
+            hidden_hist[ite, :, t] = network.spiking_history[network.hidden_neurons, -1].cpu()
 
     predictions = torch.max(torch.sum(outputs, dim=-1), dim=-1).indices
     true_classes = torch.max(torch.sum(true_classes, dim=-1), dim=-1).indices
@@ -107,6 +110,7 @@ def get_acc_layered(network, dataloader, n_examples, T):
     outputs = torch.zeros([n_examples, network.n_output_neurons, T])
 
     true_classes = torch.FloatTensor()
+    hidden_hist = torch.zeros([n_examples, network.n_hidden_neurons, T])
 
     for ite in range(n_examples):
         refractory_period(network)
@@ -124,6 +128,7 @@ def get_acc_layered(network, dataloader, n_examples, T):
         for t in range(T):
             _ = network(inputs[:t].T)
 
+            hidden_hist[ite, :, t] = torch.cat([l.spiking_history[:, -1] for l in network.hidden_layers]).detach()
             outputs[ite, :, t] = network.out_layer.spiking_history[:, -1].cpu()
 
     predictions = torch.max(torch.sum(outputs, dim=-1), dim=-1).indices

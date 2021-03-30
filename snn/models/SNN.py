@@ -210,20 +210,43 @@ class LayeredSNN(torch.nn.Module):
 
         self.training = None
 
-    def forward(self, inputs_history, target=None):
+    def forward(self, inputs_history, target=None, n_samples=1):
         probas_hidden = torch.Tensor()
+        outputs_hidden = torch.Tensor()
 
-        if self.n_hidden_layers > 0:
-            proba_layer = self.hidden_layers[0](inputs_history)
-            probas_hidden = torch.cat((probas_hidden, proba_layer))
+        net_probas = torch.Tensor()
+        net_outputs = torch.Tensor()
 
-            for i in range(1, self.n_hidden_layers):
-                proba_layer = self.hidden_layers[i](self.hidden_layers[i - 1].spiking_history)
-                probas_hidden = torch.cat((probas_hidden, proba_layer))
+        for i in range(n_samples):
+            if self.n_hidden_layers > 0:
+                probas_hidden_tmp = torch.Tensor()
+                outputs_hidden_tmp = torch.Tensor()
 
-            return self.out_layer(self.hidden_layers[-1].spiking_history, target), probas_hidden
+                proba_layer, layer_outputs = self.hidden_layers[0](inputs_history, target=None, no_update=i)
+                probas_hidden_tmp = torch.cat((probas_hidden_tmp, proba_layer.unsqueeze(0)))
+                outputs_hidden_tmp = torch.cat((outputs_hidden_tmp, layer_outputs.unsqueeze(0)))
 
-        return self.out_layer(inputs_history, target), None
+                for j in range(1, self.n_hidden_layers):
+                    proba_layer, layer_outputs = self.hidden_layers[j](self.hidden_layers[j - 1].spiking_history, target=None, no_update=n_samples - 1 - i)
+                    probas_hidden_tmp = torch.cat((probas_hidden_tmp, proba_layer.unsqueeze(0)))
+                    outputs_hidden_tmp = torch.cat((outputs_hidden_tmp, layer_outputs.unsqueeze(0)))
+
+                probas_hidden = torch.cat((probas_hidden, probas_hidden_tmp.unsqueeze(0)))
+                outputs_hidden = torch.cat((outputs_hidden, outputs_hidden_tmp.unsqueeze(0)))
+
+                probas_output_tmp, net_output_tmp = self.out_layer(self.hidden_layers[-1].spiking_history, target, no_update=n_samples - 1 - i)
+
+            else:
+                probas_output_tmp, net_output_tmp = self.out_layer(inputs_history, target, no_update=n_samples - 1 - i)
+                probas_hidden = None
+                outputs_hidden = None
+
+            net_probas = torch.cat((net_probas, probas_output_tmp.unsqueeze(0)))
+            net_outputs = torch.cat((net_outputs, net_output_tmp.unsqueeze(0)))
+
+
+        return net_probas, net_outputs, probas_hidden, outputs_hidden
+
 
     ### Setters
     def reset_weights(self):
