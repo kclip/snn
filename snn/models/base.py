@@ -4,6 +4,7 @@ import torch
 from torch.nn.init import _calculate_fan_in_and_fan_out, _no_grad_uniform_
 from snn.utils import filters
 import math
+import numpy as np
 
 class SNNetwork(torch.nn.Module):
     def __init__(self, n_input_neurons, n_hidden_neurons, n_output_neurons, topology, synaptic_filter=filters.base_filter,
@@ -219,6 +220,7 @@ class SNNLayer(torch.nn.Module):
     def forward(self, input_history, target=None, no_update=False):
         ff_trace = self.compute_ff_trace(input_history)
         fb_trace = self.compute_fb_trace()
+
         self.potential = self.compute_ff_potential(ff_trace) + self.compute_fb_potential(fb_trace) + self.bias
 
         outputs = self.generate_spikes(input_history)
@@ -247,14 +249,13 @@ class SNNLayer(torch.nn.Module):
         try:
             outputs = torch.bernoulli(torch.sigmoid(self.potential)).to(self.device)
         except RuntimeError:
-            print('Spiking history')
-            print(self.spiking_history[:, -5:])
             print('Potential')
             print(self.potential)
             print('ff_weights', self.ff_weights.isnan().any())
             print('fb_weights', self.fb_weights.isnan().any())
             print('bias', self.bias.isnan().any())
             print('input_hist', input_history.isnan().any())
+            print('hist', self.spiking_history.isnan().any())
 
 
         return outputs

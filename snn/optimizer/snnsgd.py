@@ -2,6 +2,8 @@ from torch.optim.optimizer import Optimizer, required
 import torch
 from typing import List, Optional
 from torch import Tensor
+import numpy as np
+from copy import deepcopy
 
 
 def snnsgd(params: List[Tensor],
@@ -40,9 +42,9 @@ def snnsgd(params: List[Tensor],
 
                 baseline_den = baseline_den_list[i]
                 if baseline_den is None:
-                    baseline_den = d_p.pow(2).mul(ls)
+                    baseline_den = d_p.pow(2)
                 else:
-                    baseline_den.mul_(dampening).add_(d_p.pow(2).mul(ls), alpha=1 - dampening)
+                    baseline_den.mul_(dampening).add_(d_p.pow(2), alpha=1 - dampening)
                 baseline_den_list[i] = baseline_den
 
                 baseline = baseline_num_list[i] / (1e-7 + baseline_den_list[i])
@@ -57,6 +59,8 @@ def snnsgd(params: List[Tensor],
             d_p = d_p.mul(ls - baseline)
 
         param.add_(d_p, alpha=-lr)
+
+
 
 
 class SNNSGD(Optimizer):

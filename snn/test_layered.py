@@ -44,7 +44,7 @@ network2 = BinarySNN(**make_network_parameters(network_type='snn',
                                                topology=topology
                                                ))
 
-lr = 0.0001
+lr = 0.001
 n_samples = 3
 
 optimizer = SNNSGD([{'params': network.out_layer.parameters(), 'ls': False, 'baseline': False},
@@ -99,25 +99,27 @@ for ite in range(500):
     targets = targets[0].to(network.device)
 
     for t in range(T):
-        for _ in range(n_samples):
-            net_probas, net_outputs, probas_hidden, outputs_hidden = network(inputs[:t].T, targets[:, t], n_samples=n_samples)
+        ### LayeredSNN
+        net_probas, net_outputs, probas_hidden, outputs_hidden = network(inputs[:t].T, targets[:, t], n_samples=n_samples)
 
-            # Generate gradients and KL regularization for hidden neurons
-            out_loss = loss_fn(probas_hidden, outputs_hidden.detach())
-            if probas_hidden is not None:
-                hidden_loss = loss_fn(probas_hidden, outputs_hidden.detach())
-                with torch.no_grad():
-                    kl_reg = - gamma * torch.mean(outputs_hidden * torch.log(1e-7 + probas_hidden / r)
-                                                  + (1 - outputs_hidden) * torch.log(1e-7 + (1 - probas_hidden) / (1 - r)))
-            else:
-                hidden_loss = 0
-                kl_reg = 0
+        # Generate gradients and KL regularization for hidden neurons
+        out_loss = loss_fn(probas_hidden, outputs_hidden.detach())
+        if probas_hidden is not None:
+            hidden_loss = loss_fn(probas_hidden, outputs_hidden.detach())
+            with torch.no_grad():
+                kl_reg = - gamma * torch.mean(outputs_hidden * torch.log(1e-7 + probas_hidden / r)
+                                              + (1 - outputs_hidden) * torch.log(1e-7 + (1 - probas_hidden) / (1 - r)))
+        else:
+            hidden_loss = 0
+            kl_reg = 0
 
         loss = out_loss + hidden_loss
         loss.backward()
+
         optimizer.step(out_loss.detach() + kl_reg)
         optimizer.zero_grad()
 
+        ### Binary SNN
         log_proba = network2(inputs[t],  targets[:, t])
         # Accumulate learning signal
         proba_hidden = torch.sigmoid(network2.potential[network2.hidden_neurons - network2.n_input_neurons])

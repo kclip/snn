@@ -59,6 +59,9 @@ def get_acc_and_loss(network, dataloader, n_examples, T):
     true_classes = torch.max(torch.sum(true_classes, dim=-1), dim=-1).indices
     acc = float(torch.sum(predictions == true_classes, dtype=torch.float)) / len(predictions)
 
+    print(torch.mean(hidden_hist))
+    print(torch.mean(outputs))
+
     return acc, loss
 
 
@@ -134,6 +137,9 @@ def get_acc_layered(network, dataloader, n_examples, T):
     predictions = torch.max(torch.sum(outputs, dim=-1), dim=-1).indices
     true_classes = torch.max(torch.sum(true_classes, dim=-1), dim=-1).indices
     acc = float(torch.sum(predictions == true_classes, dtype=torch.float)) / len(predictions)
+
+    print(torch.mean(hidden_hist))
+    print(torch.mean(outputs))
 
     return acc
 
