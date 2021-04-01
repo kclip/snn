@@ -222,7 +222,7 @@ class LayeredSNN(torch.nn.Module):
                 probas_hidden_tmp = torch.Tensor()
                 outputs_hidden_tmp = torch.Tensor()
 
-                proba_layer, layer_outputs = self.hidden_layers[0](inputs_history, target=None, no_update=i)
+                proba_layer, layer_outputs = self.hidden_layers[0](inputs_history, target=None, no_update=n_samples - 1 - i)
                 probas_hidden_tmp = torch.cat((probas_hidden_tmp, proba_layer.unsqueeze(0)))
                 outputs_hidden_tmp = torch.cat((outputs_hidden_tmp, layer_outputs.unsqueeze(0)))
 

@@ -51,11 +51,6 @@ def snnsgd(params: List[Tensor],
             else:
                 baseline = 0
 
-        else:
-            ls = 1
-            baseline = 0
-
-        if ls is not None:
             d_p = d_p.mul(ls - baseline)
 
         param.add_(d_p, alpha=-lr)

@@ -223,9 +223,9 @@ class SNNLayer(torch.nn.Module):
 
         self.potential = self.compute_ff_potential(ff_trace) + self.compute_fb_potential(fb_trace) + self.bias
 
-        outputs = self.generate_spikes(input_history)
+        outputs = self.generate_spikes(target)
         if not no_update:
-            self.spiking_history = self.update_spiking_history(outputs, target)
+            self.spiking_history = self.update_spiking_history(outputs)
 
         # return logits
         return torch.sigmoid(self.potential), outputs
@@ -245,29 +245,26 @@ class SNNLayer(torch.nn.Module):
         return torch.sum(self.fb_weights * fb_trace, dim=(-1))
 
 
-    def generate_spikes(self, input_history):
-        try:
-            outputs = torch.bernoulli(torch.sigmoid(self.potential)).to(self.device)
-        except RuntimeError:
-            print('Potential')
-            print(self.potential)
-            print('ff_weights', self.ff_weights.isnan().any())
-            print('fb_weights', self.fb_weights.isnan().any())
-            print('bias', self.bias.isnan().any())
-            print('input_hist', input_history.isnan().any())
-            print('hist', self.spiking_history.isnan().any())
+    def generate_spikes(self, target=None):
+        if target is not None:
+            return target
+        else:
+            try:
+                outputs = torch.bernoulli(torch.sigmoid(self.potential)).to(self.device)
+            except RuntimeError:
+                print('Potential')
+                print(self.potential)
+                print('ff_weights', self.ff_weights.isnan().any())
+                print('fb_weights', self.fb_weights.isnan().any())
+                print('bias', self.bias.isnan().any())
+
+            return outputs
 
 
-        return outputs
-
-
-    def update_spiking_history(self, new_spikes, target=None):
+    def update_spiking_history(self, new_spikes):
         with torch.no_grad():
             spiking_history = torch.cat((self.spiking_history[:, 1-self.memory_length:], torch.zeros([self.n_outputs, 1]).to(self.device)), dim=-1)
-            if target is not None:
-                spiking_history[:, -1] = target
-            else:
-                spiking_history[:, -1] = new_spikes
+            spiking_history[:, -1] = new_spikes
 
             return spiking_history
 

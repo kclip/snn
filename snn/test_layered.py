@@ -44,7 +44,7 @@ network2 = BinarySNN(**make_network_parameters(network_type='snn',
                                                topology=topology
                                                ))
 
-lr = 0.001
+lr = 0.01
 n_samples = 3
 
 optimizer = SNNSGD([{'params': network.out_layer.parameters(), 'ls': False, 'baseline': False},
@@ -103,7 +103,7 @@ for ite in range(500):
         net_probas, net_outputs, probas_hidden, outputs_hidden = network(inputs[:t].T, targets[:, t], n_samples=n_samples)
 
         # Generate gradients and KL regularization for hidden neurons
-        out_loss = loss_fn(probas_hidden, outputs_hidden.detach())
+        out_loss = loss_fn(net_probas, net_outputs)
         if probas_hidden is not None:
             hidden_loss = loss_fn(probas_hidden, outputs_hidden.detach())
             with torch.no_grad():
