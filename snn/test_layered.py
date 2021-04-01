@@ -27,7 +27,7 @@ dataset.close()
 
 n_outputs = 2
 n_hidden = 16
-n_neurons_per_layer = [n_hidden]
+n_neurons_per_layer = [256]
 
 network = LayeredSNN(input_size, n_neurons_per_layer, n_outputs,  synaptic_filter=filters.raised_cosine_pillow_08, n_basis_feedforward=[8],
                      n_basis_feedback=[1], tau_ff=[10], tau_fb=[10], mu=[0.5], device='cpu')
@@ -44,7 +44,7 @@ network2 = BinarySNN(**make_network_parameters(network_type='snn',
                                                topology=topology
                                                ))
 
-lr = 0.01
+lr = 0.00001
 n_samples = 3
 
 optimizer = SNNSGD([{'params': network.out_layer.parameters(), 'ls': False, 'baseline': False},
@@ -69,7 +69,7 @@ train_dl, test_dl = create_dataloader(dataset_path, batch_size=1, size=[input_si
                                       sample_length_train=sample_length, sample_length_test=sample_length, dt=dt,
                                       polarity=polarity, ds=ds, shuffle_test=True, num_workers=0)
 
-r = 0.1
+r = 0.3
 gamma = 1
 
 train_iterator = iter(train_dl)
