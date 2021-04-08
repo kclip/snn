@@ -178,29 +178,27 @@ class SNNetwork(torch.nn.Module):
 
 class SNNLayer(torch.nn.Module):
     def __init__(self, n_inputs, n_outputs, synaptic_filter=filters.base_filter,
-                 n_basis_feedforward=1, n_basis_feedback=1, tau_ff=1, tau_fb=1, mu=0.5, device='cpu'):
+                 n_basis_feedforward=1, n_basis_feedback=1, tau_ff=1, tau_fb=1, mu=0.5):
         super(SNNLayer, self).__init__()
-
-        self.device = device
 
         self.n_inputs = n_inputs
         self.n_outputs = n_outputs
 
         ### Feedforward connections
         self.n_basis_feedforward = n_basis_feedforward
-        self.feedforward_filter = synaptic_filter(tau_ff, self.n_basis_feedforward, mu).transpose(0, 1).to(self.device)
+        self.feedforward_filter = torch.nn.Parameter(synaptic_filter(tau_ff, self.n_basis_feedforward, mu).transpose(0, 1), requires_grad=False)
         self.tau_ff = tau_ff
 
         ### Feedback connections
         self.n_basis_feedback = n_basis_feedback
-        self.feedback_filter = synaptic_filter(tau_fb, self.n_basis_feedback, mu).transpose(0, 1).to(self.device)
+        self.feedback_filter = synaptic_filter(tau_fb, self.n_basis_feedback, mu).transpose(0, 1)
         self.tau_fb = tau_fb
 
-        self.ff_weights = torch.nn.parameter.Parameter(torch.Tensor(n_outputs, n_inputs, n_basis_feedforward)).to(self.device)
+        self.ff_weights = torch.nn.parameter.Parameter(torch.Tensor(n_outputs, n_inputs, n_basis_feedforward))
 
-        self.fb_weights = torch.nn.parameter.Parameter(torch.Tensor(n_outputs, n_basis_feedback)).to(self.device)
+        self.fb_weights = torch.nn.parameter.Parameter(torch.Tensor(n_outputs, n_basis_feedback))
 
-        self.bias = torch.nn.parameter.Parameter(torch.Tensor(n_outputs)).to(self.device)
+        self.bias = torch.nn.parameter.Parameter(torch.Tensor(n_outputs))
 
         a = self.get_xavier()
         _no_grad_uniform_(self.ff_weights, -a, a)
@@ -208,7 +206,7 @@ class SNNLayer(torch.nn.Module):
         _no_grad_uniform_(self.bias, -a, a)
 
 
-        self.spiking_history = torch.zeros([self.n_outputs, 2]).to(self.device)
+        self.spiking_history = torch.zeros([self.n_outputs, 2])
 
         self.potential = None
 
@@ -250,7 +248,7 @@ class SNNLayer(torch.nn.Module):
             return target
         else:
             try:
-                outputs = torch.bernoulli(torch.sigmoid(self.potential)).to(self.device)
+                outputs = torch.bernoulli(torch.sigmoid(self.potential)).to(self.potential.device)
             except RuntimeError:
                 print('Potential')
                 print(self.potential)
@@ -263,7 +261,7 @@ class SNNLayer(torch.nn.Module):
 
     def update_spiking_history(self, new_spikes):
         with torch.no_grad():
-            spiking_history = torch.cat((self.spiking_history[:, 1-self.memory_length:], torch.zeros([self.n_outputs, 1]).to(self.device)), dim=-1)
+            spiking_history = torch.cat((self.spiking_history[:, 1-self.memory_length:], torch.zeros([self.n_outputs, 1]).to(self.spiking_history.device)), dim=-1)
             spiking_history[:, -1] = new_spikes
 
             return spiking_history
