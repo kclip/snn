@@ -191,7 +191,7 @@ class SNNLayer(torch.nn.Module):
 
         ### Feedback connections
         self.n_basis_feedback = n_basis_feedback
-        self.feedback_filter = synaptic_filter(tau_fb, self.n_basis_feedback, mu).transpose(0, 1)
+        self.feedback_filter = torch.nn.Parameter(synaptic_filter(tau_fb, self.n_basis_feedback, mu).transpose(0, 1), requires_grad=False)
         self.tau_fb = tau_fb
 
         self.ff_weights = torch.nn.parameter.Parameter(torch.Tensor(n_outputs, n_inputs, n_basis_feedforward))
@@ -206,7 +206,7 @@ class SNNLayer(torch.nn.Module):
         _no_grad_uniform_(self.bias, -a, a)
 
 
-        self.spiking_history = torch.nn.parameter.Parameter(torch.zeros([self.n_outputs, 2]))
+        self.spiking_history = torch.nn.parameter.Parameter(torch.zeros([self.n_outputs, 2]), requires_grad=False)
 
         self.potential = None
 
