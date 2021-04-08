@@ -206,7 +206,7 @@ class SNNLayer(torch.nn.Module):
         _no_grad_uniform_(self.bias, -a, a)
 
 
-        self.spiking_history = torch.zeros([self.n_outputs, 2])
+        self.spiking_history = torch.nn.parameter.Parameter(torch.zeros([self.n_outputs, 2]))
 
         self.potential = None
 
