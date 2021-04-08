@@ -211,11 +211,11 @@ class LayeredSNN(torch.nn.Module):
         self.training = None
 
     def forward(self, inputs_history, target=None, n_samples=1):
-        probas_hidden = torch.Tensor()
-        outputs_hidden = torch.Tensor()
+        probas_hidden = torch.Tensor().to(self.device)
+        outputs_hidden = torch.Tensor().to(self.device)
 
-        net_probas = torch.Tensor()
-        net_outputs = torch.Tensor()
+        net_probas = torch.Tensor().to(self.device)
+        net_outputs = torch.Tensor().to(self.device)
 
         for i in range(n_samples):
             if self.n_hidden_layers > 0:
@@ -240,7 +240,7 @@ class LayeredSNN(torch.nn.Module):
                 probas_output_tmp, net_output_tmp = self.out_layer(inputs_history, target, no_update=n_samples - 1 - i)
                 probas_hidden = None
                 outputs_hidden = None
-
+            
             net_probas = torch.cat((net_probas, probas_output_tmp.unsqueeze(0)))
             net_outputs = torch.cat((net_outputs, net_output_tmp.unsqueeze(0)))
 
