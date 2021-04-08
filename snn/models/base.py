@@ -265,7 +265,7 @@ class SNNLayer(torch.nn.Module):
 
     def update_spiking_history(self, new_spikes):
         with torch.no_grad():
-            spiking_history = torch.cat((self.spiking_history[:, 1-self.memory_length:], torch.zeros([self.n_outputs, 1], requires_grad=False)).to(self.device), dim=-1)
+            spiking_history = torch.cat((self.spiking_history[:, 1-self.memory_length:], torch.zeros([self.n_outputs, 1], requires_grad=False).to(self.device)), dim=-1)
             spiking_history[:, -1] = new_spikes
 
             return spiking_history
