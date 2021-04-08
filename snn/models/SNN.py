@@ -203,10 +203,10 @@ class LayeredSNN(torch.nn.Module):
 
         for i in range(self.n_hidden_layers):
             self.hidden_layers.append(SNNLayer(Nhid[i], Nhid[i + 1], synaptic_filter=synaptic_filter, n_basis_feedforward=n_basis_feedforward[i],
-                                               n_basis_feedback=n_basis_feedback[i], tau_ff=tau_ff[i], tau_fb=tau_fb[i], mu=mu[i]))
+                                               n_basis_feedback=n_basis_feedback[i], tau_ff=tau_ff[i], tau_fb=tau_fb[i], mu=mu[i], device=self.device))
 
         self.out_layer = SNNLayer(Nhid[-1], n_output_neurons, synaptic_filter=synaptic_filter, n_basis_feedforward=n_basis_feedforward[-1],
-                                  n_basis_feedback=n_basis_feedback[-1], tau_ff=tau_ff[-1], tau_fb=tau_fb[-1], mu=mu[-1])
+                                  n_basis_feedback=n_basis_feedback[-1], tau_ff=tau_ff[-1], tau_fb=tau_fb[-1], mu=mu[-1], device=self.device)
 
         self.training = None
 
