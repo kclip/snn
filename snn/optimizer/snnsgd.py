@@ -72,7 +72,7 @@ class SNNSGD(Optimizer):
             group.setdefault('nesterov', False)
 
     @torch.no_grad()
-    def step(self, ls_temp, closure=None):
+    def step(self, ls_temp=None, closure=None):
         """Performs a single optimization step.
         Args:
             closure (callable, optional): A closure that reevaluates the model

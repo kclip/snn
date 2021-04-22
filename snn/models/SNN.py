@@ -171,7 +171,7 @@ class BinarySNN(SNNetwork):
 
 
 class LayeredSNN(torch.nn.Module):
-    def __init__(self, n_input_neurons, n_neurons_per_layer, n_output_neurons, synaptic_filter=filters.base_filter, n_basis_feedforward=[8],
+    def __init__(self, n_input_neurons, n_neurons_per_layer, n_output_neurons, synaptic_filter=filters.raised_cosine_pillow_08, n_basis_feedforward=[8],
                  n_basis_feedback=[1], tau_ff=[10], tau_fb=[10], mu=[0.5], device='cpu'):
 
         super(LayeredSNN, self).__init__()

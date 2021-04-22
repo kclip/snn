@@ -177,7 +177,7 @@ class SNNetwork(torch.nn.Module):
 
 
 class SNNLayer(torch.nn.Module):
-    def __init__(self, n_inputs, n_outputs, synaptic_filter=filters.base_filter,
+    def __init__(self, n_inputs, n_outputs, synaptic_filter=filters.raised_cosine_pillow_08,
                  n_basis_feedforward=1, n_basis_feedback=1, tau_ff=1, tau_fb=1, mu=0.5, device='cpu'):
         super(SNNLayer, self).__init__()
 
@@ -230,7 +230,7 @@ class SNNLayer(torch.nn.Module):
             self.spiking_history = self.update_spiking_history(outputs)
 
         # return logits
-        return torch.sigmoid(self.potential), outputs
+        return torch.sigmoid(self.potential), self.spiking_history[-self.n_outputs:, -1]
 
 
     def compute_ff_trace(self, input_history):
