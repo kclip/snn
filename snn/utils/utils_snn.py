@@ -15,7 +15,7 @@ def refractory_period(network):
                     torch.zeros([len(network.output_neurons)], dtype=torch.float).to(network.device))
     elif isinstance(network, LayeredSNN):
         length = np.max([l.memory_length for l in network.hidden_layers] + [network.out_layer.memory_length]) + 1
-        refractory_sig = torch.zeros([network.n_input_neurons, length])
+        refractory_sig = torch.zeros([network.n_input_neurons, length]).to(network.device)
         for t in range(length):
             network(refractory_sig[:, :t])
 

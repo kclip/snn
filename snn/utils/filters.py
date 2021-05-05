@@ -55,9 +55,14 @@ def raised_cosine_pillow_08(T, n_basis, mu=0.5):
     return torch.FloatTensor(bas)
 
 
+def dirac(T, n_basis, mu=None):
+    return torch.eye(max(T, n_basis))[:n_basis, :T]
+
+
 def get_filter(selected_filter):
     filters_dict = {'base_filter': base_filter, 'cosine_basis': cosine_basis,
-                    'raised_cosine': raised_cosine, 'raised_cosine_pillow_05': raised_cosine_pillow_05, 'raised_cosine_pillow_08': raised_cosine_pillow_08}
+                    'raised_cosine': raised_cosine, 'raised_cosine_pillow_05': raised_cosine_pillow_05,
+                    'raised_cosine_pillow_08': raised_cosine_pillow_08, 'dirac':dirac}
 
     return filters_dict[selected_filter]
 
