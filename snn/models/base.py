@@ -198,11 +198,11 @@ class SNNLayer(torch.nn.Module):
         self.feedback_filter.requires_grad = False
         self.tau_fb = tau_fb
 
-        self.ff_weights = torch.nn.parameter.Parameter(torch.Tensor(n_outputs, n_inputs, n_basis_feedforward)).to(self.device)
+        self.ff_weights = torch.nn.parameter.Parameter(torch.Tensor(n_outputs, n_inputs, n_basis_feedforward))
 
-        self.fb_weights = torch.nn.parameter.Parameter(torch.Tensor(n_outputs, n_basis_feedback)).to(self.device)
+        self.fb_weights = torch.nn.parameter.Parameter(torch.Tensor(n_outputs, n_basis_feedback))
 
-        self.bias = torch.nn.parameter.Parameter(torch.Tensor(n_outputs)).to(self.device)
+        self.bias = torch.nn.parameter.Parameter(torch.Tensor(n_outputs))
 
         a = self.get_xavier()
         _no_grad_uniform_(self.ff_weights, -a, a)
