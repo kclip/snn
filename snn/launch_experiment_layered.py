@@ -83,7 +83,7 @@ network = LayeredSNN(size[0], params['n_neurons_per_layer'], params['n_classes']
                      synaptic_filter=filters.raised_cosine_pillow_08, n_basis_feedforward=[8],
                      n_basis_feedback=[1], tau_ff=[10], tau_fb=[10], mu=[0.5], device=args.device).to(args.device)
 
-print([w.shape for w in network.out_layer.parameters()])
+print([w.shape for w in network.parameters()])
 print(network.out_layer.ff_weights.device)
 
 optimizer = SNNSGD([{'params': network.out_layer.parameters(), 'ls': False, 'baseline': False},
