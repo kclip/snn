@@ -20,7 +20,7 @@ start_idx: 0
 classes: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 n_samples: 1
 
-dt: 25000 # in mus
+dt: 1000 # in mus
 sample_length_train: 2000000 # length of each sample in mus for training
 sample_length_test: 2000000 # length of each sample in mus for testing
 ds: 1
