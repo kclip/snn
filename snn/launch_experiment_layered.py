@@ -129,7 +129,6 @@ for trial in range(params['num_trials']):
             ### LayeredSNN
             net_probas, net_outputs, probas_hidden, outputs_hidden = network(inputs[:t].T, targets[:, t], n_samples=params['n_samples'])
 
-            print(targets.sum(-1), net_outputs)
             # Generate gradients and KL regularization for hidden neurons
             out_loss = loss_fn(net_probas, net_outputs)
             if probas_hidden is not None:
