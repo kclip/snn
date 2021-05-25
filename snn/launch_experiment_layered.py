@@ -110,6 +110,8 @@ for trial in range(params['num_trials']):
             with open(args.save_path + '/test_accs.pkl', 'wb') as f:
                 pickle.dump(test_accs, f, pickle.HIGHEST_PROTOCOL)
 
+            torch.save(network.state_dict(), args.save_path + '/encoding_network_trial_%d.pt' % trial)
+
         network.train(args.save_path)
 
         refractory_period(network)
@@ -127,6 +129,7 @@ for trial in range(params['num_trials']):
             ### LayeredSNN
             net_probas, net_outputs, probas_hidden, outputs_hidden = network(inputs[:t].T, targets[:, t], n_samples=params['n_samples'])
 
+            print(targets.sum(-1), net_outputs)
             # Generate gradients and KL regularization for hidden neurons
             out_loss = loss_fn(net_probas, net_outputs)
             if probas_hidden is not None:
