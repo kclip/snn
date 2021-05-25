@@ -158,7 +158,7 @@ def make_recordings(args, params):
         params['record_train_acc'] = True
 
     if params['test_period'] is not None:
-        params['ite_test'] = np.arange(0, params['n_examples_train'], params['test_period'])
+        params['ite_test'] = np.arange(0, params['n_examples_train'] + params['test_period'], params['test_period'])
 
         if args.weights is not None:
             if params['record_test_acc']:

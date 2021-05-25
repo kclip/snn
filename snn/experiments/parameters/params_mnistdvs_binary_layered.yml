@@ -1,0 +1,32 @@
+dataset: /datasets/mnist-dvs/mnist_dvs_events_new.hdf5 # Path relative to home specified in args
+model: layered
+num_trials: 5
+test_period: 2000
+
+record_test_acc: True
+record_test_loss: False
+record_train_acc: False
+record_train_loss: False
+record_all: False
+suffix: _
+disable_cuda: True
+
+n_neurons_per_layer:
+- 800
+n_examples_train: 200000
+n_examples_test: 1000
+lr: 0.0001
+start_idx: 0
+classes: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+n_samples: 1
+
+dt: 25000 # in mus
+sample_length_train: 2000000 # length of each sample in mus for training
+sample_length_test: 2000000 # length of each sample in mus for testing
+ds: 1
+polarity: True
+
+kappa: 0.2 # eligibility trace decay coefficient
+r: 0.3 # Desired spiking sparsity of the hidden neurons
+beta: 0.05 # Baseline decay factor
+gamma: 1 # KL regularization strength
