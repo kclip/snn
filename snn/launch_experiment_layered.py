@@ -103,7 +103,7 @@ for trial in range(params['num_trials']):
         if (ite+1) % params['test_period'] == 0:
             print('Ite %d: ' % (ite+1))
             acc_layered = get_acc_layered(network, test_dl, len(iter(test_dl)), T)
-            print('Acc: %d', acc_layered)
+            print('Acc: %d' % acc_layered)
 
             test_accs[int(ite + 1)].append(acc_layered)
 
