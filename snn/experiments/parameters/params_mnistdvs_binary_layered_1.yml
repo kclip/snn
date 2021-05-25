@@ -1,7 +1,7 @@
 dataset: /datasets/mnist-dvs/mnist_dvs_events_new.hdf5 # Path relative to home specified in args
 model: layered
 num_trials: 5
-test_period: 2000
+test_period: 500
 
 record_test_acc: True
 record_test_loss: False
