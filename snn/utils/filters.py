@@ -3,8 +3,13 @@ import numpy as np
 
 
 # Simple exponentially decreasing filter
-def base_filter(t, n_basis, tau_1):
+def exponential_filter(t, n_basis, tau_1):
     return torch.tensor(np.vstack([np.exp([-i / tau_1 for i in range(t)]) for _ in range(n_basis)]), dtype=torch.float)
+
+
+# Simple (negative) exponential filter for feedback
+def feedback_filter(t, n_basis, tau_1):
+    return torch.tensor(np.vstack([-np.exp([-i / tau_1 for i in range(t)]) for _ in range(n_basis)]), dtype=torch.float)
 
 
 # Simple cosine basis
@@ -60,9 +65,11 @@ def dirac(T, n_basis, mu=None):
 
 
 def get_filter(selected_filter):
-    filters_dict = {'base_filter': base_filter, 'cosine_basis': cosine_basis,
+    filters_dict = {'base_filter': exponential_filter,
+                    'cosine_basis': cosine_basis,
                     'raised_cosine': raised_cosine, 'raised_cosine_pillow_05': raised_cosine_pillow_05,
-                    'raised_cosine_pillow_08': raised_cosine_pillow_08, 'dirac':dirac}
+                    'raised_cosine_pillow_08': raised_cosine_pillow_08,
+                    'dirac': dirac}
 
     return filters_dict[selected_filter]
 
