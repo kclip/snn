@@ -186,7 +186,6 @@ class SNNLayer(torch.nn.Module):
         self.n_inputs = n_inputs
         self.n_outputs = n_outputs
 
-        print(tau_ff, tau_fb, n_basis_feedforward, n_basis_feedback)
         ### Feedforward connections
         self.n_basis_feedforward = n_basis_feedforward
         self.feedforward_filter = synaptic_filter(tau_ff, self.n_basis_feedforward, mu).transpose(0, 1).to(self.device)
