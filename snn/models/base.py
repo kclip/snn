@@ -186,6 +186,7 @@ class SNNLayer(torch.nn.Module):
         self.n_inputs = n_inputs
         self.n_outputs = n_outputs
 
+        print(tau_ff, tau_fb, n_basis_feedforward, n_basis_feedback)
         ### Feedforward connections
         self.n_basis_feedforward = n_basis_feedforward
         self.feedforward_filter = synaptic_filter(tau_ff, self.n_basis_feedforward, mu).transpose(0, 1).to(self.device)
@@ -234,14 +235,13 @@ class SNNLayer(torch.nn.Module):
 
 
     def compute_ff_trace(self, input_history):
-        input_history = input_history[:, -self.memory_length:]
-        return torch.matmul(input_history.flip(-1), self.feedforward_filter[:input_history.shape[-1]])
+        return torch.matmul(input_history[:, -self.memory_length:].flip(-1), self.feedforward_filter[:input_history.shape[-1]])
 
     def compute_ff_potential(self, ff_trace):
         return torch.sum(self.ff_weights * ff_trace, dim=(-1, -2))
 
     def compute_fb_trace(self):
-        return torch.matmul(self.spiking_history.flip(-1), self.feedback_filter[:self.spiking_history.shape[-1]])
+        return torch.matmul(self.spiking_history[:, -self.memory_length:].flip(-1), self.feedback_filter[:self.spiking_history.shape[-1]])
 
     def compute_fb_potential(self, fb_trace):
         return torch.sum(self.fb_weights * fb_trace, dim=(-1))
