@@ -232,6 +232,9 @@ class SNNLayer(torch.nn.Module):
         # return logits
         return torch.sigmoid(self.potential), self.spiking_history[-self.n_outputs:, -1]
 
+    def detach_(self):
+        self.potential.detach_().requires_grad_()
+        self.spiking_history.detach_().requires_grad_()
 
     def compute_ff_trace(self, input_history):
         return torch.matmul(input_history[:, -self.memory_length:].flip(-1), self.feedforward_filter[:input_history.shape[-1]])
