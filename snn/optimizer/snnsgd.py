@@ -220,7 +220,7 @@ class SNNAdam(Optimizer):
         if not 0.0 <= weight_decay:
             raise ValueError("Invalid weight_decay value: {}".format(weight_decay))
         defaults = dict(lr=lr, betas=betas, eps=eps, dampening=dampening, ls=ls, baseline=baseline, weight_decay=weight_decay, amsgrad=amsgrad)
-        super(SNNAdam, self).__init__(params, defaults, device)
+        super(SNNAdam, self).__init__(params, defaults)
 
     @torch.no_grad()
     def step(self, ls_temp=None):
