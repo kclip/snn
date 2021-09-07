@@ -1,5 +1,6 @@
 from __future__ import print_function
 import tables
+import tqdm
 import yaml
 
 from neurodata.load_data import create_dataloader
@@ -102,7 +103,7 @@ train_iterator = iter(train_dl)
 acc_best = 0.
 
 for trial in range(params['num_trials']):
-    for ite in range(params['n_examples_train']):
+    for ite in tqdm.tqdm(range(params['n_examples_train'])):
         if (ite+1) % params['test_period'] == 0:
             print('Ite %d: ' % (ite+1))
             acc_layered = get_acc_layered(network, test_dl, len(iter(test_dl)), T)
