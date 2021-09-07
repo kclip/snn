@@ -15,9 +15,9 @@ n_neurons_per_layer:
 - 800
 n_examples_train: 200000
 n_examples_test: 1000
-lr: 0.00001
+lr: 0.001
 start_idx: 0
-classes: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+classes: [0, 1]
 n_samples: 1
 
 dt: 25000 # in mus

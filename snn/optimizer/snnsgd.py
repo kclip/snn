@@ -172,7 +172,7 @@ def snnadam(params: List[Tensor],
         bias_correction2 = 1 - beta2 ** step
 
         if weight_decay != 0:
-            grad = grad.add(param, alpha=weight_decay)
+            grad.add_(param, alpha=weight_decay)
 
         if with_ls:
             ls = ls_list[i]

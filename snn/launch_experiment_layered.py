@@ -5,7 +5,7 @@ import yaml
 from neurodata.load_data import create_dataloader
 from snn.utils.misc import *
 from snn.models.SNN import LayeredSNN
-from snn.optimizer.snnsgd import SNNSGD
+from snn.optimizer.snnsgd import SNNSGD, SNNAdam
 from snn.utils.utils_snn import refractory_period
 from snn.utils.utils_snn import get_acc_layered
 
@@ -86,9 +86,12 @@ network = LayeredSNN(size[0], params['n_neurons_per_layer'], params['n_classes']
 print([w.shape for w in network.parameters()])
 print(network.out_layer.ff_weights.device)
 
-optimizer = SNNSGD([{'params': network.out_layer.parameters(), 'ls': False, 'baseline': False},
-                    {'params': network.hidden_layers.parameters(), 'ls': True, 'baseline': True}
-                    ], lr=params['lr'])
+# optimizer = SNNSGD([{'params': network.out_layer.parameters(), 'ls': False, 'baseline': False},
+#                     {'params': network.hidden_layers.parameters(), 'ls': True, 'baseline': True}
+#                     ], lr=params['lr'])
+optimizer = SNNAdam([{'params': network.out_layer.parameters(), 'ls': False, 'baseline': False},
+                     {'params': network.hidden_layers.parameters(), 'ls': True, 'baseline': True}
+                     ], lr=params['lr'])
 
 loss_fn = torch.nn.BCELoss(reduction='mean')
 
