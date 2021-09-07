@@ -12,7 +12,7 @@ suffix: _
 disable_cuda: False
 
 n_neurons_per_layer:
-- 800
+- 50
 n_examples_train: 200000
 n_examples_test: 1000
 lr: 0.001

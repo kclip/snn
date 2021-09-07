@@ -102,6 +102,9 @@ train_iterator = iter(train_dl)
 
 acc_best = 0.
 
+
+r = torch.Tensor([params['r']]).to(args.device)
+
 for trial in range(params['num_trials']):
     for ite in tqdm.tqdm(range(params['n_examples_train'])):
         if (ite+1) % params['test_period'] == 0:
@@ -117,7 +120,6 @@ for trial in range(params['num_trials']):
             torch.save(network.state_dict(), args.save_path + '/encoding_network_trial_%d.pt' % trial)
 
         network.train(args.save_path)
-
         refractory_period(network)
 
         try:
@@ -138,8 +140,7 @@ for trial in range(params['num_trials']):
             if probas_hidden is not None:
                 hidden_loss = loss_fn(probas_hidden, outputs_hidden.detach())
                 with torch.no_grad():
-                    kl_reg = params['gamma'] * torch.mean(outputs_hidden * torch.log(1e-7 + probas_hidden / params['r'])
-                                                          + (1 - outputs_hidden) * torch.log(1e-7 + (1 - probas_hidden) / (1 - params['r'])))
+                    kl_reg = - params['gamma'] * (hidden_loss - torch.mean(outputs_hidden * torch.log(r) + (1 - outputs_hidden) * torch.log(1. - r)))
             else:
                 hidden_loss = 0
                 kl_reg = 0
