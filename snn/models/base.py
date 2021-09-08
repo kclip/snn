@@ -199,9 +199,7 @@ class SNNLayer(torch.nn.Module):
         self.tau_fb = tau_fb
 
         self.ff_weights = torch.nn.parameter.Parameter(torch.Tensor(n_outputs, n_inputs, n_basis_feedforward))
-
         self.fb_weights = torch.nn.parameter.Parameter(torch.Tensor(n_outputs, n_basis_feedback))
-
         self.bias = torch.nn.parameter.Parameter(torch.Tensor(n_outputs))
 
         a = self.get_xavier()
