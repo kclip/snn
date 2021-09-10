@@ -208,13 +208,12 @@ class SNNLayer(torch.nn.Module):
         _no_grad_uniform_(self.bias, -a, a)
 
 
-        self.spiking_history = torch.zeros([self.n_outputs, 2], requires_grad=False).to(self.device)
+        self.spiking_history = torch.zeros([self.n_outputs, 2], requires_grad=True).to(self.device)
 
         self.potential = None
 
         ### Number of timesteps to keep in synaptic memory
         self.memory_length = max(self.tau_ff, self.tau_fb)
-
 
 
     def forward(self, input_history, target=None, no_update=False):
@@ -239,17 +238,22 @@ class SNNLayer(torch.nn.Module):
         self.bias.detach_().requires_grad_()
 
     def compute_ff_trace(self, input_history):
-        return torch.matmul(input_history[:, -self.memory_length:].flip(-1), self.feedforward_filter[:input_history.shape[-1]])
+        if input_history.shape[-1] != self.feedforward_filter.shape[0]:
+            return torch.matmul(input_history.flip(-1), self.feedforward_filter[:input_history.shape[-1]])
+        else:
+            return torch.matmul(input_history.flip(-1), self.feedforward_filter)
 
     def compute_ff_potential(self, ff_trace):
         return torch.sum(self.ff_weights * ff_trace, dim=(-1, -2))
 
     def compute_fb_trace(self):
-        return torch.matmul(self.spiking_history[:, -self.memory_length:].flip(-1), self.feedback_filter[:self.spiking_history.shape[-1]])
+        if self.spiking_history.shape[-1] != self.feedback_filter.shape[0]:
+            return torch.matmul(self.spiking_history.flip(-1), self.feedback_filter[:self.spiking_history.shape[-1]])
+        else:
+            return torch.matmul(self.spiking_history.flip(-1), self.feedback_filter)
 
     def compute_fb_potential(self, fb_trace):
         return torch.sum(self.fb_weights * fb_trace, dim=(-1))
-
 
     def generate_spikes(self, target=None):
         if target is not None:
@@ -269,7 +273,7 @@ class SNNLayer(torch.nn.Module):
 
     def update_spiking_history(self, new_spikes):
         with torch.no_grad():
-            spiking_history = torch.cat((self.spiking_history[:, 1-self.memory_length:], torch.zeros([self.n_outputs, 1], requires_grad=False).to(self.device)), dim=-1)
+            spiking_history = torch.cat((self.spiking_history[:, 1-self.memory_length:], torch.zeros([self.n_outputs, 1], requires_grad=True).to(self.device)), dim=-1)
             spiking_history[:, -1] = new_spikes
 
             return spiking_history
@@ -314,7 +318,7 @@ class SNNLayerv2(torch.nn.Module):
         self.ff_synapses = torch.nn.ModuleList([torch.nn.Linear(n_inputs, n_outputs, bias=False) for _ in range(n_basis_feedforward)])
         self.fb_synapse = torch.nn.Linear(n_outputs, n_outputs, bias=True)
 
-        self.spiking_history = torch.zeros([self.batch_size, self.n_outputs, 2], requires_grad=False).to(self.device)
+        self.spiking_history = torch.zeros([self.batch_size, self.n_outputs, 2], requires_grad=True).to(self.device)
 
         self.potential = None
 
@@ -389,7 +393,7 @@ class SNNLayerv2(torch.nn.Module):
     def update_spiking_history(self, new_spikes):
         with torch.no_grad():
             spiking_history = torch.cat((self.spiking_history[:, :, 1-self.memory_length:],
-                                         torch.zeros([self.batch_size, self.n_outputs, 1], requires_grad=False).to(self.device)), dim=-1)
+                                         torch.zeros([self.batch_size, self.n_outputs, 1], requires_grad=True).to(self.device)), dim=-1)
             spiking_history[:, :, -1] = new_spikes
 
             return spiking_history
