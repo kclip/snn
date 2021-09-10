@@ -53,6 +53,7 @@ def snnsgd(params: List[Tensor],
 
             d_p = d_p.mul(ls - baseline)
 
+        # print(d_p.shape, torch.min(d_p), torch.mean(d_p), torch.max(d_p))
         param.add_(d_p, alpha=-lr)
 
 
@@ -167,7 +168,7 @@ def snnadam(params: List[Tensor],
         exp_avg = exp_avgs[i]
         exp_avg_sq = exp_avg_sqs[i]
         step = state_steps[i]
-
+        
         bias_correction1 = 1 - beta1 ** step
         bias_correction2 = 1 - beta2 ** step
 
@@ -203,6 +204,8 @@ def snnadam(params: List[Tensor],
             denom = (exp_avg_sq.sqrt() / math.sqrt(bias_correction2)).add_(eps)
 
         step_size = lr / bias_correction1
+        
+        # print(grad.shape, torch.min(exp_avg), torch.mean(exp_avg), torch.max(exp_avg))
 
         param.addcdiv_(exp_avg, denom, value=-step_size)
 
