@@ -316,7 +316,10 @@ class SNNLayerv2(torch.nn.Module):
         self.tau_fb = tau_fb
 
         self.ff_synapses = torch.nn.ModuleList([torch.nn.Linear(n_inputs, n_outputs, bias=False) for _ in range(n_basis_feedforward)])
+        [l.weight.data.add_(-1/n_inputs) for l in self.ff_synapses]
         self.fb_synapse = torch.nn.Linear(n_outputs, n_outputs, bias=True)
+        self.fb_synapse.weight.data.add_(-1/n_outputs)
+        self.fb_synapse.bias.data.add_(-1/n_outputs)
 
         self.spiking_history = torch.zeros([self.batch_size, self.n_outputs, 2], requires_grad=True).to(self.device)
 
@@ -331,7 +334,15 @@ class SNNLayerv2(torch.nn.Module):
         ff_trace = self.compute_ff_trace(input_history)
         fb_trace = self.compute_fb_trace()
 
-        self.potential = self.compute_ff_potential(ff_trace) + self.compute_fb_potential(fb_trace)
+        ff_potential = self.compute_ff_potential(ff_trace)
+        fb_potential = self.compute_fb_potential(fb_trace)
+        self.potential = ff_potential + fb_potential
+        # with torch.no_grad():
+        #     print(torch.mean(ff_potential), torch.mean(fb_potential), torch.mean(self.potential), torch.mean(torch.sigmoid(self.potential)))
+        #     print(torch.min(self.potential), torch.mean(self.potential), torch.max(self.potential))
+        #     print(torch.min(torch.sigmoid(self.potential)), torch.mean(torch.sigmoid(self.potential)), torch.max(torch.sigmoid(self.potential)))
+        #     print('//////////////////////')
+
         outputs = self.generate_spikes(target)
         if not no_update:
             self.spiking_history = self.update_spiking_history(outputs)
@@ -343,9 +354,9 @@ class SNNLayerv2(torch.nn.Module):
         self.potential.detach_()
         self.spiking_history.detach_()
 
-        [l.weight.detach_().requires_grad_() for l in self.ff_synapses]
-        self.fb_synapse.weight.detach_().requires_grad_()
-        self.fb_synapse.bias.detach_().requires_grad_()
+        # [l.weight.detach_().requires_grad_() for l in self.ff_synapses]
+        # self.fb_synapse.weight.detach_().requires_grad_()
+        # self.fb_synapse.bias.detach_().requires_grad_()
 
     def compute_ff_trace(self, input_history):
         # input_history: shape = [n_batch, n_in, t]
@@ -359,6 +370,9 @@ class SNNLayerv2(torch.nn.Module):
     def compute_ff_potential(self, ff_trace):
         # ff_trace: shape = [[n_batch, n_in] * n_basis_ff]
         # ff_synapses: shape = [[n_out, n_in] * n_basis_ff]
+        with torch.no_grad():
+            ff_pot = torch.cat([self.ff_synapses[i](ff_trace[i]).unsqueeze(2) for i in range(self.n_basis_feedforward)], dim=-1).sum(dim=-1)
+            
         return torch.cat([self.ff_synapses[i](ff_trace[i]).unsqueeze(2) for i in range(self.n_basis_feedforward)], dim=-1).sum(dim=-1)
 
     def compute_fb_trace(self):
@@ -371,6 +385,8 @@ class SNNLayerv2(torch.nn.Module):
             return torch.matmul(self.spiking_history.flip(-1), self.feedback_filter)
 
     def compute_fb_potential(self, fb_trace):
+        with torch.no_grad():
+            fb_pot = self.fb_synapse(fb_trace)
         return self.fb_synapse(fb_trace)
 
 
