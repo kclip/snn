@@ -318,7 +318,7 @@ class SNNLayerv2(torch.nn.Module):
         self.ff_synapses = torch.nn.ModuleList([torch.nn.Linear(n_inputs, n_outputs, bias=False) for _ in range(n_basis_feedforward)])
         # gain = 2
         # [l.weight.data.add_(- gain/n_inputs) for l in self.ff_synapses]
-        # self.fb_synapse = torch.nn.Linear(n_outputs, n_outputs, bias=True)
+        self.fb_synapse = torch.nn.Linear(n_outputs, n_outputs, bias=True)
         # self.fb_synapse.weight.data.add_(- gain/n_outputs)
         # self.fb_synapse.bias.data.add_(-gain/n_outputs)
 
