@@ -205,8 +205,7 @@ def snnadam(params: List[Tensor],
 
         step_size = lr / bias_correction1
         
-        # print(grad.shape, torch.min(exp_avg), torch.mean(exp_avg), torch.max(exp_avg))
-
+        print(grad.shape, torch.min(exp_avg), torch.mean(exp_avg), torch.max(exp_avg))
         param.addcdiv_(exp_avg, denom, value=-step_size)
 
 
