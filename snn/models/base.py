@@ -367,8 +367,9 @@ class SNNLayerv2(torch.nn.Module):
     def compute_ff_potential(self, ff_trace):
         # ff_trace: shape = [[n_batch, n_in] * n_basis_ff]
         # ff_synapses: shape = [[n_out, n_in] * n_basis_ff]
-
-        return torch.cat([self.ff_synapses[i](ff_trace[i]).unsqueeze(2) for i in range(self.n_basis_feedforward)], dim=-1).sum(dim=-1)
+        ff_potential_tmp = torch.cat([self.ff_synapses[i](ff_trace[i]).unsqueeze(2) for i in range(self.n_basis_feedforward)], dim=-1)
+        print(ff_potential_tmp)
+        return ff_potential_tmp.sum(dim=-1)
 
     def compute_fb_trace(self):
         # input_history: shape = [n_batch, n_out, t]
