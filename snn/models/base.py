@@ -316,7 +316,7 @@ class SNNLayerv2(torch.nn.Module):
         self.tau_fb = tau_fb
 
         self.ff_synapses = torch.nn.ModuleList([torch.nn.Linear(n_inputs, n_outputs, bias=False) for _ in range(n_basis_feedforward)])
-        [torch.nn.init.xavier_normal_(l.weight)]
+        [torch.nn.init.xavier_normal_(l.weight) for l in self.ff_synapses]
         [l.weight.data.add_(-5/(n_inputs * n_outputs)) for l in self.ff_synapses]
         self.fb_synapse = torch.nn.Linear(n_outputs, n_outputs, bias=True)
         torch.nn.init.xavier_normal_(self.fb_synapse.weight)
