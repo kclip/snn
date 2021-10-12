@@ -306,7 +306,7 @@ class SNNLayerv2(torch.nn.Module):
         ### Feedforward connections
         self.n_basis_feedforward = n_basis_feedforward
         self.feedforward_filter = synaptic_filter(tau_ff, self.n_basis_feedforward, mu).transpose(0, 1).to(self.device)
-        print([self.feedforward_filter[:, i] for i in self.n_basis_feedforward])
+        print([self.feedforward_filter[:, i] for i in range(self.n_basis_feedforward)])
         self.feedforward_filter.requires_grad = False
         self.tau_ff = tau_ff
 
