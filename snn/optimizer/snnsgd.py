@@ -53,7 +53,7 @@ def snnsgd(params: List[Tensor],
 
             d_p = d_p.mul(ls - baseline)
 
-        print(d_p.shape, torch.min(lr * d_p), torch.mean(lr * d_p), torch.max(lr * d_p))
+        # print(d_p.shape, torch.min(lr * d_p), torch.mean(lr * d_p), torch.max(lr * d_p))
         # print(lr * d_p)
         param.add_(d_p, alpha=-lr)
 
