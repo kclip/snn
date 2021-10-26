@@ -316,13 +316,13 @@ class SNNLayerv2(torch.nn.Module):
         self.tau_fb = tau_fb
 
         self.ff_synapses = torch.nn.ModuleList([torch.nn.Linear(n_inputs, n_outputs, bias=False) for _ in range(n_basis_feedforward)])
-        # [torch.nn.init.uniform_(l.weight, -1/(n_inputs + n_outputs)**2,  1/(n_inputs + n_outputs)**2) for l in self.ff_synapses]
-        [torch.nn.init.uniform_(l.weight, -1/(n_inputs + n_outputs),  0) for l in self.ff_synapses]
+        [torch.nn.init.uniform_(l.weight, -1/(n_inputs + n_outputs)**2,  1/(n_inputs + n_outputs)**2) for l in self.ff_synapses]
+        # [torch.nn.init.uniform_(l.weight, -1/(n_inputs + n_outputs),  0) for l in self.ff_synapses]
         self.fb_synapse = torch.nn.Linear(n_outputs, n_outputs, bias=True)
-        # torch.nn.init.uniform_(self.fb_synapse.weight, -1/(2*n_outputs)**2, 1/(2*n_outputs)**2)
-        # torch.nn.init.uniform_(self.fb_synapse.bias, -1/(2*n_outputs)**2, 1/(2*n_outputs)**2)
-        torch.nn.init.uniform_(self.fb_synapse.weight, -1/(2*n_outputs), 0)
-        torch.nn.init.uniform_(self.fb_synapse.bias, -1/(2*n_outputs), 0)
+        torch.nn.init.uniform_(self.fb_synapse.weight, -1/(2*n_outputs)**2, 1/(2*n_outputs)**2)
+        torch.nn.init.uniform_(self.fb_synapse.bias, -1/(2*n_outputs)**2, 1/(2*n_outputs)**2)
+        # torch.nn.init.uniform_(self.fb_synapse.weight, -1/(2*n_outputs), 0)
+        # torch.nn.init.uniform_(self.fb_synapse.bias, -1/(2*n_outputs), 0)
 
         self.spiking_history = torch.zeros([self.batch_size, self.n_outputs, 2], requires_grad=True).to(self.device)
 
