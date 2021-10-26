@@ -37,7 +37,7 @@ class BinarySNN(SNNetwork):
         self.memory_length = max(self.tau_ff, self.tau_fb)
 
         ### State of the network
-        self.spiking_history = torch.zeros([self.n_neurons, 2]).to(self.device)
+        self.spiking_history = torch.zeros([self.n_neurons, 1]).to(self.device)
 
 
 
@@ -47,8 +47,8 @@ class BinarySNN(SNNetwork):
 
 
         ### Compute potential
-        ff_trace = self.compute_ff_trace(self.spiking_history[:, 1:])
-        fb_trace = self.compute_fb_trace(self.spiking_history[:, 1:])[self.learnable_neurons, :]
+        ff_trace = self.compute_ff_trace(self.spiking_history)
+        fb_trace = self.compute_fb_trace(self.spiking_history)[self.learnable_neurons, :]
 
         self.potential = self.compute_ff_potential(ff_trace) + self.compute_fb_potential(fb_trace) + self.bias
 
@@ -141,7 +141,7 @@ class BinarySNN(SNNetwork):
         return spiking_history
 
     def update_spiking_history(self, input_signal, output_signal=None):
-        spiking_history = torch.cat((self.spiking_history[:, - self.memory_length:], torch.zeros([self.n_neurons, 1]).to(self.device)), dim=-1)
+        spiking_history = torch.cat((self.spiking_history[:, -self.memory_length+1:], torch.zeros([self.n_neurons, 1]).to(self.device)), dim=-1)
         spiking_history[self.input_neurons, -1] = input_signal
 
         if self.n_hidden_neurons > 0:

@@ -9,7 +9,7 @@ from snn.models.base import SNNetwork
 
 class WTASNN(SNNetwork):
     def __init__(self, n_input_neurons, n_hidden_neurons, n_output_neurons, topology,
-                 synaptic_filter=filters.base_filter, n_basis_feedforward=1, n_basis_feedback=1,
+                 synaptic_filter=filters.exponential_filter, n_basis_feedforward=1, n_basis_feedback=1,
                  tau_ff=1, tau_fb=1, mu=1, weights_magnitude=0., initialization='glorot', device='cpu', save_path=None):
 
         super(WTASNN, self).__init__(n_input_neurons=n_input_neurons, n_hidden_neurons=n_hidden_neurons, n_output_neurons=n_output_neurons, topology=topology,
