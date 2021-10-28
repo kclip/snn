@@ -174,128 +174,10 @@ class SNNetwork(torch.nn.Module):
         return
 
 
-
-
 class SNNLayer(torch.nn.Module):
-    def __init__(self, n_inputs, n_outputs, synaptic_filter=filters.raised_cosine_pillow_08,
-                 n_basis_feedforward=1, n_basis_feedback=1, tau_ff=1, tau_fb=1, mu=0.5, device='cpu'):
-        super(SNNLayer, self).__init__()
-
-        self.device = device
-
-        self.n_inputs = n_inputs
-        self.n_outputs = n_outputs
-
-        ### Feedforward connections
-        self.n_basis_feedforward = n_basis_feedforward
-        self.feedforward_filter = synaptic_filter(tau_ff, self.n_basis_feedforward, mu).transpose(0, 1).to(self.device)
-        self.feedforward_filter.requires_grad = False
-        self.tau_ff = tau_ff
-
-        ### Feedback connections
-        self.n_basis_feedback = n_basis_feedback
-        self.feedback_filter = synaptic_filter(tau_fb, self.n_basis_feedback, mu).transpose(0, 1).to(self.device)
-        self.feedback_filter.requires_grad = False
-        self.tau_fb = tau_fb
-
-        self.ff_weights = torch.nn.parameter.Parameter(torch.Tensor(n_outputs, n_inputs, n_basis_feedforward))
-        self.fb_weights = torch.nn.parameter.Parameter(torch.Tensor(n_outputs, n_basis_feedback))
-        self.bias = torch.nn.parameter.Parameter(torch.Tensor(n_outputs))
-
-        a = self.get_xavier()
-        _no_grad_uniform_(self.ff_weights, -a, a)
-        _no_grad_uniform_(self.fb_weights, -a, a)
-        _no_grad_uniform_(self.bias, -a, a)
-
-
-        self.spiking_history = torch.zeros([self.n_outputs, 2], requires_grad=True).to(self.device)
-
-        self.potential = None
-
-        ### Number of timesteps to keep in synaptic memory
-        self.memory_length = max(self.tau_ff, self.tau_fb)
-
-
-    def forward(self, input_history, target=None, no_update=False):
-        ff_trace = self.compute_ff_trace(input_history)
-        fb_trace = self.compute_fb_trace()
-
-        self.potential = self.compute_ff_potential(ff_trace) + self.compute_fb_potential(fb_trace) + self.bias
-
-        outputs = self.generate_spikes(target)
-        if not no_update:
-            self.spiking_history = self.update_spiking_history(outputs)
-
-        # return logits
-        return torch.sigmoid(self.potential), self.spiking_history[:, -1]
-
-    def detach_(self):
-        self.potential.detach_()
-        self.spiking_history.detach_()
-
-        self.ff_weights.detach_().requires_grad_()
-        self.fb_weights.detach_().requires_grad_()
-        self.bias.detach_().requires_grad_()
-
-    def compute_ff_trace(self, input_history):
-        if input_history.shape[-1] != self.feedforward_filter.shape[0]:
-            return torch.matmul(input_history.flip(-1), self.feedforward_filter[:input_history.shape[-1]])
-        else:
-            return torch.matmul(input_history.flip(-1), self.feedforward_filter)
-
-    def compute_ff_potential(self, ff_trace):
-        return torch.sum(self.ff_weights * ff_trace, dim=(-1, -2))
-
-    def compute_fb_trace(self):
-        if self.spiking_history.shape[-1] != self.feedback_filter.shape[0]:
-            return torch.matmul(self.spiking_history.flip(-1), self.feedback_filter[:self.spiking_history.shape[-1]])
-        else:
-            return torch.matmul(self.spiking_history.flip(-1), self.feedback_filter)
-
-    def compute_fb_potential(self, fb_trace):
-        return torch.sum(self.fb_weights * fb_trace, dim=(-1))
-
-    def generate_spikes(self, target=None):
-        if target is not None:
-            return target
-        else:
-            try:
-                outputs = torch.bernoulli(torch.sigmoid(self.potential)).to(self.device)
-            except RuntimeError:
-                print('Potential')
-                print(self.potential)
-                print('ff_weights', self.ff_weights.isnan().any())
-                print('fb_weights', self.fb_weights.isnan().any())
-                print('bias', self.bias.isnan().any())
-
-            return outputs
-
-
-    def update_spiking_history(self, new_spikes):
-        with torch.no_grad():
-            spiking_history = torch.cat((self.spiking_history[:, 1-self.memory_length:], torch.zeros([self.n_outputs, 1], requires_grad=True).to(self.device)), dim=-1)
-            spiking_history[:, -1] = new_spikes
-
-            return spiking_history
-
-
-    def reset_weights(self):
-        torch.nn.init.xavier_uniform_(self.fb_weights)
-        torch.nn.init.xavier_uniform_(self.ff_weights)
-        torch.nn.init.xavier_uniform_(self.bias)
-
-    def get_xavier(self, gain=1.):
-        fan_in, fan_out = _calculate_fan_in_and_fan_out(self.ff_weights)
-        std = gain * math.sqrt(2.0 / float(fan_in + fan_out))
-        a = math.sqrt(3.0) * std  # Calculate uniform bounds from standard deviation
-
-        return a
-
-
-class SNNLayerv2(torch.nn.Module):
     def __init__(self, n_inputs, n_outputs, batch_size, synaptic_filter=filters.raised_cosine_pillow_08,
                  n_basis_feedforward=1, n_basis_feedback=1, tau_ff=1, tau_fb=1, mu=0.5, device='cpu'):
-        super(SNNLayerv2, self).__init__()
+        super(SNNLayer, self).__init__()
 
         self.device = device
 
@@ -316,13 +198,7 @@ class SNNLayerv2(torch.nn.Module):
         self.tau_fb = tau_fb
 
         self.ff_synapses = torch.nn.ModuleList([torch.nn.Linear(n_inputs, n_outputs, bias=False) for _ in range(n_basis_feedforward)])
-        # [torch.nn.init.uniform_(l.weight, -1/(n_inputs + n_outputs)**2,  1/(n_inputs + n_outputs)**2) for l in self.ff_synapses]
-        # [torch.nn.init.uniform_(l.weight, -1/(n_inputs + n_outputs),  0) for l in self.ff_synapses]
         self.fb_synapse = torch.nn.Linear(n_outputs, n_outputs, bias=True)
-        # torch.nn.init.uniform_(self.fb_synapse.weight, -1/(2*n_outputs)**2, 1/(2*n_outputs)**2)
-        # torch.nn.init.uniform_(self.fb_synapse.bias, -1/(2*n_outputs)**2, 1/(2*n_outputs)**2)
-        # torch.nn.init.uniform_(self.fb_synapse.weight, -1/(2*n_outputs), 0)
-        # torch.nn.init.uniform_(self.fb_synapse.bias, -1/(2*n_outputs), 0)
 
         self.spiking_history = torch.zeros([self.batch_size, self.n_outputs, 2], requires_grad=True).to(self.device)
 
@@ -330,7 +206,6 @@ class SNNLayerv2(torch.nn.Module):
 
         ### Number of timesteps to keep in synaptic memory
         self.memory_length = max(self.tau_ff, self.tau_fb)
-
 
 
     def forward(self, input_history, target=None, no_update=False):
@@ -351,10 +226,6 @@ class SNNLayerv2(torch.nn.Module):
     def detach_(self):
         self.potential.detach_()
         self.spiking_history.detach_()
-
-        # [l.weight.detach_().requires_grad_() for l in self.ff_synapses]
-        # self.fb_synapse.weight.detach_().requires_grad_()
-        # self.fb_synapse.bias.detach_().requires_grad_()
 
     def compute_ff_trace(self, input_history):
         # input_history: shape = [n_batch, n_in, t]

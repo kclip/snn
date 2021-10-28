@@ -15,9 +15,9 @@ def refractory_period(network):
                     torch.zeros([len(network.output_neurons)], dtype=torch.float).to(network.device))
     elif isinstance(network, LayeredSNN):
         length = np.max([l.memory_length for l in network.hidden_layers] + [network.out_layer.memory_length]) + 1
-        refractory_sig = torch.zeros([network.n_input_neurons, length]).to(network.device)
+        refractory_sig = torch.zeros([network.batch_size, network.n_input_neurons, length]).to(network.device)
         for t in range(length):
-            network(refractory_sig[:, :t])
+            network(refractory_sig[:, :, :(t+1)])
 
 
 
@@ -103,42 +103,35 @@ def get_acc_loss_and_spikes(network, dataloader, n_examples, T):
     return acc, loss, spikes
 
 
-def get_acc_layered(network, dataloader, n_examples, T):
+def get_acc_layered(network, dataloader, T):
     """"
     Compute loss and accuracy on the indices from the dataset precised as arguments
     """
     network.eval()
 
     iterator = iter(dataloader)
-    outputs = torch.zeros([n_examples, network.n_output_neurons, T])
+    outputs = torch.FloatTensor()
 
     true_classes = torch.FloatTensor()
-    hidden_hist = torch.zeros([n_examples, network.n_hidden_neurons, T])
 
-    for ite in range(n_examples):
-        refractory_period(network)
+    for inputs, lbls in iterator:
+        if len(inputs) == network.batch_size: #todo fix non standard batch sizes
+            refractory_period(network)
 
-        try:
-            inputs, lbls = next(iterator)
-        except StopIteration:
-            iterator = iter(dataloader)
-            inputs, lbls = next(iterator)
+            true_classes = torch.cat((true_classes, lbls), dim=0)
 
-        true_classes = torch.cat((true_classes, lbls), dim=0)
+            inputs = inputs.to(network.device).transpose(1, 2)
+            outputs_batch = torch.zeros_like(lbls[:, :, 0])
+            for t in range(T):
+                network(inputs[:, :, :(t+1)])
+                outputs_batch += network.out_layer.spiking_history[:, :, -1].cpu()
 
-        inputs = inputs[0].to(network.device)
+            outputs = torch.cat((outputs, outputs_batch))
 
-        for t in range(T):
-            _ = network(inputs[:t].T)
-
-            hidden_hist[ite, :, t] = torch.cat([l.spiking_history[:, -1] for l in network.hidden_layers]).detach()
-            outputs[ite, :, t] = network.out_layer.spiking_history[:, -1].cpu()
-
-    predictions = torch.max(torch.sum(outputs, dim=-1), dim=-1).indices
+    predictions = outputs.argmax(-1)
     true_classes = torch.max(torch.sum(true_classes, dim=-1), dim=-1).indices
     acc = float(torch.sum(predictions == true_classes, dtype=torch.float)) / len(predictions)
 
-    print(torch.mean(hidden_hist))
     print(torch.mean(outputs))
 
     return acc

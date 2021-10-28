@@ -168,10 +168,8 @@ class BinarySNN(SNNetwork):
 
 
 
-
-
 class LayeredSNN(torch.nn.Module):
-    def __init__(self, n_input_neurons, n_neurons_per_layer, n_output_neurons, synaptic_filter=filters.raised_cosine_pillow_08, n_basis_feedforward=[8],
+    def __init__(self, n_input_neurons, n_neurons_per_layer, n_output_neurons, batch_size, synaptic_filter=filters.raised_cosine_pillow_08, n_basis_feedforward=[8],
                  n_basis_feedback=[1], tau_ff=[10], tau_fb=[10], mu=[0.5], device='cpu'):
 
         super(LayeredSNN, self).__init__()
@@ -186,6 +184,7 @@ class LayeredSNN(torch.nn.Module):
         self.n_hidden_layers = len(n_neurons_per_layer)
         self.n_output_neurons = n_output_neurons
         self.n_neurons = n_input_neurons + self.n_hidden_neurons + self.n_output_neurons
+        self.batch_size = batch_size
 
         if len(n_basis_feedforward) == 1:
             n_basis_feedforward = n_basis_feedforward * (1 + self.n_hidden_layers)
@@ -202,15 +201,18 @@ class LayeredSNN(torch.nn.Module):
         Nhid = [n_input_neurons] + n_neurons_per_layer
 
         for i in range(self.n_hidden_layers):
-            self.hidden_layers.append(SNNLayer(Nhid[i], Nhid[i + 1], synaptic_filter=synaptic_filter, n_basis_feedforward=n_basis_feedforward[i],
+            self.hidden_layers.append(SNNLayer(Nhid[i], Nhid[i + 1], batch_size, synaptic_filter=synaptic_filter, n_basis_feedforward=n_basis_feedforward[i],
                                                n_basis_feedback=n_basis_feedback[i], tau_ff=tau_ff[i], tau_fb=tau_fb[i], mu=mu[i], device=self.device))
 
-        self.out_layer = SNNLayer(Nhid[-1], n_output_neurons, synaptic_filter=synaptic_filter, n_basis_feedforward=n_basis_feedforward[-1],
+        self.out_layer = SNNLayer(Nhid[-1], n_output_neurons, batch_size, synaptic_filter=synaptic_filter, n_basis_feedforward=n_basis_feedforward[-1],
                                   n_basis_feedback=n_basis_feedback[-1], tau_ff=tau_ff[-1], tau_fb=tau_fb[-1], mu=mu[-1], device=self.device)
 
         self.training = None
+        self.memory_length = np.max([l.memory_length for l in self.hidden_layers] + [self.out_layer.memory_length])
 
     def forward(self, inputs_history, target=None, n_samples=1):
+        inputs_history = inputs_history[:, :, -self.memory_length:]
+
         probas_hidden = torch.Tensor().to(self.device)
         outputs_hidden = torch.Tensor().to(self.device)
 
@@ -244,9 +246,7 @@ class LayeredSNN(torch.nn.Module):
             net_probas = torch.cat((net_probas, probas_output_tmp.unsqueeze(0)))
             net_outputs = torch.cat((net_outputs, net_output_tmp.unsqueeze(0)))
 
-
         return net_probas, net_outputs, probas_hidden, outputs_hidden
-
 
     ### Setters
     def reset_weights(self):

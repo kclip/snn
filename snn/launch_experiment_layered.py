@@ -18,7 +18,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Train probabilistic multivalued SNNs using Pytorch')
 
     # Training arguments
-    parser.add_argument('--home', default=r"C:\Users\K1804053\OneDrive - King's College London\PycharmProjects")
+    parser.add_argument('--home', default=r"\home")
     parser.add_argument('--params_file', default='snn/snn/experiments/parameters/params_mnistdvs_binary_layered.yml')
     parser.add_argument('--save_path', type=str, default=None, help='Path to where weights are stored (relative to home)')
     parser.add_argument('--weights', type=str, default=None, help='Path to existing weights (relative to home)')
@@ -65,7 +65,7 @@ dataset.close()
 params['n_classes'] = len(params['classes'])
 params['n_output_neurons'] = params['n_classes']
 
-train_dl, test_dl = create_dataloader(dataset_path, batch_size=1, size=size, classes=params['classes'],
+train_dl, test_dl = create_dataloader(dataset_path, batch_size=params['batch_size'], size=size, classes=params['classes'],
                                       sample_length_train=params['sample_length_train'], sample_length_test=params['sample_length_test'], dt=params['dt'],
                                       polarity=params['polarity'], ds=params['ds'], shuffle_test=True, num_workers=0)
 T = int(params['sample_length_train'] / params['dt'])
@@ -80,12 +80,12 @@ else:
 
 print(args.device)
 
-network = LayeredSNN(size[0], params['n_neurons_per_layer'], params['n_classes'],
+network = LayeredSNN(size[0], params['n_neurons_per_layer'], params['n_classes'], params['batch_size'],
                      synaptic_filter=filters.raised_cosine_pillow_08, n_basis_feedforward=[8],
                      n_basis_feedback=[1], tau_ff=[10], tau_fb=[10], mu=[0.5], device=args.device).to(args.device)
 
-print([w.shape for w in network.parameters()])
-print(network.out_layer.ff_weights.device)
+
+print(network)
 
 # optimizer = SNNSGD([{'params': network.out_layer.parameters(), 'ls': False, 'baseline': False},
 #                     {'params': network.hidden_layers.parameters(), 'ls': True, 'baseline': True}
@@ -94,7 +94,7 @@ optimizer = SNNAdam([{'params': network.out_layer.parameters(), 'ls': False, 'ba
                      {'params': network.hidden_layers.parameters(), 'ls': True, 'baseline': True}
                      ], lr=params['lr'])
 
-loss_fn = torch.nn.BCELoss(reduction='mean')
+loss_fn = torch.nn.BCELoss()
 
 network.train()
 
@@ -109,7 +109,7 @@ for trial in range(params['num_trials']):
     for ite in tqdm.tqdm(range(params['n_examples_train'])):
         if (ite+1) % params['test_period'] == 0:
             print('Ite %d: ' % (ite+1))
-            acc_layered = get_acc_layered(network, test_dl, len(iter(test_dl)), T)
+            acc_layered = get_acc_layered(network, test_dl, T)
             print('Acc: %f' % acc_layered)
 
             test_accs[int(ite + 1)].append(acc_layered)
@@ -128,12 +128,12 @@ for trial in range(params['num_trials']):
             train_iterator = iter(train_dl)
             inputs, targets = next(train_iterator)
 
-        inputs = inputs[0].to(network.device)
-        targets = targets[0].to(network.device)
+        inputs = inputs.to(network.device).transpose(1, 2)
+        targets = targets.to(network.device)
 
         for t in range(T):
             ### LayeredSNN
-            net_probas, net_outputs, probas_hidden, outputs_hidden = network(inputs[:t].T, targets[:, t], n_samples=params['n_samples'])
+            net_probas, net_outputs, probas_hidden, outputs_hidden = network(inputs[:, :, :(t+1)], targets[:, :, t], n_samples=params['n_samples'])
 
             # Generate gradients and KL regularization for hidden neurons
             out_loss = loss_fn(net_probas, net_outputs)
