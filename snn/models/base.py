@@ -34,7 +34,6 @@ class SNNetwork(torch.nn.Module):
         self.n_hidden_neurons = n_hidden_neurons
         self.n_output_neurons = n_output_neurons
         self.n_neurons = n_input_neurons + n_hidden_neurons + n_output_neurons
-        self.weights_magnitude = weights_magnitude
 
 
         ### Neurons indices
@@ -57,7 +56,6 @@ class SNNetwork(torch.nn.Module):
         self.topology = topology
         self.initialization = initialization
         self.weights_magnitude = weights_magnitude
-
 
         ### Feedforward connections
         self.ff_weights_shape = None

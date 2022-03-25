@@ -47,7 +47,8 @@ def snnsgd(params: List[Tensor],
                     baseline_den.mul_(dampening).add_(d_p.pow(2), alpha=1 - dampening)
                 baseline_den_list[i] = baseline_den
 
-                baseline = baseline_num_list[i] / (1e-7 + baseline_den_list[i])
+                baseline = baseline_num / torch.max(torch.Tensor([1e-12]).to(baseline_den.device),
+                                                    baseline_den)
             else:
                 baseline = 0
 
@@ -131,7 +132,10 @@ class SNNSGD(Optimizer):
                    baseline_den_list)
 
             # update baselines and ls in state
-            for p, ls, baseline_num, baseline_den in zip(params_with_grad, ls_list, baseline_num_list, baseline_den_list):
+            for p, ls, baseline_num, baseline_den in zip(params_with_grad,
+                                                         ls_list,
+                                                         baseline_num_list,
+                                                         baseline_den_list):
                 state = self.state[p]
                 state['ls'] = ls
                 state['baseline_num'] = baseline_num
@@ -187,7 +191,8 @@ def snnadam(params: List[Tensor],
                 baseline_den = baseline_den_list[i]
                 baseline_den.mul_(dampening).add_(grad.pow(2), alpha=1 - dampening)
 
-                baseline = baseline_num / (1e-7 + baseline_den)
+                baseline = baseline_num / torch.max(torch.Tensor([1e-12]).to(baseline_den.device),
+                                                    baseline_den)
             else:
                 baseline = 0
 

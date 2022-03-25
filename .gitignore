@@ -4,3 +4,4 @@ results/
 *.sh
 snn.egg-info/
 __pycache__/
+phd-exps/

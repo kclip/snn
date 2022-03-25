@@ -147,7 +147,7 @@ class BinarySNN(SNNetwork):
         if self.n_hidden_neurons > 0:
             spiking_history = self.generate_spikes(spiking_history, self.hidden_neurons)
         if output_signal is not None:
-            spiking_history[self.output_neurons, -1] = output_signal
+            spiking_history[self.output_neurons, -1] = output_signal.type_as(spiking_history)
         else:
             spiking_history = self.generate_spikes(spiking_history, self.output_neurons)
 
@@ -201,11 +201,19 @@ class LayeredSNN(torch.nn.Module):
         Nhid = [n_input_neurons] + n_neurons_per_layer
 
         for i in range(self.n_hidden_layers):
-            self.hidden_layers.append(SNNLayer(Nhid[i], Nhid[i + 1], batch_size, synaptic_filter=synaptic_filter, n_basis_feedforward=n_basis_feedforward[i],
-                                               n_basis_feedback=n_basis_feedback[i], tau_ff=tau_ff[i], tau_fb=tau_fb[i], mu=mu[i], device=self.device))
+            self.hidden_layers.append(SNNLayer(Nhid[i], Nhid[i + 1], batch_size,
+                                               synaptic_filter=synaptic_filter,
+                                               n_basis_feedforward=n_basis_feedforward[i],
+                                               n_basis_feedback=n_basis_feedback[i],
+                                               tau_ff=tau_ff[i], tau_fb=tau_fb[i],
+                                               mu=mu[i], device=self.device))
 
-        self.out_layer = SNNLayer(Nhid[-1], n_output_neurons, batch_size, synaptic_filter=synaptic_filter, n_basis_feedforward=n_basis_feedforward[-1],
-                                  n_basis_feedback=n_basis_feedback[-1], tau_ff=tau_ff[-1], tau_fb=tau_fb[-1], mu=mu[-1], device=self.device)
+        self.out_layer = SNNLayer(Nhid[-1], n_output_neurons, batch_size,
+                                  synaptic_filter=synaptic_filter,
+                                  n_basis_feedforward=n_basis_feedforward[-1],
+                                  n_basis_feedback=n_basis_feedback[-1],
+                                  tau_ff=tau_ff[-1], tau_fb=tau_fb[-1],
+                                  mu=mu[-1], device=self.device)
 
         self.training = None
         self.memory_length = np.max([l.memory_length for l in self.hidden_layers] + [self.out_layer.memory_length])
@@ -224,22 +232,33 @@ class LayeredSNN(torch.nn.Module):
                 probas_hidden_tmp = torch.Tensor().to(self.device)
                 outputs_hidden_tmp = torch.Tensor().to(self.device)
 
-                proba_layer, layer_outputs = self.hidden_layers[0](inputs_history, target=None, no_update=n_samples - 1 - i)
-                probas_hidden_tmp = torch.cat((probas_hidden_tmp, proba_layer.unsqueeze(0)))
-                outputs_hidden_tmp = torch.cat((outputs_hidden_tmp, layer_outputs.unsqueeze(0)))
+                proba_layer, layer_outputs = self.hidden_layers[0](inputs_history,
+                                                                   target=None,
+                                                                   no_update=n_samples - 1 - i)
+                probas_hidden_tmp = torch.cat((probas_hidden_tmp,
+                                               proba_layer.unsqueeze(0)))
+                outputs_hidden_tmp = torch.cat((outputs_hidden_tmp,
+                                                layer_outputs.unsqueeze(0)))
 
                 for j in range(1, self.n_hidden_layers):
-                    proba_layer, layer_outputs = self.hidden_layers[j](self.hidden_layers[j - 1].spiking_history, target=None, no_update=n_samples - 1 - i)
-                    probas_hidden_tmp = torch.cat((probas_hidden_tmp, proba_layer.unsqueeze(0)))
-                    outputs_hidden_tmp = torch.cat((outputs_hidden_tmp, layer_outputs.unsqueeze(0)))
+                    proba_layer, layer_outputs = self.hidden_layers[j](self.hidden_layers[j - 1].spiking_history,
+                                                                       target=None, no_update=n_samples - 1 - i)
+                    probas_hidden_tmp = torch.cat((probas_hidden_tmp,
+                                                   proba_layer.unsqueeze(0)))
+                    outputs_hidden_tmp = torch.cat((outputs_hidden_tmp,
+                                                    layer_outputs.unsqueeze(0)))
 
-                probas_hidden = torch.cat((probas_hidden, probas_hidden_tmp.unsqueeze(0)))
-                outputs_hidden = torch.cat((outputs_hidden, outputs_hidden_tmp.unsqueeze(0)))
+                probas_hidden = torch.cat((probas_hidden,
+                                           probas_hidden_tmp.unsqueeze(0)))
+                outputs_hidden = torch.cat((outputs_hidden,
+                                            outputs_hidden_tmp.unsqueeze(0)))
 
-                probas_output_tmp, net_output_tmp = self.out_layer(self.hidden_layers[-1].spiking_history, target, no_update=n_samples - 1 - i)
+                probas_output_tmp, net_output_tmp = self.out_layer(self.hidden_layers[-1].spiking_history,
+                                                                   target, no_update=n_samples - 1 - i)
 
             else:
-                probas_output_tmp, net_output_tmp = self.out_layer(inputs_history, target, no_update=n_samples - 1 - i)
+                probas_output_tmp, net_output_tmp = self.out_layer(inputs_history,
+                                                                   target, no_update=n_samples - 1 - i)
                 probas_hidden = None
                 outputs_hidden = None
             
